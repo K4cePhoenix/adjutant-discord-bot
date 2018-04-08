@@ -23,7 +23,7 @@ class SC2OpenEvents():
             os.makedirs(self.data_path)
         if os.path.isfile(self.data_path + self.file_name) is False:
             open(self.data_path+self.file_name, 'a').close()
-        self.conf = toml.load(self.data_path + self.file_name)
+        self.srvInf = toml.load(self.data_path + self.file_name)
 
     async def del_old_events(self, events, msgs, srv, ch):
         dEvCount = 0
@@ -32,17 +32,17 @@ class SC2OpenEvents():
                 for ev in range(0, len(msgs)):
                     for channel in srv.channels:
                         if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
-                            for s in range(0, len(self.conf['guilds'])):
-                                if srv.name == self.conf['guilds'][str(s)]['name'] and channel.name == self.conf['guilds'][str(s)]['channel'] and channel.permissions_for(srv.me).manage_messages:
+                            for s in range(0, len(self.srvInf['guilds'])):
+                                if srv.name == self.srvInf['guilds'][str(s)]['name'] and channel.name == self.srvInf['guilds'][str(s)]['channel'] and channel.permissions_for(srv.me).manage_messages:
                                     dEvCount += 1
                                     msgs[ev].delete()
-        print(str(dEvCount) + ' ended events detected')
+        log.info('{} ended events detected'.format(dEvCount))
         return
 
     async def send_event_update(self, msg, srv):
         for channel in srv.channels:
-            for s in range(0, len(self.conf['guilds'])):
-                if srv.name == self.conf['guilds'][str(s)]['name'] and channel.name == self.conf['guilds'][str(s)]['channel'] and channel.permissions_for(srv.me).send_messages:
+            for s in range(0, len(self.srvInf['guilds'])):
+                if srv.name == self.srvInf['guilds'][str(s)]['name'] and channel.name == self.srvInf['guilds'][str(s)]['channel'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg)
                     log.info('{}, {} - sent {}'.format(srv, channel, msg))
 
@@ -75,14 +75,12 @@ class SC2OpenEvents():
                         msg += 'Prizepool: {}\n'.format(events[x][y][5])
                     if events[x][y][6] != None:
                         msg += 'Matcherino: ' + nopreview(events[x][y][6])
-                        #if events[x][y][7] != None:
                         msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
                         msg += '\n'
                     if events[x][y][8] != None:
                         msg += 'Sign ups: {}\n'.format(events[x][y][8])
                         msg = box(msg)
                     await self.send_event_update(msg, srv)
-        print(((str(pEvCount) + ' / ') + str(aEvCount)) + ' events already posted')
         log.info('{0} / {1} events already posted in {2.name}'.format(pEvCount, aEvCount, srv))
 
     async def check_posted_events(self, tLimit, events):
@@ -91,9 +89,9 @@ class SC2OpenEvents():
             ch = []
             print('processing server: ' + guild.name)
             for channel in guild.channels:
-                for s in range(0, len(self.conf['guilds'])):
-                    if (guild.name == self.conf['guilds'][str(s)]['name']) and (
-                            channel.name == self.conf['guilds'][str(s)]['channel']) and channel.permissions_for(
+                for s in range(0, len(self.srvInf['guilds'])):
+                    if (guild.name == self.srvInf['guilds'][str(s)]['name']) and (
+                            channel.name == self.srvInf['guilds'][str(s)]['channel']) and channel.permissions_for(
                                 guild.me).read_messages:
                         async for message in channel.history():
                             msgs.append(message)
@@ -105,21 +103,16 @@ class SC2OpenEvents():
         events[0] = kuevst.steal('general')
         events[1] = kuevst.steal('amateur')
         events[2] = kuevst.steal('team')
-        print('fetched {1} general, {1} amateur and {2} team events'.format(
-            len(events[0]), len(events[1]), len(events[2])))
-        print('checking event history')
+        log.info('Fetched {1} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
         await self.check_posted_events(tLimit, events)
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
         while True:
-            waitDelay = 1.0
-            maxEvCountDown = 25.0
-            print('checking events')
-            await self.check_all_events(maxEvCountDown)
-            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=waitDelay)
-            print('next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
-            await asyncio.sleep((waitDelay * 60) * 60)
+            await self.check_all_events(float(self.srvInf['general']['countdown']))
+            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['delay']))
+            log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
+            await asyncio.sleep(float(self.srvInf['general']['delay']) * 60 * 60)
 
 
 def setup(bot):

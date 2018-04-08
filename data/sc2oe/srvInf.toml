@@ -1,5 +1,9 @@
 title = "SC2OE Information"
 
+[general]
+delay = 1.0
+countdown = 25.0
+
 [guilds]
   [guilds.0]
   name = "LESser Phoenix Headquarters"
