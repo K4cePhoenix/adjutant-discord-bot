@@ -24,8 +24,7 @@ def get_prefix(bot, message):
         return '!'
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
-initial_extensions = ['ext.sc2openevents']# ,
-                     # 'ext.lickypiddy']
+initial_extensions = ['ext.sc2openevents']
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -42,11 +41,11 @@ async def on_ready():
     print('Logged in as {} (ID: {})'.format(bot.user.name, bot.user.id))
     print('\nConnected to:')
     print('{} guilds | {} channels | {} users\n'.format(guilds, channels, users))
-    print('-------------')
+    print('------------------------')
     print('Current Discord.py Version: {} | Current Python Version: {}'.format(discord.__version__, platform.python_version()))
     print('\nUse this link to invite {}:'.format(bot.user.name))
     print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot'.format(bot.user.id))
-    print('-------------')
+    print('------------------------')
     print('You are running SC2 Events Bot v'+conf['owner']['version']+' by Phoenix#2694')
     print('Ready at  {:%b %d, %H:%M (%Z)}'.format(datetime.now(tz=pytz.utc)))
     await bot.change_presence(activity=discord.Game(name='with bugs..'))
