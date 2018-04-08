@@ -1,0 +1,10 @@
+title = "SC2OE Information"
+
+[guilds]
+  [guilds.0]
+  name = "LESser Phoenix Headquarters"
+  channel = "bot-land"
+
+  [guilds.1]
+  name = "CranKy Ducklings"
+  channel = "tournament-notifications"
