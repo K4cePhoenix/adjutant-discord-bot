@@ -101,4 +101,4 @@ ENV/
 .mypy_cache/
 
 # my misc files
-./data/bot/conf.toml
+data/
