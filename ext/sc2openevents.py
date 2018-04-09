@@ -4,7 +4,7 @@ import asyncio
 import discord
 import logging
 import os
-import platform
+#import platform
 import pytz
 import toml
 
@@ -18,12 +18,16 @@ class SC2OpenEvents():
     def __init__(self, bot):
         self.bot = bot
         self.data_path = './data/sc2oe/'
-        self.file_name = 'srvInf.toml'
+        self.info_file = 'srvInf.toml'
+        self.code_file = 'codes.toml'
         if os.path.isdir(self.data_path) is False:
             os.makedirs(self.data_path)
-        if os.path.isfile(self.data_path + self.file_name) is False:
-            open(self.data_path+self.file_name, 'a').close()
-        self.srvInf = toml.load(self.data_path + self.file_name)
+        if os.path.isfile(self.data_path + self.info_file) is False:
+            open(self.data_path+self.info_file, 'a').close()
+        if os.path.isfile(self.data_path + self.code_file) is False:
+            open(self.data_path+self.code_file, 'a').close()
+        self.srvInf = toml.load(self.data_path + self.info_file)
+        self.codes = toml.load(self.data_path + self.code_file)
 
     async def del_old_events(self, events, msgs, srv, ch):
         dEvCount = 0
@@ -74,6 +78,13 @@ class SC2OpenEvents():
                     if events[x][y][5] != None:
                         msg += 'Prizepool: {}\n'.format(events[x][y][5])
                     if events[x][y][6] != None:
+                        if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None:
+                            eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
+                            tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
+                            codeNr = tmpStr.replace(".", "")
+                            events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
+                            print(codeNr)
+                            print(events[x][y][7])
                         msg += 'Matcherino: ' + nopreview(events[x][y][6])
                         msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
                         msg += '\n'

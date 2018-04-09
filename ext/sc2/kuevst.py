@@ -1,5 +1,3 @@
-#import requests
-
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
@@ -15,9 +13,9 @@ def get_name(data):
 def get_cd(data):
     """ Returns the countdown of the event
     e.g. event sign up ends on 10:00 on November 4th
-         currently is 03:00, November 3rd
-         returns: datetime object with the following info
-         +1day7hours
+    currently is 03:00, November 3rd
+    returns: datetime object with the following info
+    +1day7hours
     """
     cdTime = datetime.strptime(
         data.text[1:-5] + ' +0900', '%B %d, %Y - %H:%M %z')
@@ -153,7 +151,6 @@ def steal(tourType=None):
         matcherino = get_matcherino(tableTour('tr')[tRow]('td')[7])
         matcherinoCode = get_matcherino_code(tableTour('tr')[tRow]('td')[7])
         bracket = get_bracket(tableTour('tr')[tRow]('td')[7])
-
         events[tRow - 2] = [name, date, region, league, server, prize,
                             matcherino, matcherinoCode, bracket, countdown, mode]
     return events
