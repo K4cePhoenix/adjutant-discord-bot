@@ -74,6 +74,10 @@ class SC2OpenEvents():
                     if events[x][y][5] != None:
                         msg += 'Prizepool: {}\n'.format(events[x][y][5])
                     if events[x][y][6] != None:
+                        #
+                        # code to double or triple check
+                        # matcherino codes goes in here
+                        #
                         msg += 'Matcherino: ' + nopreview(events[x][y][6])
                         msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
                         msg += '\n'
