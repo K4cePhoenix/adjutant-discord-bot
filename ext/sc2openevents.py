@@ -78,15 +78,13 @@ class SC2OpenEvents():
                     if events[x][y][5] != None:
                         msg += 'Prizepool: {}\n'.format(events[x][y][5])
                     if events[x][y][6] != None:
-                        #
-                        # code to double or triple check
-                        # matcherino codes goes in here
                         if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None:
-                            print(events[x][y][0])
-                            print(events[x][y][0].split(' '))
-                            print(' '.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1]))
-                            print(events[x][y][0].split(' ')[-1])
-                        #
+                            eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
+                            tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
+                            codeNr = tmpStr.replace(".", "")
+                            events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
+                            print(codeNr)
+                            print(events[x][y][7])
                         msg += 'Matcherino: ' + nopreview(events[x][y][6])
                         msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
                         msg += '\n'
