@@ -1,5 +1,6 @@
 title = "Matcherino Code Templates for Weekly Cups"
 
+
 [Filthy_NA_Cup_Weekly]
 name = "Filthy NA Cup Weekly"
 code = "FW$"
@@ -44,8 +45,6 @@ org = "OSC"
 name = "Sentimiento Latino"
 code = "SL$"
 org = "OSC"
-
-
 
 [Platy-pro_Weekly]
 name = "Platy-pro Weekly"
