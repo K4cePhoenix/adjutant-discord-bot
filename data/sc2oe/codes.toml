@@ -1,0 +1,77 @@
+title = "Matcherino Code Templates for Weekly Cups"
+
+
+[Filthy_NA_Cup_Weekly]
+name = "Filthy NA Cup Weekly"
+code = "FW$"
+org = "FilthyRake"
+
+[Masters_Cup]
+name = "Masters Cup"
+code = "MC$"
+org = "OSC"
+
+[OSC_All_Stars]
+name = "OSC All Stars"
+code = "AS$"
+org = "OSC"
+
+[OSC_CN_Weekly]
+name = "OSC CN Weekly"
+code = "CN$"
+org = "OSC"
+
+[OSC_Melee]
+name = "OSC Melee"
+code = "Melee$"
+org = "OSC"
+
+[OSC_SEA_Weekly]
+name = "OSC SEA Weekly"
+code = "SW$"
+org = "OSC"
+
+[OSC_Weekly_Wager]
+name = "OSC Weekly Wager"
+code = "Wager$"
+org = "OSC"
+
+[SC2ONLINE_Community_Open]
+name = "SC2ONLINE Community Open"
+code = "CO$"
+org = "OSC"
+
+[Sentimiento_Latino]
+name = "Sentimiento Latino"
+code = "SL$"
+org = "OSC"
+
+[Platy-pro_Weekly]
+name = "Platy-pro Weekly"
+code = "PP$"
+org = "Nisticism"
+
+[Proxy_Tempest_NA_Open]
+name = "Proxy Tempest Open"
+code = "PT$"
+org = "Proxy Tempest"
+
+[Proxy_Tempest_EU_Open]
+name = "Proxy Tempest EU Open"
+code = "PTEU$"
+org = "Proxy Tempest"
+
+[Sunday_Heroes_Open]
+name = "Sunday Heroes Open"
+code = "PTSH$"
+org = "Proxy Tempest"
+
+[SCVRush_Open]
+name = "SCVRush Open"
+code = "SCVR$"
+org = "SCVRush"
+
+[WardiTV_Weekly]
+name = "WardiTV Weekly"
+code = "WTV$"
+org = "Wardi TV"

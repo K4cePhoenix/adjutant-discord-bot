@@ -101,4 +101,5 @@ ENV/
 .mypy_cache/
 
 # my misc files
-data/
+data/**/*.toml
+!data/sc2oe/codes.toml
