@@ -101,7 +101,4 @@ ENV/
 .mypy_cache/
 
 # my misc files
-data/bot
-conf.toml
-data/sc2oe
-srvInf.toml
+data/
