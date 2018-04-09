@@ -83,8 +83,6 @@ class SC2OpenEvents():
                             tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
                             codeNr = tmpStr.replace(".", "")
                             events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
-                            print(codeNr)
-                            print(events[x][y][7])
                         msg += 'Matcherino: ' + nopreview(events[x][y][6])
                         msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
                         msg += '\n'
