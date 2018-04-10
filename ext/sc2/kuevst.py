@@ -95,6 +95,8 @@ def get_prize(data):
                 pr += ' + ' + data.text.split('+')[el][1:]
     else:
         pr = data.string[1:-1]
+    if pr == "":
+        pr = None
     return pr
 
 
