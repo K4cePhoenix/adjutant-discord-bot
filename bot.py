@@ -24,7 +24,8 @@ def get_prefix(bot, message):
         return '!'
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
-initial_extensions = ['ext.sc2openevents']
+initial_extensions = ['ext.sc2openevents',
+                      'ext.quotes']
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
