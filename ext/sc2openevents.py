@@ -66,7 +66,7 @@ class SC2OpenEvents():
                 if (0 < cdH < tLimit) and p:
                     aEvCount += 1
                     msg = inline('[EVENT]') + ' ' + bold(events[x][y][0]) + '\n\n'
-                    msg += 'Time: ' + events[x][y][1] + '\n'
+                    msg += 'Time: {}\n'.format(events[x][y][1])
                     if (x != 1) and (events[x][y][3] == None):
                         msg += 'Region: {}\n'.format(events[x][y][2])
                     elif (x == 1) and (events[x][y][3] != None):
@@ -83,9 +83,7 @@ class SC2OpenEvents():
                             tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
                             codeNr = tmpStr.replace(".", "")
                             events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
-                        msg += 'Matcherino: ' + nopreview(events[x][y][6])
-                        msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
-                        msg += '\n'
+                        msg += 'Matcherino: {} - free $1 code {}\n'.format(nopreview(events[x][y][6]), inline(events[x][y][7]))
                     if events[x][y][8] != None:
                         msg += 'Sign ups: {}\n'.format(events[x][y][8])
                         msg = box(msg)
