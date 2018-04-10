@@ -4,7 +4,6 @@ import asyncio
 import discord
 import logging
 import os
-#import platform
 import pytz
 import toml
 

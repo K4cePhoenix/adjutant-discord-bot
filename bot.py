@@ -78,8 +78,6 @@ async def on_command(ctx):
 
 
 if __name__ == '__main__':
-
-
     conf_path = './data/bot/'
     conf_name = 'conf.toml'
     if os.path.isdir(conf_path) is False:
