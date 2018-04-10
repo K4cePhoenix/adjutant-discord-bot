@@ -53,7 +53,7 @@ class Quotes():
             pass
 
 
-    @commands.command(pass_context=True)
+    @commands.command(name="allquotes")
     async def allquotes(self, ctx):
         """ Gets a list of all quotes """
         amsgs = "Server: {}\n".format(ctx.guild.name)
@@ -65,7 +65,7 @@ class Quotes():
             await ctx.author.send("There are no quotes saved for {}!".format(ctx.guild.name))
 
 
-    @commands.command()
+    @commands.command(name="delquote")
     async def delquote(self, ctx, num: int):
         """ Deletes a quote by its number
             Use !allquotes to find quote numbers
