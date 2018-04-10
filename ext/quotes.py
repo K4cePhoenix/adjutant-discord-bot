@@ -53,6 +53,18 @@ class Quotes():
             pass
 
 
+    @commands.command(pass_context=True)
+    async def allquotes(self, ctx):
+        """ Gets a list of all quotes """
+        amsgs = "Server: {}\n".format(ctx.guild.name)
+        for q in range (0, len(self.quotes['quotes'][ctx.guild.name])):
+            amsgs += "{}: {}\n".format(q, self.quotes['quotes'][ctx.guild.name][q])
+        if amsgs != "":
+            await ctx.author.send(amsgs)
+        else:
+            await ctx.author.send("There are no quotes saved for {}!".format(ctx.guild.name))
+
+
     @commands.command()
     async def delquote(self, ctx, num: int):
         """ Deletes a quote by its number
@@ -63,11 +75,13 @@ class Quotes():
             num = int(num)
         except:
             pass
-        if num > 0 and num <= len(self.quotes):
-            del self.quotes['quotes'][ctx.guild][num-1]
+        if num > 0 and num <= len(self.quotes['quotes'][ctx.guild.name]):
+            tmp = self.quotes['quotes'][ctx.guild.name][num-1]
+            del self.quotes['quotes'][ctx.guild.name][num-1]
             f = open(self.data_path+self.quote_file, 'w')
             toml.dump(self.quotes, f)
             f.close()
+            await ctx.author.send("Deleted quote #{}: {}".format(num, tmp))
         else:
             await ctx.channel.send("Quote " + str(num) + " does not exist.")
 
