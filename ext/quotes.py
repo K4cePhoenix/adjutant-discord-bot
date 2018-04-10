@@ -31,7 +31,7 @@ class Quotes():
 
     def _get_quote(self, srv, num):
         if num > 0 and num <= len(self.quotes['quotes'][srv]):
-            return self.quotes['quotes'][srv][num - 1]
+            return self.quotes['quotes'][srv][num-1]
         else:
             return "That quote doesn't exist!"
 
@@ -44,10 +44,13 @@ class Quotes():
 
 
     def _edit_quote(self, srv, num, msg):
-        self.quotes['quotes'][srv][num] = msg
-        f = open(self.data_path+self.quote_file, 'w')
-        toml.dump(self.quotes, f)
-        f.close()
+        if num > 0 and num <= len(self.quotes['quotes'][srv]):
+            self.quotes['quotes'][srv][num-1] = msg
+            f = open(self.data_path+self.quote_file, 'w')
+            toml.dump(self.quotes, f)
+            f.close()
+        else:
+            pass
 
 
     @commands.command()
@@ -82,6 +85,14 @@ class Quotes():
                 msg = int(msg[0])
                 await ctx.channel.send(self._get_quote(ctx.guild.name, msg))
                 return
+        except:
+            pass
+        try:
+            num = int(msg[0])
+            msg = " ".join(msg[1:])
+            self._edit_quote(ctx.guild.name, num, msg)
+            await ctx.channel.send("Quote #{} edited to {}".format(num, msg))
+            return
         except:
             pass
         msg = " ".join(msg)
