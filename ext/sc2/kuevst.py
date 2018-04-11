@@ -41,31 +41,20 @@ def time_to_times(data):
 
 def times_to_string(data):
     """ Returns beautiful date data """
-    #timeStr = data[0].strftime("%B") + ' ' + data[0].strftime("%#d") + ', ' + data[0].strftime(
-    #    "%#I") + data[0].strftime("%p") + ' ' + data[0].strftime("%Z") + ' ( '
     mmKR, ddKR, hhKR, ampmKR, tzKR = data[0].strftime("%B"), data[0].strftime("%#d").lstrip('0'), data[0].strftime("%#I").lstrip('0'), data[0].strftime("%p").lower(), data[0].strftime("%Z")
     timeStr = '{} {}, {}{} {} '.format(mmKR, ddKR, hhKR, ampmKR, tzKR)
     if data[1].strftime("%d") == data[0].strftime("%d"):
-    #    timeStr += data[1].strftime("%#I") + data[1].strftime("%p") + \
-    #        ' ' + data[1].strftime("%Z") + ' / '
         hhEU, ampmEU, tzEU = data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
         timeStr += '( {}{} {} '.format(hhEU, ampmEU, tzEU)
     else:
-    #    timeStr += data[1].strftime("%b") + ' ' + data[1].strftime("%#d") + ', ' + data[1].strftime(
-    #        "%#I") + data[1].strftime("%p") + ' ' + data[1].strftime("%Z") + ' / '
         mmEU, ddEU, hhEU, ampmEU, tzEU = data[1].strftime("%b"), data[1].strftime("%#d").lstrip('0'), data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
         timeStr += '( {} {}, {}{} {} '.format(mmEU, ddEU, hhEU, ampmEU, tzEU)
     if data[2].strftime("%d") == data[0].strftime("%d"):
-    #    timeStr += data[2].strftime("%#I") + data[2].strftime("%p") + \
-    #        ' ' + data[2].strftime("%Z") + ' )'
         hhAM, ampmAM, tzAM = data[2].strftime("%#I").lstrip('0').lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
         timeStr += '/ {}{} {} )'.format(hhAM, ampmAM, tzAM)
     else:
-    #    timeStr += data[2].strftime("%b") + ' ' + data[2].strftime("%#d") + ', ' + data[2].strftime(
-    #        "%#I") + data[2].strftime("%p") + ' ' + data[2].strftime("%Z") + ' )'
         mmAM, ddAM, hhAM, ampmAM, tzAM = data[2].strftime("%b"), data[2].strftime("%#d").lstrip('0'), data[2].strftime("%#I").lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
         timeStr += '/ {} {}, {}{} {} )'.format(mmAM, ddAM, hhAM, ampmAM, tzAM)
-
     return timeStr
 
 
