@@ -111,7 +111,7 @@ class SC2OpenEvents():
         events[0] = kuevst.steal('general')
         events[1] = kuevst.steal('amateur')
         events[2] = kuevst.steal('team')
-        log.info('Fetched {1} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
+        log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
         await self.check_posted_events(tLimit, events)
 
     async def check_events_in_background(self):

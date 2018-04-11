@@ -63,7 +63,7 @@ def times_to_string(data):
     else:
     #    timeStr += data[2].strftime("%b") + ' ' + data[2].strftime("%#d") + ', ' + data[2].strftime(
     #        "%#I") + data[2].strftime("%p") + ' ' + data[2].strftime("%Z") + ' )'
-        mmAM, ddAM, hhAM, ampmAM, tzAM = data[1].strftime("%b"), data[1].strftime("%#d").lstrip('0'), data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
+        mmAM, ddAM, hhAM, ampmAM, tzAM = data[2].strftime("%b"), data[2].strftime("%#d").lstrip('0'), data[2].strftime("%#I").lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
         timeStr += '/ {} {}, {}{} {} )'.format(mmAM, ddAM, hhAM, ampmAM, tzAM)
 
     return timeStr
