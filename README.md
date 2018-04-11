@@ -11,6 +11,6 @@ It runs StarCraft II related tasks and commands*.
 - Python 3.6+
 - discord.py v1.0.0a
 - toml 0.9.4
-- bs4 4.6.0
+- beautifulsoup4 4.6.0
 - pytz 2017.3
 - logging 0.5.1.2
