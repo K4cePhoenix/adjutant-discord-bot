@@ -28,83 +28,81 @@ class SC2OpenEvents():
         self.srvInf = toml.load(self.data_path + self.info_file)
         self.codes = toml.load(self.data_path + self.code_file)
 
-    async def del_old_events(self, events, msgs, srv, ch):
+    async def del_old_events(self, events, msgs, srv, ch, eventType, x):
         dEvCount = 0
-        for x in range(0, len(events)):
-            for y in range(0, len(events[x])):
-                for ev in range(0, len(msgs)):
-                    for channel in srv.channels:
-                        if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
-                            for s in self.srvInf['guilds']:
-                                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel'] and channel.permissions_for(srv.me).manage_messages:
-                                    dEvCount += 1
-                                    msgs[ev].delete()
+        for y in range(0, len(events[x])):
+            for ev in range(0, len(msgs)):
+                for channel in srv.channels:
+                    if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
+                        for s in self.srvInf['guilds']:
+                            if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['ch_{}'.format(eventType)] and channel.permissions_for(srv.me).manage_messages:
+                                dEvCount += 1
+                                msgs[ev].delete()
         log.info('{} ended events detected'.format(dEvCount))
         return
 
-    async def send_event_update(self, msg, srv):
+    async def send_event_update(self, msg, srv, eventType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel'] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['ch_{}'.format(eventType)] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg)
                     log.info('{}, {} - sent {}'.format(srv, channel, msg))
 
-    async def post_eligible_events(self, tLimit, events, msgs, srv, ch):
+    async def post_eligible_events(self, tLimit, events, msgs, srv, ch, eventType, x):
         aEvCount = 0
         pEvCount = 0
-        for x in range(0, len(events)):
-            for y in range(0, len(events[x])):
-                cdH = (events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))
-                p = True
-                for ev in range(0, len(msgs)):
-                    if len(msgs[ev].content.split('**')) > 1:
-                        if events[x][y][0] == msgs[ev].content.split('**')[1]:
-                            p = False
-                            aEvCount += 1
-                            pEvCount += 1
-                if (0 < cdH < tLimit) and p:
-                    aEvCount += 1
-                    msg = inline('[EVENT]') + ' ' + bold(events[x][y][0]) + '\n\n'
-                    msg += 'Time: ' + events[x][y][1] + '\n'
-                    if (x != 1) and (events[x][y][3] == None):
-                        msg += 'Region: {}\n'.format(events[x][y][2])
-                    elif (x == 1) and (events[x][y][3] != None):
-                        msg += 'League: {}\n'.format(events[x][y][3])
-                    if events[x][y][4] != None:
-                        msg += 'Server: {}\n'.format(events[x][y][4])
-                    if events[x][y][10] != None:
-                        msg += 'Mode: {}\n'.format(events[x][y][10])
-                    if events[x][y][5] != None:
-                        msg += 'Prizepool: {}\n'.format(events[x][y][5])
-                    if events[x][y][6] != None:
-                        if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None:
-                            eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
-                            tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
-                            codeNr = tmpStr.replace(".", "")
-                            events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
-                        msg += 'Matcherino: ' + nopreview(events[x][y][6])
-                        msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
-                        msg += '\n'
-                    if events[x][y][8] != None:
-                        msg += 'Sign ups: {}\n'.format(events[x][y][8])
-                        msg = box(msg)
-                    await self.send_event_update(msg, srv)
-        log.info('{0} / {1} events already posted in {2.name}'.format(pEvCount, aEvCount, srv))
+        for y in range(0, len(events[x])):
+            cdH = (events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))
+            p = True
+            for ev in range(0, len(msgs)):
+                if len(msgs[ev].content.split('**')) > 1:
+                    if events[x][y][0] == msgs[ev].content.split('**')[1]:
+                        p = False
+                        aEvCount += 1
+                        pEvCount += 1
+            if (0 < cdH < tLimit) and p:
+                aEvCount += 1
+                msg = inline('[EVENT]') + ' ' + bold(events[x][y][0]) + '\n\n'
+                msg += 'Time: ' + events[x][y][1] + '\n'
+                if (x != 1) and (events[x][y][3] == None):
+                    msg += 'Region: {}\n'.format(events[x][y][2])
+                elif (x == 1) and (events[x][y][3] != None):
+                    msg += 'League: {}\n'.format(events[x][y][3])
+                if events[x][y][4] != None:
+                    msg += 'Server: {}\n'.format(events[x][y][4])
+                if events[x][y][10] != None:
+                    msg += 'Mode: {}\n'.format(events[x][y][10])
+                if events[x][y][5] != None:
+                    msg += 'Prizepool: {}\n'.format(events[x][y][5])
+                if events[x][y][6] != None:
+                    if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None:
+                        eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
+                        tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
+                        codeNr = tmpStr.replace(".", "")
+                        events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
+                    msg += 'Matcherino: ' + nopreview(events[x][y][6])
+                    msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
+                    msg += '\n'
+                if events[x][y][8] != None:
+                    msg += 'Sign ups: {}\n'.format(events[x][y][8])
+                    msg = box(msg)
+                await self.send_event_update(msg, srv, eventType)
+        log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
-    async def check_posted_events(self, tLimit, events):
+    async def check_posted_events(self, tLimit, events, eventType, x):
         for guild in self.bot.guilds:
             msgs = []
             ch = []
-            print('processing server: ' + guild.name)
+            print('processing {} events in {}'.format(eventType, guild.name))
             for channel in guild.channels:
                 for s in self.srvInf['guilds']:
                     if (guild.name == self.srvInf['guilds'][s]['name']) and (
-                            channel.name == self.srvInf['guilds'][s]['channel']) and channel.permissions_for(
+                            channel.name == self.srvInf['guilds'][s]['ch_{}'.format(eventType)]) and channel.permissions_for(
                                 guild.me).read_messages:
                         async for message in channel.history():
                             msgs.append(message)
                             ch.append(channel)
-            await self.post_eligible_events(tLimit, events, msgs, guild, ch)
+            await self.post_eligible_events(tLimit, events, msgs, guild, ch, eventType, x)
 
     async def check_all_events(self, tLimit):
         events = [[], [], []]
@@ -112,7 +110,15 @@ class SC2OpenEvents():
         events[1] = kuevst.steal('amateur')
         events[2] = kuevst.steal('team')
         log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
-        await self.check_posted_events(tLimit, events)
+        for x in range (0, len(events)):
+            if x == 0:
+                await self.check_posted_events(tLimit, events, 'general', x)
+            elif x == 1:
+                await self.check_posted_events(tLimit, events, 'amateur', x)
+            elif x == 2:
+                await self.check_posted_events(tLimit, events, 'team', x)
+            else:
+                log.critical('EVENT LIST ERROR?!')
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
