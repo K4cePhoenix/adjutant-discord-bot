@@ -35,8 +35,8 @@ class SC2OpenEvents():
                 for ev in range(0, len(msgs)):
                     for channel in srv.channels:
                         if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
-                            for s in range(0, len(self.srvInf['guilds'])):
-                                if srv.name == self.srvInf['guilds'][str(s)]['name'] and channel.name == self.srvInf['guilds'][str(s)]['channel'] and channel.permissions_for(srv.me).manage_messages:
+                            for s in self.srvInf['guilds']:
+                                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel'] and channel.permissions_for(srv.me).manage_messages:
                                     dEvCount += 1
                                     msgs[ev].delete()
         log.info('{} ended events detected'.format(dEvCount))
@@ -44,8 +44,8 @@ class SC2OpenEvents():
 
     async def send_event_update(self, msg, srv):
         for channel in srv.channels:
-            for s in range(0, len(self.srvInf['guilds'])):
-                if srv.name == self.srvInf['guilds'][str(s)]['name'] and channel.name == self.srvInf['guilds'][str(s)]['channel'] and channel.permissions_for(srv.me).send_messages:
+            for s in self.srvInf['guilds']:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg)
                     log.info('{}, {} - sent {}'.format(srv, channel, msg))
 
@@ -97,9 +97,9 @@ class SC2OpenEvents():
             ch = []
             print('processing server: ' + guild.name)
             for channel in guild.channels:
-                for s in range(0, len(self.srvInf['guilds'])):
-                    if (guild.name == self.srvInf['guilds'][str(s)]['name']) and (
-                            channel.name == self.srvInf['guilds'][str(s)]['channel']) and channel.permissions_for(
+                for s in self.srvInf['guilds']:
+                    if (guild.name == self.srvInf['guilds'][s]['name']) and (
+                            channel.name == self.srvInf['guilds'][s]['channel']) and channel.permissions_for(
                                 guild.me).read_messages:
                         async for message in channel.history():
                             msgs.append(message)
@@ -117,6 +117,7 @@ class SC2OpenEvents():
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
         while True:
+            self.srvInf = toml.load(self.data_path + self.info_file) # reload srvInf in case it updated
             await self.check_all_events(float(self.srvInf['general']['countdown']))
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['delay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
