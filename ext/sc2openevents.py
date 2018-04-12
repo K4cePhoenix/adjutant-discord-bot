@@ -85,7 +85,7 @@ class SC2OpenEvents():
                     msg += '\n'
                 if events[x][y][8] != None:
                     msg += 'Sign ups: {}\n'.format(events[x][y][8])
-                    msg = box(msg)
+                msg = box(msg)
                 await self.send_event_update(msg, srv, eventType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
