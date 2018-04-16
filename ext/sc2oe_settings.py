@@ -11,7 +11,7 @@ from .utils import permissions as perms
 log = logging.getLogger(__name__)
 
 
-class Settings():
+class SC2OESettings():
     def __init__(self, bot):
         self.bot = bot
         self.data_path = './data/sc2oe/'
@@ -22,7 +22,7 @@ class Settings():
             open(self.data_path+self.info_file, 'a').close()
         self.srvInf = toml.load(self.data_path + self.info_file)
 
-    @commands.group(name='settings')
+    @commands.group(name='set')
     async def _settings(self, ctx):
         """ Change a setting """
         if perms._check(ctx, 3):
@@ -31,7 +31,7 @@ class Settings():
             print('You have no permissions to execute this command.')
             raise
 
-    @_settings.command(name='ch')
+    @_settings.command(name='channel')
     async def settings_channel(self, ctx, *, t: str):
         s = t.split(' ')
         if len(s) == 2:
@@ -46,5 +46,5 @@ class Settings():
 
 
 def setup(bot):
-    n = Settings(bot)
+    n = SC2OESettings(bot)
     bot.add_cog(n)
