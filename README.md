@@ -1,10 +1,29 @@
 # Adjutant Discord Bot
 
-A personal Discord bot written in [Python](https://www.python.org "Python homepage") 3.6+ using [discord.py](https://github.com/Rapptz/discord.py).
+**Adjutant** is a personal Discord bot written in [Python](https://www.python.org "Python homepage") 3.6+ using [discord.py](https://github.com/Rapptz/discord.py).
 
-It runs StarCraft II related tasks and commands*.
+She handles [StarCraft II](https://starcraft2.com/) related tasks and commands utilising information from [Liquipedia](http://liquipedia.net/).
 
-\**currently no commands implemented*
+## Commands
+
+- set channel [event_type] [new-channel-name]
+
+Change the target channel for a specific event type (general, amateur, team).
+*Requires permission level 3.*
+
+## Permissions system
+
+**Adjutant** uses a 5-level permissions system to allow usage of her commands (not yet fully implemented).
+
+Level 4: Server owner
+
+Level 3: Admins
+
+Level 2: Moderators
+
+Level 1: Regular members
+
+Level 0: New members and bots
 
 ## Requirements
 
