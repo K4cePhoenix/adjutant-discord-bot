@@ -62,31 +62,31 @@ class SC2OpenEvents():
                         pEvCount += 1
             if (0 < cdH < tLimit) and p:
                 aEvCount += 1
-                msg = inline('[EVENT]') + ' ' + bold(events[x][y][0]) + '\n\n'
-                msg += 'Time: ' + events[x][y][1] + '\n'
+                msg = inline('[EVENT]') + ' ' + bold(events[x][y][0])
+                msg += '\n\nTime: ' + events[x][y][1]
                 if (x != 1) and (events[x][y][3] == None):
-                    msg += 'Region: {}\n'.format(events[x][y][2])
+                    msg += '\nRegion: {}'.format(events[x][y][2])
                 elif (x == 1) and (events[x][y][3] != None):
-                    msg += 'League: {}\n'.format(events[x][y][3])
+                    msg += '\nLeague: {}'.format(events[x][y][3])
                 if events[x][y][4] != None:
-                    msg += 'Server: {}\n'.format(events[x][y][4])
+                    msg += '\nServer: {}'.format(events[x][y][4])
                 if events[x][y][10] != None:
-                    msg += 'Mode: {}\n'.format(events[x][y][10])
+                    msg += '\nMode: {}'.format(events[x][y][10])
                 if events[x][y][5] != None:
-                    msg += 'Prizepool: {}\n'.format(events[x][y][5])
+                    msg += '\nPrizepool: {}'.format(events[x][y][5])
                 if events[x][y][6] != None:
                     if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None:
                         eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
                         tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
                         codeNr = tmpStr.replace(".", "")
                         events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
-                    msg += 'Matcherino: ' + nopreview(events[x][y][6])
+                    msg += '\nMatcherino: ' + nopreview(events[x][y][6])
                     msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
-                    msg += '\n'
                 if events[x][y][8] != None:
-                    msg += 'Sign ups: {}\n'.format(events[x][y][8])
+                    msg += '\nSign ups: {}'.format(events[x][y][8])
                 msg = box(msg)
-                await self.send_event_update(msg, srv, eventType)
+                print(events[x][y][5])
+                #await self.send_event_update(msg, srv, eventType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
     async def check_posted_events(self, tLimit, events, eventType, x):
