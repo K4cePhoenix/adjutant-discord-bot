@@ -99,6 +99,8 @@ def get_prize(data):
         pr = data.string[1:-1]
     if pr == "":
         pr = None
+    elif pr == "-":
+        pr = None
     return pr
 
 
