@@ -6,6 +6,11 @@ name = "Filthy NA Cup Weekly"
 code = "FW$"
 org = "FilthyRake"
 
+[ANZ_Weekly]
+name = "ANZ Weekly"
+code = "ANZ$"
+org = "OSC"
+
 [Masters_Cup]
 name = "Masters Cup"
 code = "MC$"
