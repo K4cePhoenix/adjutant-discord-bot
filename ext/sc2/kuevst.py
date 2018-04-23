@@ -85,24 +85,27 @@ def get_rsl(data, sL):
 
 def get_prize(data):
     """ Returns any prizepool, if any """
-    if data.string == None:
-        for el in range(0, len(data.text.split('+'))):
-            if el == 0:
-                pr = data.text.split('+')[el][1:]
-            elif el == len(data.text.split('+')) - 1:
-                pr += ' + ' + data.text.split('+')[el][1:-1]
-            else:
-                pr += ' + ' + data.text.split('+')[el][1:]
-        if pr[-1:] == '\n':
-            pr = pr[:-1]
-    else:
-        pr = data.string[1:-1]
+    # if data.string == None:
+    #     for el in range(0, len(data.text.split('+'))):
+    #         if el == 0:
+    #             pr = data.text.split('+')[el][1:]
+    #         elif el == len(data.text.split('+')) - 1:
+    #             pr += ' + ' + data.text.split('+')[el][1:-1]
+    #         else:
+    #             pr += ' + ' + data.text.split('+')[el][1:]
+    #     if pr[-1:] == '\n':
+    #         pr = pr[:-1]
+    # else:
+    #     pr = data.string[1:-1]
+
+    for br in data.find_all("br"):
+        br.replace_with("\n")
+    pr = ' '.join(data.text.split('\n')).strip()
     if pr == "":
         pr = None
     elif pr == "-":
         pr = None
     return pr
-
 
 def get_bracket(data):
     """ Returns the bracket, which is in nearly all cases the signup page as well """
