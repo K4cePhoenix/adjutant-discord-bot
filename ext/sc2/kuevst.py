@@ -144,14 +144,14 @@ def steal(tourType=None):
     page = urlopen(link)
     soup = BeautifulSoup(page, 'html.parser')
     if tourType == 'general':
-        if len(soup.find_all('table')[1]) == 2:
+        if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
         else:
             tableTour = soup.find_all('table')[0]
     elif tourType == 'amateur':
         tableTour = soup.find_all('table')[0]
     elif tourType == 'team':
-        if len(soup.find_all('table')[1]) == 2:
+        if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
         else:
             return [[None] * 8]
