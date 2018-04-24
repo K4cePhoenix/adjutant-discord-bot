@@ -144,11 +144,17 @@ def steal(tourType=None):
     page = urlopen(link)
     soup = BeautifulSoup(page, 'html.parser')
     if tourType == 'general':
-        tableTour = soup.find_all('table')[1]
+        if len(soup.find_all('table')[1]) == 2:
+            tableTour = soup.find_all('table')[1]
+        else:
+            tableTour = soup.find_all('table')[0]
     elif tourType == 'amateur':
         tableTour = soup.find_all('table')[0]
     elif tourType == 'team':
-        tableTour = soup.find_all('table')[1]
+        if len(soup.find_all('table')[1]) == 2:
+            tableTour = soup.find_all('table')[1]
+        else:
+            return [[None] * 8]
     events = [['1'] * 8 for x in range(len(tableTour('tr')) - 2)]
     for tRow in range(2, len(tableTour('tr'))):
         countdown = get_cd(tableTour('tr')[tRow]('td')[0])
