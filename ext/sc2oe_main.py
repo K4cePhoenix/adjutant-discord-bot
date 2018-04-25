@@ -52,7 +52,10 @@ class SC2OpenEvents():
         aEvCount = 0
         pEvCount = 0
         for y in range(0, len(events[x])):
-            cdH = (events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))
+            if events[x][y][9] != None:
+                cdH = (events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))
+            else:
+                cdH = -1.0
             p = True
             for ev in range(0, len(msgs)):
                 if len(msgs[ev].content.split('**')) > 1:

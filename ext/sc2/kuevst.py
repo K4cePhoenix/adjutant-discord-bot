@@ -154,7 +154,7 @@ def steal(tourType=None):
         if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
         else:
-            return [[None] * 8]
+            return [[None] * 11]
     events = [['1'] * 8 for x in range(len(tableTour('tr')) - 2)]
     for tRow in range(2, len(tableTour('tr'))):
         countdown = get_cd(tableTour('tr')[tRow]('td')[0])
