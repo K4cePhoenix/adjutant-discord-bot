@@ -35,7 +35,7 @@ class SC2OESettings():
     async def settings_channel(self, ctx, *, t: str):
         s = t.split(' ')
         if len(s) == 2:
-            self.srvInf['guilds'][ctx.guild.name]['ch_{}'.format(s[0])] = s[1]
+            self.srvInf['guilds'][ctx.guild.name]['channel_{}'.format(s[0])] = s[1]
             f = open(self.data_path+self.info_file, 'w')
             toml.dump(self.srvInf, f)
             f.close()
@@ -43,6 +43,17 @@ class SC2OESettings():
         else:
             await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (gnrl, amtr, team) \nArg 2: channel-name')
 
+    @_settings.command(name='time')
+    async def settings_time(self, ctx, *, t: int):
+        if len(t) == 1:
+            if t in [12, 24]:
+                self.srvInf['guilds'][ctx.guild.name]['timeformat'] = t
+                f = open(self.data_path+self.info_file, 'w')
+                toml.dump(self.srvInf, f)
+                f.close()
+                await ctx.channel.send('Changed the time format to {} hours'.format(t))
+            else:
+                await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
 
 
 def setup(bot):

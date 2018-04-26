@@ -35,7 +35,7 @@ class SC2OpenEvents():
                 for channel in srv.channels:
                     if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
                         for s in self.srvInf['guilds']:
-                            if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['ch_{}'.format(eventType)] and channel.permissions_for(srv.me).manage_messages:
+                            if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)] and channel.permissions_for(srv.me).manage_messages:
                                 dEvCount += 1
                                 msgs[ev].delete()
         log.info('{} ended events detected'.format(dEvCount))
@@ -44,7 +44,7 @@ class SC2OpenEvents():
     async def send_event_update(self, msg, srv, eventType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['ch_{}'.format(eventType)] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg)
                     log.info('{}, {} - sent {}'.format(srv, channel, msg))
 
@@ -99,7 +99,7 @@ class SC2OpenEvents():
             for channel in guild.channels:
                 for s in self.srvInf['guilds']:
                     if (guild.name == self.srvInf['guilds'][s]['name']) and (
-                            channel.name == self.srvInf['guilds'][s]['ch_{}'.format(eventType)]) and channel.permissions_for(
+                            channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)]) and channel.permissions_for(
                                 guild.me).read_messages:
                         async for message in channel.history():
                             msgs.append(message)
