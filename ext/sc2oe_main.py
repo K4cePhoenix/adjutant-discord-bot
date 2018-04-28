@@ -41,11 +41,11 @@ class SC2OpenEvents():
         log.info('{} ended events detected'.format(dEvCount))
         return
 
-    async def send_event_update(self, msg, srv, eventType):
+    async def send_event_update(self, msg, em, srv, eventType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
                 if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)] and channel.permissions_for(srv.me).send_messages:
-                    await channel.send(msg)
+                    await channel.send(msg, embed=em)
                     log.info('{}, {} - sent {}'.format(srv, channel, msg))
 
     async def post_eligible_events(self, tLimit, events, msgs, srv, ch, eventType, x):
@@ -65,30 +65,28 @@ class SC2OpenEvents():
                         pEvCount += 1
             if (0 < cdH < tLimit) and p:
                 aEvCount += 1
-                msg = inline('[EVENT]') + ' ' + bold(events[x][y][0])
-                msg += '\n\nTime: ' + events[x][y][1]
+                msg = inline(bold(events[x][y][0])
+                em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="[**SIGN UP**]({})\n{}".format(events[x][y][8], events[x][y][1]))
+                em.set_thumbnail(url="https://s3.amazonaws.com/challonge_app/users/images/001/693/676/large/Nerazim-Tempest.png?1462216147")
+                em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
+                em.set_footer(text="Adjutant Discord Bot by Phoenix#2694", icon_url="https://avatars3.githubusercontent.com/u/36424912?s=400&v=4")
                 if (x != 1) and (events[x][y][3] == None):
-                    msg += '\nRegion: {}'.format(events[x][y][2])
+                    em.add_field(name="Region", value=events[x][y][2], inline=True)
                 elif (x == 1) and (events[x][y][3] != None):
-                    msg += '\nLeague: {}'.format(events[x][y][3])
+                    em.add_field(name="League", value=events[x][y][3], inline=True)
                 if events[x][y][4] != None:
-                    msg += '\nServer: {}'.format(events[x][y][4])
-                if events[x][y][10] != None:
-                    msg += '\nMode: {}'.format(events[x][y][10])
+                    em.add_field(name="Server", value=events[x][y][4], inline=True)
                 if events[x][y][5] != None:
-                    msg += '\nPrizepool: {}'.format(events[x][y][5])
+                    em.add_field(name="Prizepool", value=events[x][y][5], inline=False)
                 if events[x][y][6] != None:
                     eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
                     if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None and eventName in self.codes.keys():
                         tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
                         codeNr = tmpStr.replace(".", "")
                         events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
-                    msg += '\nMatcherino: ' + nopreview(events[x][y][6])
-                    msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
-                if events[x][y][8] != None:
-                    msg += '\nSign ups: {}'.format(events[x][y][8])
+                    em.add_field(name="Crowdfunding", value="[Matcherino]({}) - free $1 code `{}`".format(events[x][y][6], events[x][y][7]), inline=False)
                 msg = box(msg)
-                await self.send_event_update(msg, srv, eventType)
+                await self.send_event_update(msg, em, srv, eventType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
     async def check_posted_events(self, tLimit, events, eventType, x):
