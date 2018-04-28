@@ -29,7 +29,6 @@ class SC2OESettings():
             pass
         else:
             print('You have no permissions to execute this command.')
-            raise
 
     @_settings.command(name='channel')
     async def settings_channel(self, ctx, *, t: str):
