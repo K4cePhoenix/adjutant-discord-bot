@@ -6,6 +6,7 @@ import logging
 import os
 import platform
 import pytz
+import time
 import toml
 
 
@@ -77,6 +78,17 @@ async def on_command(ctx):
         destination = '#{0.channel.name} ({0.guild.name})'.format(message)
     logger.info('{0.created_at}: {0.author.name} in {1}: {0.content}'.format(message, destination))
 
+"""
+@bot.command(name='ping')
+async def _ping(ctx):
+        pingtime = time.time()
+        e = discord.Embed(title="Pinging...", colour=0xFF0000)
+        msg = await ctx.send (embed=e)
+        ping = time.time() - pingtime
+        complete = "Pong, %.01f seconds" % ping
+        em = discord.Embed(title=complete, colour=0xFF0000)
+        await msg.edit(embed=em)
+"""
 
 if __name__ == '__main__':
     conf_path = './data/bot/'
