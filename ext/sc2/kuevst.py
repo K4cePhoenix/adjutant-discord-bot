@@ -59,8 +59,8 @@ def times_to_string(data):
 
 
 def get_mode(data):
-    """ Nothing to see here, literally """
-    return None
+    """ Returns the playmode """
+    return data.text.strip()
 
 
 def get_rsl(data, sL):
