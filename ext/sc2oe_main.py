@@ -65,7 +65,7 @@ class SC2OpenEvents():
                         pEvCount += 1
             if (0 < cdH < tLimit) and p:
                 aEvCount += 1
-                msg = inline(bold(events[x][y][0])
+                msg = inline(bold(events[x][y][0]))
                 em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="{}".format(events[x][y][1]))
                 em.set_thumbnail(url="https://s3.amazonaws.com/challonge_app/users/images/001/693/676/large/Nerazim-Tempest.png?1462216147")
                 em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
