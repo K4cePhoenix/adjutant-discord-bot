@@ -65,10 +65,31 @@ class SC2OpenEvents():
                         pEvCount += 1
             if (0 < cdH < tLimit) and p:
                 aEvCount += 1
-                msg = 'General Event is happening in {}'.format(events[x][y][9])
+                cd_hours = events[x][y][9].seconds // (60 * 60)
+                cd_minutes = (events[x][y][9].seconds-(cd_hours * (60 * 60))) // 60
                 em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="{}".format(events[x][y][1]))
+                if eventType == 'general':
+                    msg = 'General Event is happening in {}:{}'.format(cd_hours, cd_minutes)
+                    em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
+                elif eventType == 'amateur':
+                    msg = 'Amateur Event is happening in {}:{}'.format(cd_hours, cd_minutes)
+                    if 'Master' in events[x][y][3]:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
+                    elif 'Diamond' in events[x][y][3]:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/9/90/DiamondMedium.png")
+                    elif 'Platinum' in events[x][y][3]:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/2b/PlatinumMedium.png")
+                    elif 'Gold' in events[x][y][3]:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/5/55/GoldMedium.png")
+                    elif 'Silver' in events[x][y][3]:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/22/SilverMedium.png")
+                    elif 'Bronze' in events[x][y][3]:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/c/cb/BronzeMedium.png")
+                    else:
+                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
+                elif eventType == 'team':
+                    pass
                 em.set_thumbnail(url="https://s3.amazonaws.com/challonge_app/users/images/001/693/676/large/Nerazim-Tempest.png?1462216147")
-                em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
                 em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
                 if (x != 1) and (events[x][y][3] == None):
                     em.add_field(name="Region", value=events[x][y][2], inline=True)
