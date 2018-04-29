@@ -107,8 +107,7 @@ class SC2OpenEvents():
                         events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
                     em.add_field(name="Crowdfunding", value="[Matcherino]({}) - free $1 code `{}`".format(events[x][y][6], events[x][y][7]), inline=False)
                 if events[x][y][8] != None:
-                    em.add_field(
-                        name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(events[x][y][8]), inline=False)
+                    em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(events[x][y][8]), inline=False)
                 await self.send_event_update(msg, em, srv, eventType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
