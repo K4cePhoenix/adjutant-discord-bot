@@ -31,8 +31,8 @@ name = "OSC Melee"
 code = "Melee$"
 org = "OSC"
 
-[OSC_SEA_Weekly]
-name = "OSC SEA Weekly"
+[SEA_Weekly]
+name = "SEA Weekly"
 code = "SW$"
 org = "OSC"
 

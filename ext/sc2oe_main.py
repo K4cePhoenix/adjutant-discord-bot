@@ -65,11 +65,11 @@ class SC2OpenEvents():
                         pEvCount += 1
             if (0 < cdH < tLimit) and p:
                 aEvCount += 1
-                msg = inline(bold(events[x][y][0]))
+                msg = 'General Event is happening in {}'.format(events[x][y][9])
                 em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="{}".format(events[x][y][1]))
                 em.set_thumbnail(url="https://s3.amazonaws.com/challonge_app/users/images/001/693/676/large/Nerazim-Tempest.png?1462216147")
                 em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
-                em.set_footer(text="Adjutant Discord Bot by Phoenix#2694", icon_url="https://avatars3.githubusercontent.com/u/36424912?s=400&v=4")
+                em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
                 if (x != 1) and (events[x][y][3] == None):
                     em.add_field(name="Region", value=events[x][y][2], inline=True)
                 elif (x == 1) and (events[x][y][3] != None):
@@ -86,8 +86,8 @@ class SC2OpenEvents():
                         events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
                     em.add_field(name="Crowdfunding", value="[Matcherino]({}) - free $1 code `{}`".format(events[x][y][6], events[x][y][7]), inline=False)
                 if events[x][y][8] != None:
-                    em.add_field(name='\u200b', value='[**SIGN UP HERE**]({})'.format(events[x][y][8]), inline=False)
-                msg = box(msg)
+                    em.add_field(
+                        name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(events[x][y][8]), inline=False)
                 await self.send_event_update(msg, em, srv, eventType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
