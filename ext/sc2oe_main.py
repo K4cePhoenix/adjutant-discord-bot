@@ -69,10 +69,10 @@ class SC2OpenEvents():
                 cd_minutes = (events[x][y][9].seconds-(cd_hours * (60 * 60))) // 60
                 em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="{}".format(events[x][y][1]))
                 if eventType == 'general':
-                    msg = 'General Event is happening in {}:{}'.format(cd_hours, cd_minutes)
+                    msg = 'General Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
                     em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
                 elif eventType == 'amateur':
-                    msg = 'Amateur Event is happening in {}:{}'.format(cd_hours, cd_minutes)
+                    msg = 'Amateur Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
                     if 'Master' in events[x][y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
                     elif 'Diamond' in events[x][y][3]:
