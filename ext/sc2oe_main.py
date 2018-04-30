@@ -17,16 +17,16 @@ class SC2OpenEvents():
     def __init__(self, bot):
         self.bot = bot
         self.data_path = './data/sc2oe/'
-        self.info_file = 'srvInf.toml'
-        self.code_file = 'codes.toml'
+        self.serverinfo_file = 'srvInf.toml'
+        self.eventinfo_file = 'evInf.toml'
         if os.path.isdir(self.data_path) is False:
             os.makedirs(self.data_path)
-        if os.path.isfile(self.data_path + self.info_file) is False:
-            open(self.data_path+self.info_file, 'a').close()
-        if os.path.isfile(self.data_path + self.code_file) is False:
-            open(self.data_path+self.code_file, 'a').close()
-        self.srvInf = toml.load(self.data_path + self.info_file)
-        self.codes = toml.load(self.data_path + self.code_file)
+        if os.path.isfile(self.data_path + self.serverinfo_file) is False:
+            open(self.data_path+self.serverinfo_file, 'a').close()
+        if os.path.isfile(self.data_path + self.eventinfo_file) is False:
+            open(self.data_path+self.eventinfo_file, 'a').close()
+        self.srvInf = toml.load(self.data_path + self.serverinfo_file)
+        self.evInf = toml.load(self.data_path + self.eventinfo_file)
 
     async def del_old_events(self, events, msgs, srv, ch, eventType, x):
         dEvCount = 0
@@ -67,7 +67,9 @@ class SC2OpenEvents():
                 aEvCount += 1
                 cd_hours = events[x][y][9].seconds // (60 * 60)
                 cd_minutes = (events[x][y][9].seconds-(cd_hours * (60 * 60))) // 60
+
                 em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="{}".format(events[x][y][1]))
+
                 if eventType == 'general':
                     msg = 'General Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
                     em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
@@ -89,8 +91,18 @@ class SC2OpenEvents():
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
                 elif eventType == 'team':
                     pass
-                em.set_thumbnail(url="https://s3.amazonaws.com/challonge_app/users/images/001/693/676/large/Nerazim-Tempest.png?1462216147")
-                em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
+
+                eventNameTemp = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
+                if eventNameTemp in self.evInf.keys():
+                    if self.evInf[eventNameTemp]['logo'] == '':
+                        em.set_thumbnail(url=self.evInf['Other']['logo'])
+                    else:
+                        em.set_thumbnail(url=self.evInf[eventNameTemp]['logo'])
+                else:
+                    em.set_thumbnail(url=self.evInf['Other']['logo'])
+
+                #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
+
                 if (x != 1) and (events[x][y][3] == None):
                     em.add_field(name="Region", value=events[x][y][2], inline=True)
                 elif (x == 1) and (events[x][y][3] != None):
@@ -101,10 +113,10 @@ class SC2OpenEvents():
                     em.add_field(name="Prizepool", value=events[x][y][5], inline=False)
                 if events[x][y][6] != None:
                     eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
-                    if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None and eventName in self.codes.keys():
+                    if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] == None and eventName in self.evInf.keys():
                         tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
                         codeNr = tmpStr.replace(".", "")
-                        events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))
+                        events[x][y][7] = self.evInf[eventName]['code'].replace("$", str(codeNr))
                     em.add_field(name="Crowdfunding", value="[Matcherino]({}) - free $1 code `{}`".format(events[x][y][6], events[x][y][7]), inline=False)
                 if events[x][y][8] != None:
                     em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(events[x][y][8]), inline=False)
@@ -145,7 +157,7 @@ class SC2OpenEvents():
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
         while True:
-            self.srvInf = toml.load(self.data_path + self.info_file) # reload srvInf in case it updated
+            self.srvInf = toml.load(self.data_path + self.serverinfo_file)
             await self.check_all_events(float(self.srvInf['general']['countdown']))
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['delay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))

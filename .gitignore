@@ -102,5 +102,3 @@ ENV/
 
 # my misc files
 data/**/*.toml
-!data/sc2oe/codes.toml
-ext/sc2openevents_legacy.py
