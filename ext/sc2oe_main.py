@@ -79,7 +79,7 @@ class SC2OpenEvents():
                     msg += '\nPrizepool: {}'.format(events[x][y][5])
                 if events[x][y][6] != None:
                     eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
-                    if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] != None and eventName in self.codes.keys():
+                    if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] == "" and eventName in self.codes.keys():
                         tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
                         codeNr = tmpStr.replace(".", "")
                         events[x][y][7] = self.codes[eventName]['code'].replace("$", str(codeNr))

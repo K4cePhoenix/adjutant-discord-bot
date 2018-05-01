@@ -118,7 +118,7 @@ def get_matcherino_code(data):
     if data.find(class_="lp-icon lp-matcherino") != None:
         code = data.find(class_="lp-icon lp-matcherino").parent.parent.get('title')
     else:
-        code = None
+        code = ""
     return code
 
 
