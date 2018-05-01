@@ -73,8 +73,8 @@ class SC2OpenEvents():
                     msg += '\nLeague: {}'.format(events[x][y][3])
                 if events[x][y][4] != None:
                     msg += '\nServer: {}'.format(events[x][y][4])
-                if events[x][y][10] != None:
-                    msg += '\nMode: {}'.format(events[x][y][10])
+                #if events[x][y][10] != None:
+                #    msg += '\nMode: {}'.format(events[x][y][10])
                 if events[x][y][5] != None:
                     msg += '\nPrizepool: {}'.format(events[x][y][5])
                 if events[x][y][6] != None:
