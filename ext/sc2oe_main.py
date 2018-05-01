@@ -87,7 +87,7 @@ class SC2OpenEvents():
                     msg += ' - free $1 code {}'.format(inline(events[x][y][7]))
                 if events[x][y][8] != None:
                     msg += '\nSign ups: {}'.format(events[x][y][8])
-                msg = box(msg)
+                #msg = box(msg)
                 await self.send_event_update(msg, srv, eventType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
