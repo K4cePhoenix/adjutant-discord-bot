@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from discord.ext import commands
+from random import choice as randchoice
 import asyncio
 import discord
 import logging
@@ -28,137 +29,141 @@ class SC2OpenEvents():
         self.srvInf = toml.load(self.data_path + self.serverinfo_file)
         self.evInf = toml.load(self.data_path + self.eventinfo_file)
 
-    async def del_old_events(self, events, msgs, srv, ch, eventType, x):
+    async def del_old_events(self, events, msgs, srv, ch, evType, x):
         dEvCount = 0
         for y in range(0, len(events[x])):
             for ev in range(0, len(msgs)):
                 for channel in srv.channels:
                     if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
                         for s in self.srvInf['guilds']:
-                            if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)] and channel.permissions_for(srv.me).manage_messages:
+                            if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).manage_messages:
                                 dEvCount += 1
                                 msgs[ev].delete()
         log.info('{} ended events detected'.format(dEvCount))
         return
 
-    async def send_event_update(self, msg, em, srv, eventType):
+    async def send_event_update(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
                     log.info('{}, {} - sent {}'.format(srv, channel, msg))
 
-    async def post_eligible_events(self, tLimit, events, msgs, srv, ch, eventType, x):
+    async def post_events(self, eventsX, msgs, srv, ch, evType):
         aEvCount = 0
         pEvCount = 0
-        for y in range(0, len(events[x])):
-            if events[x][y][9] != None:
-                cdH = (events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))
+        for y in range(0, len(eventsX)):
+            if eventsX[y][9] != None:
+                countdown = (eventsX[y][9].days * 24) + (eventsX[y][9].seconds / (60 * 60))
             else:
-                cdH = -1.0
+                countdown = -1.0
             p = True
             for ev in range(0, len(msgs)):
                 if msgs[ev].embeds:
-                    if events[x][y][0] == msgs[ev].embeds[0].title:
+                    if eventsX[y][0] == msgs[ev].embeds[0].title:
                         p = False
                         aEvCount += 1
                         pEvCount += 1
-            if (0 < cdH < tLimit) and p:
+            if (0 < countdown < float(self.srvInf['general']['countdown'])) and p:
                 aEvCount += 1
-                cd_hours = events[x][y][9].seconds // (60 * 60)
-                cd_minutes = (events[x][y][9].seconds-(cd_hours * (60 * 60))) // 60
+                cd_hours = eventsX[y][9].seconds // (60 * 60)
+                cd_minutes = (eventsX[y][9].seconds-(cd_hours * (60 * 60))) // 60
 
-                em = discord.Embed(title=events[x][y][0], colour=discord.Colour(0x46d997), description="{}".format(events[x][y][1]))
+                em = discord.Embed(title=eventsX[y][0], colour=discord.Colour(int('0x{}'.format(randchoice(self.evInf['Other']['colours'])), 16)), description="{}".format(eventsX[y][1]))
 
-                if eventType == 'general':
+                if evType == 'general':
                     msg = 'General Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
                     em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
-                elif eventType == 'amateur':
+                elif evType == 'amateur':
                     msg = 'Amateur Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
-                    if 'Master' in events[x][y][3]:
+                    if 'Master' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
-                    elif 'Diamond' in events[x][y][3]:
+                    elif 'Diamond' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/9/90/DiamondMedium.png")
-                    elif 'Platinum' in events[x][y][3]:
+                    elif 'Platinum' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/2b/PlatinumMedium.png")
-                    elif 'Gold' in events[x][y][3]:
+                    elif 'Gold' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/5/55/GoldMedium.png")
-                    elif 'Silver' in events[x][y][3]:
+                    elif 'Silver' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/22/SilverMedium.png")
-                    elif 'Bronze' in events[x][y][3]:
+                    elif 'Bronze' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/c/cb/BronzeMedium.png")
                     else:
                         em.set_author(name="Amateur Event", icon_url="https://i.imgur.com/HlsskVP.png")
-                elif eventType == 'team':
+                elif evType == 'team':
                     pass
 
-                eventNameTemp = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
-                if eventNameTemp in self.evInf.keys():
-                    if self.evInf[eventNameTemp]['logo'] == '':
-                        em.set_thumbnail(url=self.evInf['Other']['logo'])
-                    else:
-                        em.set_thumbnail(url=self.evInf[eventNameTemp]['logo'])
+                evName = '_'.join(eventsX[y][0].split(' ')[:len(eventsX[y][0].split(' '))-1])
+                if evName in self.evInf.keys() and self.evInf[evName]['logo']:
+                    em.set_thumbnail(url=self.evInf[evName]['logo'])
                 else:
                     em.set_thumbnail(url=self.evInf['Other']['logo'])
 
                 #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
 
-                if (x != 1) and (events[x][y][3] == None):
-                    em.add_field(name="Region", value=events[x][y][2], inline=True)
-                elif (x == 1) and (events[x][y][3] != None):
-                    em.add_field(name="League", value=events[x][y][3], inline=True)
-                if events[x][y][4] != None:
-                    em.add_field(name="Server", value=events[x][y][4], inline=True)
-                if events[x][y][5] != None:
-                    em.add_field(name="Prizepool", value=events[x][y][5], inline=False)
-                if events[x][y][6] != None:
-                    eventName = '_'.join(events[x][y][0].split(' ')[:len(events[x][y][0].split(' '))-1])
-                    if any(char.isdigit() for char in events[x][y][7]) == False and events[x][y][7] == None and eventName in self.evInf.keys():
-                        tmpStr = events[x][y][0].split(' ')[-1].replace("#", "")
-                        codeNr = tmpStr.replace(".", "")
-                        events[x][y][7] = self.evInf[eventName]['code'].replace("$", str(codeNr))
-                    em.add_field(name="Crowdfunding", value="[Matcherino]({}) - free $1 code `{}`".format(events[x][y][6], events[x][y][7]), inline=False)
-                if events[x][y][8] != None:
-                    em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(events[x][y][8]), inline=False)
-                await self.send_event_update(msg, em, srv, eventType)
-        log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
+                if (evType != 'amateur') and (eventsX[y][3] == None):
+                    em.add_field(name="Region", value=eventsX[y][2], inline=True)
+                elif (evType == 'amateur') and (eventsX[y][3] != None):
+                    em.add_field(name="League", value=eventsX[y][3], inline=True)
+                if eventsX[y][4]:
+                    em.add_field(name="Server", value=eventsX[y][4], inline=True)
+                if eventsX[y][5]:
+                    em.add_field(name="Prizepool", value=eventsX[y][5], inline=False)
 
-    async def check_posted_events(self, tLimit, events, eventType, x):
-        for guild in self.adjutant.guilds:
-            msgs = []
-            ch = []
-            print('processing {} events in {}'.format(eventType, guild.name))
-            for channel in guild.channels:
-                for s in self.srvInf['guilds']:
-                    if (guild.name == self.srvInf['guilds'][s]['name']) and (
-                            channel.name == self.srvInf['guilds'][s]['channel_{}'.format(eventType)]) and channel.permissions_for(
-                                guild.me).read_messages:
-                        async for message in channel.history():
-                            msgs.append(message)
-                            ch.append(channel)
-            await self.post_eligible_events(tLimit, events, msgs, guild, ch, eventType, x)
+                if eventsX[y][6]:
+                    if any(char.isdigit() for char in eventsX[y][7]) == False and eventsX[y][7] == None and evName in self.evInf.keys():
+                        codeNr = eventsX[y][0].split(' ')[-1].replace("#", "").replace(".", "")
+                        eventsX[y][7] = self.evInf[evName]['code'].replace("$", str(codeNr))
+                    cfVal = "[Matcherino]({}) - free $1 code `{}`".format(eventsX[y][6], eventsX[y][7])
+                if evName in self.evInf.keys():
+                    if self.evInf[evName]['patreon']:
+                        if cfVal: 
+                            cfVal += "\n[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                        else: 
+                            cfVal = "[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                try:
+                    em.add_field(name="Crowdfunding", value=cfVal, inline=False)
+                except:
+                    pass
 
-    async def check_all_events(self, tLimit):
+                if eventsX[y][8]:
+                    em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventsX[y][8]), inline=False)
+                await self.send_event_update(msg, em, srv, evType)
+        log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, evType))
+
+    async def check_all_events(self):
         events = [[], [], []]
         events[0] = kuevst.steal('general')
         events[1] = kuevst.steal('amateur')
         events[2] = kuevst.steal('team')
         log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
-        for x in range (0, len(events)):
-            if x == 0:
-                await self.check_posted_events(tLimit, events, 'general', x)
-            elif x == 1:
-                await self.check_posted_events(tLimit, events, 'amateur', x)
-            elif x == 2:
-                await self.check_posted_events(tLimit, events, 'team', x)
-            else:
-                log.critical('EVENT LIST ERROR?!')
+        for guild in self.adjutant.guilds:
+            msgs = []
+            chan = []
+            for x in range(0, len(events)):
+                if x == 0:
+                    evType = 'general'
+                elif x == 1:
+                    evType = 'amateur'
+                elif x == 2:
+                    evType = 'team'
+                log.info('processing {} events in {}'.format(evType, guild.name))
+                print('processing {} events in {}'.format(evType, guild.name))
+                for channel in guild.channels:
+                    for srv in self.srvInf['guilds']:
+                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv]['channel_{}'.format(evType)]) and channel.permissions_for(guild.me).read_messages:
+                            async for message in channel.history():
+                                msgs.append(message)
+                                chan.append(channel)
+                await self.post_events(events[x], msgs, guild, chan, evType)
+
+
 
     async def check_events_in_background(self):
         await self.adjutant.wait_until_ready()
         while True:
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
-            await self.check_all_events(float(self.srvInf['general']['countdown']))
+            await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['delay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
             await asyncio.sleep(float(self.srvInf['general']['delay']) * 60 * 60)
