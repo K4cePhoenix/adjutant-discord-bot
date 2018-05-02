@@ -88,7 +88,7 @@ class SC2OpenEvents():
                     elif 'Bronze' in events[x][y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/c/cb/BronzeMedium.png")
                     else:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
+                        em.set_author(name="Amateur Event", icon_url="https://i.imgur.com/HlsskVP.png")
                 elif eventType == 'team':
                     pass
 
