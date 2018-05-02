@@ -14,7 +14,7 @@ import toml
 posts informations of open sc2 tournaments.
 """
 
-def get_prefix(bot, message):
+def get_prefix(adjutant, message):
     """ A callable Prefix for our bot.
     This could be edited to allow per server prefixes.
     In direct messages, only one prefix is allowed, while in a server,
@@ -23,7 +23,7 @@ def get_prefix(bot, message):
     prefixes = ['a>', 'Adjutant ', 'adjutant ', 'a!']
     if (not message.guild):
         return '!'
-    return commands.when_mentioned_or(*prefixes)(bot, message)
+    return commands.when_mentioned_or(*prefixes)(adjutant, message)
 
 initial_extensions = ['ext.sc2oe_main',
                       'ext.sc2oe_settings']
@@ -33,34 +33,34 @@ logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='w')
 logger.addHandler(handler)
 
-bot = commands.Bot(description=('Adjutant 10-32 Discord Bot by Phoenix#2694'), command_prefix=get_prefix)
+adjutant = commands.Bot(description=('Adjutant 10-32 Discord Bot by Phoenix#2694'), command_prefix=get_prefix)
 
-@bot.event
+@adjutant.event
 async def on_ready():
-    guilds = len(bot.guilds)
-    channels = len([key for key in bot.get_all_channels()])
-    users = len(set(bot.get_all_members()))
-    print('Logged in as {} (ID: {})'.format(bot.user.name, bot.user.id))
+    guilds = len(adjutant.guilds)
+    channels = len([key for key in adjutant.get_all_channels()])
+    users = len(set(adjutant.get_all_members()))
+    print('Logged in as {} (ID: {})'.format(adjutant.user.name, adjutant.user.id))
     print('\nConnected to:')
     print('{} guilds | {} channels | {} users\n'.format(guilds, channels, users))
     print('------------------------')
     print('Current Discord.py Version: {} | Current Python Version: {}'.format(discord.__version__, platform.python_version()))
-    print('\nUse this link to invite {}:'.format(bot.user.name))
-    print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot'.format(bot.user.id))
+    print('\nUse this link to invite {}:'.format(adjutant.user.name))
+    print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot'.format(adjutant.user.id))
     print('------------------------')
     print('You are running SC2 Events Bot v'+conf['owner']['version']+' by Phoenix#2694')
     print('Ready at  {:%b %d, %H:%M (%Z)}'.format(datetime.now(tz=pytz.utc)))
-    await bot.change_presence(activity=discord.Game(name='with bugs..'))
+    await adjutant.change_presence(activity=discord.Game(name='with bugs..'))
     for extension in initial_extensions:
         try:
-            bot.load_extension(extension)
+            adjutant.load_extension(extension)
             logger.info('Loaded extension {}'.format(extension))
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
             logger.error('Failed to load extension {} - {}'.format(extension, exc))
 
 
-@bot.event
+@adjutant.event
 async def on_guild_join(guild):
     if guild.me.guild_permissions.change_nickname:
         await guild.me.edit(nick='Adjutant 10-32')
@@ -68,7 +68,7 @@ async def on_guild_join(guild):
         print("Couldn't change my name on {}".format(guild.name))
 
 
-@bot.event
+@adjutant.event
 async def on_command(ctx):
     message = ctx.message
     destination = None
@@ -79,7 +79,7 @@ async def on_command(ctx):
     logger.info('{0.created_at}: {0.author.name} in {1}: {0.content}'.format(message, destination))
 
 """
-@bot.command(name='ping')
+@adjutant.command(name='ping')
 async def _ping(ctx):
         pingtime = time.time()
         e = discord.Embed(title="Pinging...", colour=0xFF0000)
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         logger.critical('Could not find config file in {}'.format(conf_path))
     else:
         conf = toml.load(conf_path+conf_name)
-        bot.run(conf['owner']['token'])
+        adjutant.run(conf['owner']['token'])
     handlers = logger.handlers[:]
     for hdlr in handlers:
         hdlr.close()

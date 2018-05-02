@@ -14,8 +14,8 @@ log = logging.getLogger(__name__)
 
 
 class SC2OpenEvents():
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, adjutant):
+        self.adjutant = adjutant
         self.data_path = './data/sc2oe/'
         self.serverinfo_file = 'srvInf.toml'
         self.eventinfo_file = 'evInf.toml'
@@ -124,7 +124,7 @@ class SC2OpenEvents():
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, eventType))
 
     async def check_posted_events(self, tLimit, events, eventType, x):
-        for guild in self.bot.guilds:
+        for guild in self.adjutant.guilds:
             msgs = []
             ch = []
             print('processing {} events in {}'.format(eventType, guild.name))
@@ -155,7 +155,7 @@ class SC2OpenEvents():
                 log.critical('EVENT LIST ERROR?!')
 
     async def check_events_in_background(self):
-        await self.bot.wait_until_ready()
+        await self.adjutant.wait_until_ready()
         while True:
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
             await self.check_all_events(float(self.srvInf['general']['countdown']))
@@ -164,7 +164,7 @@ class SC2OpenEvents():
             await asyncio.sleep(float(self.srvInf['general']['delay']) * 60 * 60)
 
 
-def setup(bot):
-    n = SC2OpenEvents(bot)
-    bot.add_cog(n)
-    bot.loop.create_task(n.check_events_in_background())
+def setup(adjutant):
+    n = SC2OpenEvents(adjutant)
+    adjutant.add_cog(n)
+    adjutant.loop.create_task(n.check_events_in_background())
