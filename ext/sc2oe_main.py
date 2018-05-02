@@ -58,8 +58,8 @@ class SC2OpenEvents():
                 cdH = -1.0
             p = True
             for ev in range(0, len(msgs)):
-                if len(msgs[ev].content.split('**')) > 1:
-                    if events[x][y][0] == msgs[ev].content.split('**')[1]:
+                if msgs[ev].embeds:
+                    if events[x][y][0] == msgs[ev].embeds[0].title:
                         p = False
                         aEvCount += 1
                         pEvCount += 1
