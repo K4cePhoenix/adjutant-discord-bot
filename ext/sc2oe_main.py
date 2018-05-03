@@ -32,10 +32,19 @@ class SC2OpenEvents():
 
     async def del_old_events(self, msg):
         print('Delete message\nID: {}\nName: {}'.format(msg.id, msg.embeds[0].title))
-        await msg.delete()
+        if msg.channel.permissions_for(msg.guild.me).manage_messages:
+            await msg.delete()
 
 
-    async def send_event_update(self, msg, em, srv, evType):
+    async def send_event_update(self, oldMsg, msg, em):
+        print(oldMsg.content)
+        print(msg)
+        print(em.title)
+        if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
+            await oldMsg.edit(content=msg, embed=em)
+
+
+    async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
                 if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).send_messages:
@@ -59,9 +68,9 @@ class SC2OpenEvents():
                         p = False
                         aEvCount += 1
                         pEvCount += 1
-                        msgDel = msgs[ev]
+                        pMsg = msgs[ev]
                         break
-            if (0 < countdown < float(self.srvInf['general']['countdown'])) and p:
+            if (0 < countdown < float(self.srvInf['general']['countdown'])):
                 aEvCount += 1
                 cd_hours = eventsX[y][9].seconds // (60 * 60)
                 cd_minutes = (eventsX[y][9].seconds-(cd_hours * (60 * 60))) // 60
@@ -127,10 +136,13 @@ class SC2OpenEvents():
 
                 #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
 
-                await self.send_event_update(msg, em, srv, evType)
+                if p:
+                    await self.send_event(msg, em, srv, evType)
+                elif not p:
+                    await self.send_event_update(pMsg, msg, em)
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
-                await self.del_old_events(msgDel)
+                await self.del_old_events(pMsg)
         log.info('{0} / {1}  {3} events already posted and {4} got deleted in {2.name}'.format(pEvCount, aEvCount, srv, evType, dEvCount))
 
 
@@ -166,7 +178,7 @@ class SC2OpenEvents():
         while True:
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
             await self.check_all_events()
-            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['delay']))
+            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['sleepDelay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
             await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60)
 
