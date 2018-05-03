@@ -17,7 +17,7 @@ Change the target channel for a specific event type (general, amateur, team).
 
 Level 4: Bot Owner
 
-Level 3: Owner
+Level 3: Server Owner
 
 Level 2: Administrators
 
