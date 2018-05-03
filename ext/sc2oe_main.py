@@ -128,7 +128,7 @@ class SC2OpenEvents():
                 #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
 
                 await self.send_event_update(msg, em, srv, evType)
-            elif (countdown < -3.9) and not p:
+            elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
                 await self.del_old_events(msgDel)
         log.info('{0} / {1}  {3} events already posted and {4} got deleted in {2.name}'.format(pEvCount, aEvCount, srv, evType, dEvCount))
@@ -168,7 +168,7 @@ class SC2OpenEvents():
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['delay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
-            await asyncio.sleep(float(self.srvInf['general']['delay']) * 60 * 60)
+            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60)
 
 
 def setup(adjutant):

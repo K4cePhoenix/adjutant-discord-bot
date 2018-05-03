@@ -55,6 +55,21 @@ class SC2OESettings():
                 await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
 
 
+    @adjutant.command(name='permcheck')
+    async def check_permissions(self, ctx):
+        lvl=[0]
+        if perms._check(ctx, 4):
+            lvl.append(4)
+        if perms._check(ctx, 3):
+            lvl.append(3)
+        if perms._check(ctx, 2):
+            lvl.append(2)
+        if perms._check(ctx, 1):
+            lvl.append(1)
+        await ctx.channel.send('Your permission level is {}'.format(max(lvl)))
+
+
+
 def setup(adjutant):
     n = SC2OESettings(adjutant)
     adjutant.add_cog(n)
