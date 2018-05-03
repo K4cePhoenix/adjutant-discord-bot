@@ -34,12 +34,13 @@ class SC2OpenEvents():
         print('Delete message\nID: {}\nName: {}'.format(msg.id, msg.embeds[0].title))
         if msg.channel.permissions_for(msg.guild.me).manage_messages:
             await msg.delete()
+            log.info('{}, {} - deleted {}'.format(oldMsg.guild, oldMsg.channel, em.title))
 
 
     async def send_event_update(self, oldMsg, msg, em):
         if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
             await oldMsg.edit(content=msg, embed=em)
-            log.info('{}, {} - deleted {}'.format(oldMsg.guild, oldMsg.channel, em.title))
+            log.info('{}, {} - updated {}'.format(oldMsg.guild, oldMsg.channel, em.title))
 
 
     async def send_event(self, msg, em, srv, evType):
@@ -48,6 +49,7 @@ class SC2OpenEvents():
                 if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
                     log.info('{}, {} - sent {}'.format(srv, channel, em.title))
+                    return
 
 
     async def post_events(self, eventsX, msgs, srv, ch, evType):
@@ -138,6 +140,14 @@ class SC2OpenEvents():
                     await self.send_event(msg, em, srv, evType)
                 elif not p:
                     await self.send_event_update(pMsg, msg, em)
+
+            elif (-float(self.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
+                if evType == 'general':
+                    msg = 'General Event already started.'
+                elif evType == 'amateur':
+                    msg = 'Amateur Event already started.'
+                await self.send_event_update(pMsg, msg, pMsg.embeds[0])
+
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
                 await self.del_old_events(pMsg)
