@@ -99,12 +99,11 @@ class SC2OpenEvents():
                 else:
                     em.set_thumbnail(url=self.evInf['Other']['logo'])
 
-                #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
-
-                if (evType != 'amateur') and (eventsX[y][3] == None):
+                if (evType == 'general') and (eventsX[y][2] != None):
                     em.add_field(name="Region", value=eventsX[y][2], inline=True)
                 elif (evType == 'amateur') and (eventsX[y][3] != None):
                     em.add_field(name="League", value=eventsX[y][3], inline=True)
+
                 if eventsX[y][4]:
                     em.add_field(name="Server", value=eventsX[y][4], inline=True)
                 if eventsX[y][5]:
@@ -128,6 +127,9 @@ class SC2OpenEvents():
 
                 if eventsX[y][8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventsX[y][8]), inline=False)
+
+                #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
+
                 await self.send_event_update(msg, em, srv, evType)
         log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, evType))
 
@@ -135,7 +137,7 @@ class SC2OpenEvents():
         events = [[], [], []]
         events[0] = kuevst.steal('general')
         events[1] = kuevst.steal('amateur')
-        events[2] = kuevst.steal('team')
+        #events[2] = kuevst.steal('team')
         log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
         for guild in self.adjutant.guilds:
             msgs = []
