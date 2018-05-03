@@ -29,18 +29,11 @@ class SC2OpenEvents():
         self.srvInf = toml.load(self.data_path + self.serverinfo_file)
         self.evInf = toml.load(self.data_path + self.eventinfo_file)
 
-    async def del_old_events(self, events, msgs, srv, ch, evType, x):
-        dEvCount = 0
-        for y in range(0, len(events[x])):
-            for ev in range(0, len(msgs)):
-                for channel in srv.channels:
-                    if events[x][y][0] == msgs[ev].content.split('**')[1] and ((events[x][y][9].days * 24) + (events[x][y][9].seconds / (60 * 60))) <= 0:
-                        for s in self.srvInf['guilds']:
-                            if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).manage_messages:
-                                dEvCount += 1
-                                msgs[ev].delete()
-        log.info('{} ended events detected'.format(dEvCount))
-        return
+
+    async def del_old_events(self, msg):
+        print('Delete message\nID: {}\nName: {}'.format(msg.id, msg.embeds[0].title))
+        await msg.delete()
+
 
     async def send_event_update(self, msg, em, srv, evType):
         for channel in srv.channels:
@@ -49,9 +42,11 @@ class SC2OpenEvents():
                     await channel.send(msg, embed=em)
                     log.info('{}, {} - sent {}'.format(srv, channel, em.title))
 
+
     async def post_events(self, eventsX, msgs, srv, ch, evType):
         aEvCount = 0
         pEvCount = 0
+        dEvCount = 0
         for y in range(0, len(eventsX)):
             if eventsX[y][9] != None:
                 countdown = (eventsX[y][9].days * 24) + (eventsX[y][9].seconds / (60 * 60))
@@ -64,10 +59,13 @@ class SC2OpenEvents():
                         p = False
                         aEvCount += 1
                         pEvCount += 1
+                        msgDel = msgs[ev]
+                        break
             if (0 < countdown < float(self.srvInf['general']['countdown'])) and p:
                 aEvCount += 1
                 cd_hours = eventsX[y][9].seconds // (60 * 60)
                 cd_minutes = (eventsX[y][9].seconds-(cd_hours * (60 * 60))) // 60
+                evName = '_'.join(eventsX[y][0].split(' ')[:len(eventsX[y][0].split(' '))-1])
 
                 em = discord.Embed(title=eventsX[y][0], colour=discord.Colour(int('0x{}'.format(randchoice(self.evInf['Other']['colours'])), 16)), description="{}".format(eventsX[y][1]))
 
@@ -93,7 +91,6 @@ class SC2OpenEvents():
                 elif evType == 'team':
                     pass
 
-                evName = '_'.join(eventsX[y][0].split(' ')[:len(eventsX[y][0].split(' '))-1])
                 if evName in self.evInf.keys() and self.evInf[evName]['logo']:
                     em.set_thumbnail(url=self.evInf[evName]['logo'])
                 else:
@@ -131,7 +128,11 @@ class SC2OpenEvents():
                 #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
 
                 await self.send_event_update(msg, em, srv, evType)
-        log.info('{0} / {1}  {3} events already posted in {2.name}'.format(pEvCount, aEvCount, srv, evType))
+            elif (countdown < -3.9) and not p:
+                dEvCount += 1
+                await self.del_old_events(msgDel)
+        log.info('{0} / {1}  {3} events already posted and {4} got deleted in {2.name}'.format(pEvCount, aEvCount, srv, evType, dEvCount))
+
 
     async def check_all_events(self):
         events = [[], [], []]
@@ -158,7 +159,6 @@ class SC2OpenEvents():
                                 msgs.append(message)
                                 chan.append(channel)
                 await self.post_events(events[x], msgs, guild, chan, evType)
-
 
 
     async def check_events_in_background(self):
