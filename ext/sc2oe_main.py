@@ -47,7 +47,7 @@ class SC2OpenEvents():
             for s in self.srvInf['guilds']:
                 if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
-                    log.info('{}, {} - sent {}'.format(srv, channel, msg))
+                    log.info('{}, {} - sent {}'.format(srv, channel, em.title))
 
     async def post_events(self, eventsX, msgs, srv, ch, evType):
         aEvCount = 0
