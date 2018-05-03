@@ -37,11 +37,9 @@ class SC2OpenEvents():
 
 
     async def send_event_update(self, oldMsg, msg, em):
-        print(oldMsg.content)
-        print(msg)
-        print(em.title)
         if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
             await oldMsg.edit(content=msg, embed=em)
+            log.info('{}, {} - deleted {}'.format(oldMsg.guild, oldMsg.channel, em.title))
 
 
     async def send_event(self, msg, em, srv, evType):
