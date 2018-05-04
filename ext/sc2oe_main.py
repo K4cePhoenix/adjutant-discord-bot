@@ -34,7 +34,7 @@ class SC2OpenEvents():
         print('Delete message\nID: {}\nName: {}'.format(msg.id, msg.embeds[0].title))
         if msg.channel.permissions_for(msg.guild.me).manage_messages:
             await msg.delete()
-            log.info('{}, {} - deleted {}'.format(oldMsg.guild, oldMsg.channel, em.title))
+            log.info('{}, {} - deleted {}'.format(msg.guild, msg.channel, em.title))
 
 
     async def send_event_update(self, oldMsg, msg, em):
