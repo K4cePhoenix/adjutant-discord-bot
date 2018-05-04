@@ -26,9 +26,10 @@ def get_prefix(adjutant, message):
     return commands.when_mentioned_or(*prefixes)(adjutant, message)
 
 initial_extensions = ['ext.sc2oe_main',
-                      'ext.sc2oe_settings']
+                      'ext.sc2oe_settings', 
+                      'ext.rss']
 
-logger = logging.getLogger()
+logger = logging.getLogger('adjutant')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='w')
 logger.addHandler(handler)
