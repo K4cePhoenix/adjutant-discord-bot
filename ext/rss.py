@@ -1,5 +1,6 @@
 from discord.ext import commands
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 import aiohttp
 import asyncio
 import discord
@@ -7,6 +8,7 @@ import feedparser
 import logging
 import os
 import pytz
+import time
 import toml
 
 from .utils.chat_formatting import *
@@ -27,26 +29,32 @@ class RSS():
         self.feeds = toml.load(self.data_path + self.feeds_file)
 
 
+    async def fetch_feed(self, url):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                raw_feed = await response.text()
+                return feedparser.parse(raw_feed)
+
 
     async def read_feeds_in_background(self):
         await self.adjutant.wait_until_ready()
         while True:
             self.feeds = toml.load(self.data_path + self.feeds_file)
             for feed in self.feeds['feeds']:
-                feed_data = feedparser.parse(self.feeds['feeds'][feed]['feedURL'])
+                feed_data = await self.fetch_feed(self.feeds['feeds'][feed]['feedURL'])
                 for key in range(len(feed_data['entries'])-(len(feed_data['entries'])-2), -1, -1):
                     msg = "{} Post: {}".format(self.feeds['feeds'][feed]['name'], feed_data['entries'][key]['title'])
-                    em = discord.Embed(title=feed_data['entries'][key]['title'], colour=discord.Colour(0x00B4FF), description=feed_data['entries'][key]['summary'])
+                    em = discord.Embed(title=feed_data['entries'][key]['title'], colour=discord.Colour(int(self.feeds['feeds'][feed]['colour'], 16)), description=BeautifulSoup(feed_data['entries'][key]['summary'], 'html.parser').text.rstrip('More'))
                     em.set_author(name=self.feeds['feeds'][feed]['name'], icon_url=self.feeds['feeds'][feed]['icon'])
                     em.add_field(name='\u200b', value='[**READ MORE**]({}{})'.format(self.feeds['feeds'][feed]['blogURL'], feed_data['entries'][key]['id'].split('/')[-1]), inline=False)
-                    em.set_footer(text="Published at {}".format(feed_data['entries'][key]['published']))
+                    em.set_footer(text="Published at {} UTC".format(time.strftime('%b %d, %H:%M', feed_data['entries'][key]['published_parsed'])))
                     for fSrv in self.feeds['general']['servers']:
                         for fChan in self.feeds['general']['channels']:
                             for guild in self.adjutant.guilds:
                                 for channel in guild.channels:
-                                    if (guild.name == fSrv) and (channel.name == fChan) and not int(feed_data['entries'][key]['id'].split('/')[-1]) in self.feeds['feeds'][feed]['ids'] and channel.permissions_for(guild.me).send_messages:
+                                    if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['feeds'][feed]['ids'] and channel.permissions_for(guild.me).send_messages:
                                         await channel.send(msg, embed=em)
-                                        self.feeds['feeds'][feed]['ids'].append(int(feed_data['entries'][key]['id'].split('/')[-1]))
+                                        self.feeds['feeds'][feed]['ids'].append(feed_data['entries'][key]['id'].split('/')[-1])
                                         f = open(self.data_path+self.feeds_file, 'w')
                                         toml.dump(self.feeds, f)
                                         f.close()
