@@ -1,4 +1,3 @@
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 import pytz
@@ -122,15 +121,7 @@ def get_matcherino_code(data):
     return code
 
 
-def steal(tourType=None):
-    if tourType == 'general':
-        link = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Open_Tournaments'
-    elif tourType == 'amateur':
-        link = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Amateur_Tournaments'
-    elif tourType == 'team':
-        link = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Team_Tournaments'
-    page = urlopen(link)
-    soup = BeautifulSoup(page, 'html.parser')
+def steal(tourType=None, soup=None):
     if tourType == 'general':
         if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
@@ -143,7 +134,9 @@ def steal(tourType=None):
             tableTour = soup.find_all('table')[1]
         else:
             return [[None] * 11]
+
     events = [['1'] * 8 for x in range(len(tableTour('tr')) - 2)]
+
     for tRow in range(2, len(tableTour('tr'))):
         countdown = get_cd(tableTour('tr')[tRow]('td')[0])
         date = get_time(tableTour('tr')[tRow]('td')[1])
@@ -154,6 +147,8 @@ def steal(tourType=None):
         matcherino = get_matcherino(tableTour('tr')[tRow]('td')[7])
         matcherinoCode = get_matcherino_code(tableTour('tr')[tRow]('td')[7])
         bracket = get_bracket(tableTour('tr')[tRow]('td')[7])
+
         events[tRow - 2] = [name, date, region, league, server, prize,
                             matcherino, matcherinoCode, bracket, countdown, mode]
+
     return events

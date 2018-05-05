@@ -1,6 +1,8 @@
+from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from discord.ext import commands
 from random import choice as randchoice
+import aiohttp
 import asyncio
 import discord
 import logging
@@ -153,11 +155,27 @@ class SC2OpenEvents():
         log.info('{0} / {1}  {3} events already posted and {4} got deleted in {2.name}'.format(pEvCount, aEvCount, srv, evType, dEvCount))
 
 
+    async def fetch_soup(self, url, parser):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                raw_html = await response.text()
+                return BeautifulSoup(raw_html, parser)
+
+
     async def check_all_events(self):
         events = [[], [], []]
-        events[0] = kuevst.steal('general')
-        events[1] = kuevst.steal('amateur')
-        #events[2] = kuevst.steal('team')
+
+        linkG = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Open_Tournaments'
+        linkA = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Amateur_Tournaments'
+        #linkT = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Team_Tournaments'
+
+        soupG = await self.fetch_soup(linkG, 'html.parser')
+        soupA = await self.fetch_soup(linkA, 'html.parser')
+        #soupT = await self.fetch_soup(linkT, 'html.parser')
+
+        events[0] = kuevst.steal('general', soupG)
+        events[1] = kuevst.steal('amateur', soupA)
+        #events[2] = kuevst.steal('team', soupT)
         log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
         for guild in self.adjutant.guilds:
             msgs = []
