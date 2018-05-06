@@ -35,21 +35,21 @@ class SC2OpenEvents():
     async def del_old_events(self, msg):
         if msg.channel.permissions_for(msg.guild.me).manage_messages:
             await msg.delete()
-            log.info('{}, {} - deleted {}'.format(msg.guild, msg.channel, msg.embeds[0].title))
+            log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title}')
 
 
     async def send_event_update(self, oldMsg, msg, em):
         if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
             await oldMsg.edit(content=msg, embed=em)
-            log.info('{}, {} - updated {}'.format(oldMsg.guild, oldMsg.channel, em.title))
+            log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
 
 
     async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType}'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
-                    log.info('{}, {} - sent {}'.format(srv, channel, em.title))
+                    log.info(f'{srv}, {channel} - sent {em.title}')
                     return
 
 
@@ -77,13 +77,13 @@ class SC2OpenEvents():
                 cd_minutes = (eventsX[y][9].seconds-(cd_hours * (60 * 60))) // 60
                 evName = '_'.join(eventsX[y][0].split(' ')[:len(eventsX[y][0].split(' '))-1])
 
-                em = discord.Embed(title=eventsX[y][0], colour=discord.Colour(int('0x{}'.format(randchoice(self.evInf['Other']['colours'])), 16)), description="{}".format(eventsX[y][1]))
+                em = discord.Embed(title=eventsX[y][0], colour=discord.Colour(int(f'0x{randchoice(self.evInf['Other']['colours'])), 16)}'), description=f"{eventsX[y][1]}"))
 
                 if evType == 'general':
-                    msg = 'General Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
+                    msg = f'General Event is happening in {cd_hours}h {cd_minutes}min'
                     em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
                 elif evType == 'amateur':
-                    msg = 'Amateur Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
+                    msg = f'Amateur Event is happening in {cd_hours}h {cd_minutes}min'
                     if 'Master' in eventsX[y][3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
                     elif 'Diamond' in eventsX[y][3]:
@@ -120,20 +120,20 @@ class SC2OpenEvents():
                     if any(char.isdigit() for char in eventsX[y][7]) == False and eventsX[y][7] == None and evName in self.evInf.keys():
                         codeNr = eventsX[y][0].split(' ')[-1].replace("#", "").replace(".", "")
                         eventsX[y][7] = self.evInf[evName]['code'].replace("$", str(codeNr))
-                    cfVal = "[Matcherino]({}) - free $1 code `{}`".format(eventsX[y][6], eventsX[y][7])
+                    cfVal = f"[Matcherino]({eventsX[y][6]}) - free $1 code `{eventsX[y][7]}`" 
                 if evName in self.evInf.keys():
                     if self.evInf[evName]['patreon']:
                         if cfVal: 
-                            cfVal += "\n[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                            cfVal += f"\n[Patreon]({self.evInf[evName]['patreon']}) - contribute to increase the prize pool"
                         else: 
-                            cfVal = "[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                            cfVal = f"[Patreon]({self.evInf[evName]['patreon']}) - contribute to increase the prize pool"
                 try:
                     em.add_field(name="Crowdfunding", value=cfVal, inline=False)
                 except:
                     pass
 
                 if eventsX[y][8]:
-                    em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventsX[y][8]), inline=False)
+                    em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventsX[y][8]})', inline=False)
 
                 #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
 
@@ -152,7 +152,7 @@ class SC2OpenEvents():
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
                 await self.del_old_events(pMsg)
-        log.info('{0} / {1}  {3} events already posted and {4} got deleted in {2.name}'.format(pEvCount, aEvCount, srv, evType, dEvCount))
+        log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
 
     async def fetch_soup(self, url, parser):
@@ -176,7 +176,7 @@ class SC2OpenEvents():
         events[0] = kuevst.steal('general', soupG)
         events[1] = kuevst.steal('amateur', soupA)
         #events[2] = kuevst.steal('team', soupT)
-        log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
+        log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
             chan = []
@@ -187,11 +187,10 @@ class SC2OpenEvents():
                     evType = 'amateur'
                 elif x == 2:
                     evType = 'team'
-                log.info('processing {} events in {}'.format(evType, guild.name))
-                print('processing {} events in {}'.format(evType, guild.name))
+                log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
-                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv]['channel_{}'.format(evType)]) and channel.permissions_for(guild.me).read_messages:
+                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
                                 chan.append(channel)

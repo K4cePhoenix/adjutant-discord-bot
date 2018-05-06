@@ -41,19 +41,19 @@ def time_to_times(data):
 def times_to_string(data):
     """ Returns beautiful date data """
     mmKR, ddKR, hhKR, ampmKR, tzKR = data[0].strftime("%B"), data[0].strftime("%#d").lstrip('0'), data[0].strftime("%#I").lstrip('0'), data[0].strftime("%p").lower(), data[0].strftime("%Z")
-    timeStr = '{} {}, {}{} {} '.format(mmKR, ddKR, hhKR, ampmKR, tzKR)
+    timeStr = f'{mmKR} {ddKR}, {hhKR}{ampmKR} {tzKR} '
     if data[1].strftime("%d") == data[0].strftime("%d"):
         hhEU, ampmEU, tzEU = data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
-        timeStr += '( {}{} {} '.format(hhEU, ampmEU, tzEU)
+        timeStr += f'( {hhEU}{ampmEU} {tzEU} '
     else:
         mmEU, ddEU, hhEU, ampmEU, tzEU = data[1].strftime("%b"), data[1].strftime("%#d").lstrip('0'), data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
-        timeStr += '( {} {}, {}{} {} '.format(mmEU, ddEU, hhEU, ampmEU, tzEU)
+        timeStr += f'( {mmEU} {ddEU}, {hhEU}{ampmEU} {tzEU} '
     if data[2].strftime("%d") == data[0].strftime("%d"):
         hhAM, ampmAM, tzAM = data[2].strftime("%#I").lstrip('0').lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
-        timeStr += '/ {}{} {} )'.format(hhAM, ampmAM, tzAM)
+        timeStr += f'/ {hhAM}{ampmAM} {tzAM} )'
     else:
         mmAM, ddAM, hhAM, ampmAM, tzAM = data[2].strftime("%b"), data[2].strftime("%#d").lstrip('0'), data[2].strftime("%#I").lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
-        timeStr += '/ {} {}, {}{} {} )'.format(mmAM, ddAM, hhAM, ampmAM, tzAM)
+        timeStr += f'/ {mmAM} {ddAM}, {hhAM}{ampmAM} {tzAM} )'
     return timeStr
 
 
