@@ -43,7 +43,7 @@ class RSS():
             for feed in self.feeds['feeds']:
                 feed_data = await self.fetch_feed(self.feeds['feeds'][feed]['feedURL'])
                 for key in range(len(feed_data['entries'])-(len(feed_data['entries'])-2), -1, -1):
-                    msg = "{} Post: {}".format(self.feeds['feeds'][feed]['name'], feed_data['entries'][key]['title'])
+                    msg = "{}: {}".format(self.feeds['feeds'][feed]['name'], feed_data['entries'][key]['title'])
                     em = discord.Embed(title=feed_data['entries'][key]['title'], colour=discord.Colour(int(self.feeds['feeds'][feed]['colour'], 16)), description=BeautifulSoup(feed_data['entries'][key]['summary'], 'html.parser').text.rstrip('More'))
                     em.set_author(name=self.feeds['feeds'][feed]['name'], icon_url=self.feeds['feeds'][feed]['icon'])
                     em.add_field(name='\u200b', value='[**READ MORE**]({}{})'.format(self.feeds['feeds'][feed]['blogURL'], feed_data['entries'][key]['id'].split('/')[-1]), inline=False)
@@ -52,9 +52,9 @@ class RSS():
                         for fChan in self.feeds['general']['channels']:
                             for guild in self.adjutant.guilds:
                                 for channel in guild.channels:
-                                    if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['feeds'][feed]['ids'] and channel.permissions_for(guild.me).send_messages:
+                                    if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['feeds'][feed][guild.name]['ids'] and channel.permissions_for(guild.me).send_messages:
                                         await channel.send(msg, embed=em)
-                                        self.feeds['feeds'][feed]['ids'].append(feed_data['entries'][key]['id'].split('/')[-1])
+                                        self.feeds['feeds'][feed][guild.name]['ids'].append(feed_data['entries'][key]['id'].split('/')[-1])
                                         f = open(self.data_path+self.feeds_file, 'w')
                                         toml.dump(self.feeds, f)
                                         f.close()
