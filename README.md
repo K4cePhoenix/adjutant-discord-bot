@@ -1,5 +1,7 @@
 # Adjutant Discord Bot
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/44aba3b6bffa481c83432b835d8bd4f9)](https://app.codacy.com/app/K4cePhoenix/Adjutant-DiscordBot?utm_source=github.com&utm_medium=referral&utm_content=K4cePhoenix/Adjutant-DiscordBot&utm_campaign=badger)
+
 **Adjutant** is a personal Discord bot written in [Python](https://www.python.org "Python homepage") 3.6+ using [discord.py](https://github.com/Rapptz/discord.py).
 
 She handles [StarCraft II](https://starcraft2.com/) related tasks and commands utilising information from [Liquipedia](http://liquipedia.net/).
