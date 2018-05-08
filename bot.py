@@ -40,13 +40,13 @@ async def on_ready():
     guilds = len(adjutant.guilds)
     channels = len([key for key in adjutant.get_all_channels()])
     users = len(set(adjutant.get_all_members()))
-    print('Logged in as {} (ID: {})'.format(adjutant.user.name, adjutant.user.id))
+    print(f'Logged in as {adjutant.user.name} (ID: {adjutant.user.id})')
     print('\nConnected to:')
-    print('{} guilds | {} channels | {} users\n'.format(guilds, channels, users))
+    print(f'{guilds} guilds | {channels} channels | {users} users\n')
     print('------------------------')
-    print('Current Discord.py Version: {} | Current Python Version: {}'.format(discord.__version__, platform.python_version()))
-    print('\nUse this link to invite {}:'.format(adjutant.user.name))
-    print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot'.format(adjutant.user.id))
+    print(f'Current Discord.py Version: {discord.__version__} | Current Python Version: {platform.python_version()}')
+    print(f'\nUse this link to invite {adjutant.user.name}:')
+    print(f'https://discordapp.com/oauth2/authorize?client_id={adjutant.user.id}&scope=bot')
     print('------------------------')
     print('You are running SC2 Events Bot v'+conf['owner']['version']+' by Phoenix#2694')
     print('Ready at  {:%b %d, %H:%M (%Z)}'.format(datetime.now(tz=pytz.utc)))
@@ -54,10 +54,10 @@ async def on_ready():
     for extension in initial_extensions:
         try:
             adjutant.load_extension(extension)
-            logger.info('Loaded extension {}'.format(extension))
+            logger.info(f'Loaded extension {extension}')
         except Exception as e:
-            exc = '{}: {}'.format(type(e).__name__, e)
-            logger.error('Failed to load extension {} - {}'.format(extension, exc))
+            exc = f'{type(e).__name__}: {e}'
+            logger.error(f'Failed to load extension {extension} - {exc}')
 
 
 @adjutant.event
@@ -65,7 +65,7 @@ async def on_guild_join(guild):
     if guild.me.guild_permissions.change_nickname:
         await guild.me.edit(nick='Adjutant 10-32')
     else:
-        print("Couldn't change my name on {}".format(guild.name))
+        print(f"Couldn't change my name on {guild.name}")
 
 
 @adjutant.event
@@ -75,8 +75,8 @@ async def on_command(ctx):
     if isinstance(ctx.channel, discord.abc.GuildChannel):
         destination = 'Private Message'
     else:
-        destination = '#{0.channel.name} ({0.guild.name})'.format(message)
-    logger.info('{0.created_at}: {0.author.name} in {1}: {0.content}'.format(message, destination))
+        destination = f'#{message.channel.name} ({message.guild.name})'
+    logger.info(f'{message.created_at}: {message.author.name} in {destination}: {message.content}')
 
 
 @adjutant.command(name='ping')
@@ -94,9 +94,9 @@ if __name__ == '__main__':
     conf_path = './data/bot/'
     conf_name = 'conf.toml'
     if os.path.isdir(conf_path) is False:
-        logger.critical('Could not find folder {}'.format(conf_path))
-    elif os.path.isfile(conf_path+conf_name) is False:
-        logger.critical('Could not find config file in {}'.format(conf_path))
+        logger.critical(f'Could not find folder {conf_path}')
+        elif os.path.isfile(conf_path+conf_name) is False:
+        logger.critical(f'Could not find config file in {conf_path}')
     else:
         conf = toml.load(conf_path+conf_name)
         adjutant.run(conf['owner']['token'])

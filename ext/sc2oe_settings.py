@@ -32,11 +32,11 @@ class SC2OESettings():
     async def settings_channel(self, ctx, *, t: str):
         s = t.split(' ')
         if len(s) == 2:
-            self.srvInf['guilds'][ctx.guild.name]['channel_{}'.format(s[0])] = s[1]
+            self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0]}'] = s[1]
             f = open(self.data_path+self.info_file, 'w')
             toml.dump(self.srvInf, f)
             f.close()
-            await ctx.channel.send('Changed the {} events channel to {}'.format(s[0], s[1]))
+            await ctx.channel.send(f'Changed the {s[0]} events channel to {s[1]}')
         else:
             await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (gnrl, amtr, team) \nArg 2: channel-name')
 
@@ -48,7 +48,7 @@ class SC2OESettings():
                 f = open(self.data_path+self.info_file, 'w')
                 toml.dump(self.srvInf, f)
                 f.close()
-                await ctx.channel.send('Changed the time format to {} hours'.format(t))
+                await ctx.channel.send(f'Changed the time format to {t} hours')
             else:
                 await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
 
@@ -64,7 +64,7 @@ class SC2OESettings():
             lvl.append(2)
         if perms._check(ctx, 1):
             lvl.append(1)
-        await ctx.channel.send('Your permission level is {}'.format(max(lvl)))
+        await ctx.channel.send(f'Your permission level is {max(lvl)}')
 
 
 

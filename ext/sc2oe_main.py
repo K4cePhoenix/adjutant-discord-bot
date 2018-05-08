@@ -1,5 +1,7 @@
+from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from random import choice as randchoice
+import aiohttp
 import asyncio
 import discord
 import logging
@@ -30,24 +32,23 @@ class SC2OpenEvents():
 
 
     async def del_old_events(self, msg):
-        print('Delete message\nID: {}\nName: {}'.format(msg.id, msg.embeds[0].title))
         if msg.channel.permissions_for(msg.guild.me).manage_messages:
             await msg.delete()
-            log.info('{}, {} - deleted {}'.format(msg.guild, msg.channel, msg.embeds[0].title))
+            log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title}')
 
 
     async def send_event_update(self, oldMsg, msg, em):
         if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
             await oldMsg.edit(content=msg, embed=em)
-            log.info('{}, {} - updated {}'.format(oldMsg.guild, oldMsg.channel, em.title))
+            log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
 
 
     async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s]['channel_{}'.format(evType)] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType}'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
-                    log.info('{}, {} - sent {}'.format(srv, channel, em.title))
+                    log.info(f'{srv}, {channel} - sent {em.title}')
                     return
 
 
@@ -75,12 +76,13 @@ class SC2OpenEvents():
                 cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
                 evName = '_'.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1])
 
-                em = discord.Embed(title=eventXY[0], colour=discord.Colour(int('0x{}'.format(randchoice(self.evInf['Other']['colours'])), 16)), description="{}".format(eventXY[1]))
+                em = discord.Embed(title=eventXY[0], colour=discord.Colour(0xFFFFFF), description="{}".format(eventXY[1]))
 
                 if evType == 'general':
-                    msg = 'General Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
+                    msg = f'General Event is happening in {cd_hours}h {cd_minutes}min'
                     em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
                 elif evType == 'amateur':
+
                     msg = 'Amateur Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
                     if 'Master' in eventXY[3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
@@ -125,6 +127,7 @@ class SC2OpenEvents():
                             cfVal += "\n[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
                         else:
                             cfVal = "[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+
                 try:
                     em.add_field(name="Crowdfunding", value=cfVal, inline=False)
                 except:
@@ -150,15 +153,31 @@ class SC2OpenEvents():
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
                 await self.del_old_events(pMsg)
-        log.info('{0} / {1}  {3} events already posted and {4} got deleted in {2.name}'.format(pEvCount, aEvCount, srv, evType, dEvCount))
+        log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
+
+
+    async def fetch_soup(self, url, parser):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                raw_html = await response.text()
+                return BeautifulSoup(raw_html, parser)
 
 
     async def check_all_events(self):
         events = [[], [], []]
-        events[0] = kuevst.steal('general')
-        events[1] = kuevst.steal('amateur')
-        #events[2] = kuevst.steal('team')
-        log.info('Fetched {0} general, {1} amateur and {2} team events'.format(len(events[0]), len(events[1]), len(events[2])))
+
+        linkG = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Open_Tournaments'
+        linkA = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Amateur_Tournaments'
+        #linkT = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Team_Tournaments'
+
+        soupG = await self.fetch_soup(linkG, 'html.parser')
+        soupA = await self.fetch_soup(linkA, 'html.parser')
+        #soupT = await self.fetch_soup(linkT, 'html.parser')
+
+        events[0] = kuevst.steal('general', soupG)
+        events[1] = kuevst.steal('amateur', soupA)
+        #events[2] = kuevst.steal('team', soupT)
+        log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
             chan = []
@@ -167,7 +186,7 @@ class SC2OpenEvents():
                 print('processing {} events in {}'.format(evType, guild.name))
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
-                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv]['channel_{}'.format(evType)]) and channel.permissions_for(guild.me).read_messages:
+                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
                                 chan.append(channel)

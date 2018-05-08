@@ -1,5 +1,5 @@
 #
-#   This is a slightly(?) modified version of chat_formatting.py
+#   This is a modified version of chat_formatting.py
 #               originally made by Cog-Creators
 #
 #               https://github.com/Cog-Creators
@@ -8,47 +8,47 @@
 
 
 def error(text):
-    return '\N{NO ENTRY SIGN} {}'.format(text)
+    return f'\N{NO ENTRY SIGN} {text}'
 
 
 def warning(text):
-    return '\N{WARNING SIGN} {}'.format(text)
+    return f'\N{WARNING SIGN} {text}'
 
 
 def info(text):
-    return '\N{INFORMATION SOURCE} {}'.format(text)
+    return f'\N{INFORMATION SOURCE} {text}'
 
 
 def question(text):
-    return '\N{BLACK QUESTION MARK ORNAMENT} {}'.format(text)
+    return f'\N{BLACK QUESTION MARK ORNAMENT} {text}'
 
 
 def bold(text):
-    return '**{}**'.format(text)
+    return f'**{text}**'
 
 
 def box(text, lang=''):
-    ret = '```{}\n{}\n```'.format(lang, text)
+    ret = f'```{lang}\n{text}\n```'
     return ret
 
 
 def inline(text):
-    return '`{}`'.format(text)
+    return f'`{text}`'
 
 
 def italics(text):
-    return '*{}*'.format(text)
+    return f'*{text}*'
 
 
 def strikethrough(text):
-    return '~~{}~~'.format(text)
+    return f'~~{text}~~'
 
 
 def underline(text):
-    return '__{}__'.format(text)
+    return f'__{text}__'
 
 def nopreview(text):
-    return '<{}>'.format(text)
+    return f'<{text}>'
 
 
 def pagify(text, delims=['\n'], *, escape=True, shorten_by=8,
