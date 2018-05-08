@@ -127,10 +127,8 @@ class SC2OpenEvents():
                         else:
                             cfVal = "[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
 
-                try:
+                if cfVal:
                     em.add_field(name="Crowdfunding", value=cfVal, inline=False)
-                except:
-                    pass
 
                 if eventXY[8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventXY[8]), inline=False)

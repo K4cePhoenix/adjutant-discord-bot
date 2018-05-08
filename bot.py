@@ -9,9 +9,8 @@ import time
 import toml
 
 
-""" SC2 Event Bot
-posts informations of open sc2 tournaments.
-"""
+""" Adjutant 10-32
+posts informations of open sc2 tournaments."""
 
 def get_prefix(adjutant, message):
     """ A callable Prefix for our bot.
@@ -20,7 +19,7 @@ def get_prefix(adjutant, message):
     the user is allowed to mention us or use any of the prefixes in our list.
     """
     prefixes = ['a>', 'Adjutant ', 'adjutant ', 'a!']
-    if (not message.guild):
+    if not message.guild:
         return '!'
     return commands.when_mentioned_or(*prefixes)(adjutant, message)
 
@@ -83,7 +82,7 @@ async def on_command(ctx):
 async def _ping(ctx):
         pingtime = time.time()
         e = discord.Embed(title="Pinging...", colour=0xFF0000)
-        msg = await ctx.send (embed=e)
+        msg = await ctx.send(embed=e)
         ping = time.time() - pingtime
         complete = "Pong, %.01f seconds" % ping
         em = discord.Embed(title=complete, colour=0x00FFFF)
