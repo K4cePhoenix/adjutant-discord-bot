@@ -1,4 +1,3 @@
-from discord.ext import commands
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import aiohttp

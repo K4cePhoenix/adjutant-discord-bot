@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from discord.ext import commands
-import asyncio
 import discord
 import logging
 import os
@@ -26,7 +25,7 @@ def get_prefix(adjutant, message):
     return commands.when_mentioned_or(*prefixes)(adjutant, message)
 
 initial_extensions = ['ext.sc2oe_main',
-                      'ext.sc2oe_settings', 
+                      'ext.sc2oe_settings',
                       'ext.rss']
 
 logger = logging.getLogger('adjutant')
@@ -79,7 +78,7 @@ async def on_command(ctx):
         destination = '#{0.channel.name} ({0.guild.name})'.format(message)
     logger.info('{0.created_at}: {0.author.name} in {1}: {0.content}'.format(message, destination))
 
-"""
+
 @adjutant.command(name='ping')
 async def _ping(ctx):
         pingtime = time.time()
@@ -89,7 +88,7 @@ async def _ping(ctx):
         complete = "Pong, %.01f seconds" % ping
         em = discord.Embed(title=complete, colour=0xFF0000)
         await msg.edit(embed=em)
-"""
+
 
 if __name__ == '__main__':
     conf_path = './data/bot/'
