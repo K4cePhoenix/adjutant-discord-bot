@@ -49,19 +49,20 @@ class RSS():
                     em.add_field(name='\u200b', value='[**READ MORE**]({}{})'.format(self.feeds['feeds'][feed]['blogURL'], feed_data['entries'][key]['id'].split('/')[-1]), inline=False)
                     em.set_footer(text="Published at {} UTC".format(time.strftime('%b %d, %H:%M', feed_data['entries'][key]['published_parsed'])))
                     log.info(f'{msg}')
-                    for fSrv in self.feeds['general']['servers']:
-                        for fChan in self.feeds['general']['channels']:
-                            for guild in self.adjutant.guilds:
-                                for channel in guild.channels:
-                                    if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['feeds'][feed][guild.name]['ids'] and channel.permissions_for(guild.me).send_messages:
-                                        await channel.send(msg, embed=em)
-                                        self.feeds['feeds'][feed][guild.name]['ids'].append(feed_data['entries'][key]['id'].split('/')[-1])
-                                        f = open(self.data_path+self.feeds_file, 'w')
-                                        toml.dump(self.feeds, f)
-                                        f.close()
+                    for fSrv in self.feeds['servers']:
+                        fChan = self.feeds['servers'][fSrv]['channel']
+                        for guild in self.adjutant.guilds:
+                            for channel in guild.channels:
+                                if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['servers'][guild.name][f'ids_{feed}'] and channel.permissions_for(guild.me).send_messages:
+                                    await channel.send(msg, embed=em)
+                                    self.feeds['servers'][guild.name][f'ids_{feed}'].append(feed_data['entries'][key]['id'].split('/')[-1])
+                                    f = open(self.data_path+self.feeds_file, 'w')
+                                    toml.dump(self.feeds, f)
+                                    f.close()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.feeds['general']['sleepDelay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
             await asyncio.sleep(float(self.feeds['general']['sleepDelay']) * 60)
+
 
 def setup(adjutant):
     n = RSS(adjutant)

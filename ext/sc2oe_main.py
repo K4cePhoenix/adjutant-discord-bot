@@ -115,6 +115,7 @@ class SC2OpenEvents():
                 if eventXY[5]:
                     em.add_field(name="Prizepool", value=eventXY[5], inline=False)
 
+                cfVal = None
                 if eventXY[6]:
                     if any(char.isdigit() for char in eventXY[7]) == False and eventXY[7] == None and evName in self.evInf.keys():
                         codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
