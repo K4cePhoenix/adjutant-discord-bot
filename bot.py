@@ -48,7 +48,7 @@ async def on_ready():
     print(f'\nUse this link to invite {adjutant.user.name}:')
     print(f'https://discordapp.com/oauth2/authorize?client_id={adjutant.user.id}&scope=bot')
     print('------------------------')
-    print('You are running SC2 Events Bot v'+conf['owner']['version']+' by Phoenix#2694')
+    print('You are running Adjutant 10-32 Discord Bot by Phoenix#2694')
     print('Ready at  {:%b %d, %H:%M (%Z)}'.format(datetime.now(tz=pytz.utc)))
     await adjutant.change_presence(activity=discord.Game(name='with bugs..'))
     for extension in initial_extensions:
@@ -86,7 +86,7 @@ async def _ping(ctx):
         msg = await ctx.send (embed=e)
         ping = time.time() - pingtime
         complete = "Pong, %.01f seconds" % ping
-        em = discord.Embed(title=complete, colour=0xFF0000)
+        em = discord.Embed(title=complete, colour=0x00FFFF)
         await msg.edit(embed=em)
 
 
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     conf_name = 'conf.toml'
     if os.path.isdir(conf_path) is False:
         logger.critical(f'Could not find folder {conf_path}')
-        elif os.path.isfile(conf_path+conf_name) is False:
+    elif os.path.isfile(conf_path+conf_name) is False:
         logger.critical(f'Could not find config file in {conf_path}')
     else:
         conf = toml.load(conf_path+conf_name)

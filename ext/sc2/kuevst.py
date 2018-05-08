@@ -121,7 +121,7 @@ def get_matcherino_code(data):
     return code
 
 
-def steal(tourType=None, soup=None):
+def steal(tourType: str, soup: BeautifulSoup):
     if tourType == 'general':
         if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]

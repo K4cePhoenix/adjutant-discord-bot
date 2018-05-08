@@ -40,6 +40,7 @@ class RSS():
         while True:
             self.feeds = toml.load(self.data_path + self.feeds_file)
             for feed in self.feeds['feeds']:
+                log.info(f'RSS check: {feed}')
                 feed_data = await self.fetch_feed(self.feeds['feeds'][feed]['feedURL'])
                 for key in range(len(feed_data['entries'])-(len(feed_data['entries'])-2), -1, -1):
                     msg = "{}: {}".format(self.feeds['feeds'][feed]['name'], feed_data['entries'][key]['title'])
@@ -47,6 +48,7 @@ class RSS():
                     em.set_author(name=self.feeds['feeds'][feed]['name'], icon_url=self.feeds['feeds'][feed]['icon'])
                     em.add_field(name='\u200b', value='[**READ MORE**]({}{})'.format(self.feeds['feeds'][feed]['blogURL'], feed_data['entries'][key]['id'].split('/')[-1]), inline=False)
                     em.set_footer(text="Published at {} UTC".format(time.strftime('%b %d, %H:%M', feed_data['entries'][key]['published_parsed'])))
+                    log.info(f'{msg}')
                     for fSrv in self.feeds['general']['servers']:
                         for fChan in self.feeds['general']['channels']:
                             for guild in self.adjutant.guilds:
