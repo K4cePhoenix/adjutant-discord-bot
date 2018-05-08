@@ -8,19 +8,19 @@
 
 
 def error(text):
-    return f'\N{NO ENTRY SIGN} {text}' 
+    return f'\N{NO ENTRY SIGN} {text}'
 
 
 def warning(text):
-    return f'\N{WARNING SIGN} {text}' 
+    return f'\N{WARNING SIGN} {text}'
 
 
 def info(text):
-    return f'\N{INFORMATION SOURCE} {text}' 
+    return f'\N{INFORMATION SOURCE} {text}'
 
 
 def question(text):
-    return f'\N{BLACK QUESTION MARK ORNAMENT} {text}' 
+    return f'\N{BLACK QUESTION MARK ORNAMENT} {text}'
 
 
 def bold(text):
