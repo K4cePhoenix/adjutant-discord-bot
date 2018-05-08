@@ -1,6 +1,4 @@
 from discord.ext import commands
-import asyncio
-import discord
 import logging
 import os
 import toml
