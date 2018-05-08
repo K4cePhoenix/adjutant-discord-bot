@@ -1,4 +1,3 @@
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 import pytz
@@ -42,19 +41,19 @@ def time_to_times(data):
 def times_to_string(data):
     """ Returns beautiful date data """
     mmKR, ddKR, hhKR, ampmKR, tzKR = data[0].strftime("%B"), data[0].strftime("%#d").lstrip('0'), data[0].strftime("%#I").lstrip('0'), data[0].strftime("%p").lower(), data[0].strftime("%Z")
-    timeStr = '{} {}, {}{} {} '.format(mmKR, ddKR, hhKR, ampmKR, tzKR)
+    timeStr = f'{mmKR} {ddKR}, {hhKR}{ampmKR} {tzKR} '
     if data[1].strftime("%d") == data[0].strftime("%d"):
         hhEU, ampmEU, tzEU = data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
-        timeStr += '( {}{} {} '.format(hhEU, ampmEU, tzEU)
+        timeStr += f'( {hhEU}{ampmEU} {tzEU} '
     else:
         mmEU, ddEU, hhEU, ampmEU, tzEU = data[1].strftime("%b"), data[1].strftime("%#d").lstrip('0'), data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
-        timeStr += '( {} {}, {}{} {} '.format(mmEU, ddEU, hhEU, ampmEU, tzEU)
+        timeStr += f'( {mmEU} {ddEU}, {hhEU}{ampmEU} {tzEU} '
     if data[2].strftime("%d") == data[0].strftime("%d"):
         hhAM, ampmAM, tzAM = data[2].strftime("%#I").lstrip('0').lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
-        timeStr += '/ {}{} {} )'.format(hhAM, ampmAM, tzAM)
+        timeStr += f'/ {hhAM}{ampmAM} {tzAM} )'
     else:
         mmAM, ddAM, hhAM, ampmAM, tzAM = data[2].strftime("%b"), data[2].strftime("%#d").lstrip('0'), data[2].strftime("%#I").lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
-        timeStr += '/ {} {}, {}{} {} )'.format(mmAM, ddAM, hhAM, ampmAM, tzAM)
+        timeStr += f'/ {mmAM} {ddAM}, {hhAM}{ampmAM} {tzAM} )'
     return timeStr
 
 
@@ -122,15 +121,7 @@ def get_matcherino_code(data):
     return code
 
 
-def steal(tourType=None):
-    if tourType == 'general':
-        link = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Open_Tournaments'
-    elif tourType == 'amateur':
-        link = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Amateur_Tournaments'
-    elif tourType == 'team':
-        link = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Team_Tournaments'
-    page = urlopen(link)
-    soup = BeautifulSoup(page, 'html.parser')
+def steal(tourType=None, soup=None):
     if tourType == 'general':
         if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
@@ -143,7 +134,9 @@ def steal(tourType=None):
             tableTour = soup.find_all('table')[1]
         else:
             return [[None] * 11]
+
     events = [['1'] * 8 for x in range(len(tableTour('tr')) - 2)]
+
     for tRow in range(2, len(tableTour('tr'))):
         countdown = get_cd(tableTour('tr')[tRow]('td')[0])
         date = get_time(tableTour('tr')[tRow]('td')[1])
@@ -154,6 +147,8 @@ def steal(tourType=None):
         matcherino = get_matcherino(tableTour('tr')[tRow]('td')[7])
         matcherinoCode = get_matcherino_code(tableTour('tr')[tRow]('td')[7])
         bracket = get_bracket(tableTour('tr')[tRow]('td')[7])
+
         events[tRow - 2] = [name, date, region, league, server, prize,
                             matcherino, matcherinoCode, bracket, countdown, mode]
+
     return events

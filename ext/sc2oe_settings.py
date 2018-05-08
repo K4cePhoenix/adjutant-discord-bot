@@ -12,8 +12,8 @@ log = logging.getLogger(__name__)
 
 
 class SC2OESettings():
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, adjutant):
+        self.adjutant = adjutant
         self.data_path = './data/sc2oe/'
         self.info_file = 'srvInf.toml'
         if os.path.isdir(self.data_path) is False:
@@ -34,11 +34,11 @@ class SC2OESettings():
     async def settings_channel(self, ctx, *, t: str):
         s = t.split(' ')
         if len(s) == 2:
-            self.srvInf['guilds'][ctx.guild.name]['channel_{}'.format(s[0])] = s[1]
+            self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0]}'] = s[1]
             f = open(self.data_path+self.info_file, 'w')
             toml.dump(self.srvInf, f)
             f.close()
-            await ctx.channel.send('Changed the {} events channel to {}'.format(s[0], s[1]))
+            await ctx.channel.send(f'Changed the {s[0]} events channel to {s[1]}')
         else:
             await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (gnrl, amtr, team) \nArg 2: channel-name')
 
@@ -50,11 +50,26 @@ class SC2OESettings():
                 f = open(self.data_path+self.info_file, 'w')
                 toml.dump(self.srvInf, f)
                 f.close()
-                await ctx.channel.send('Changed the time format to {} hours'.format(t))
+                await ctx.channel.send(f'Changed the time format to {t} hours')
             else:
                 await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
 
 
-def setup(bot):
-    n = SC2OESettings(bot)
-    bot.add_cog(n)
+    @commands.command(name='permcheck')
+    async def check_permissions(self, ctx):
+        lvl=[0]
+        if perms._check(ctx, 4):
+            lvl.append(4)
+        if perms._check(ctx, 3):
+            lvl.append(3)
+        if perms._check(ctx, 2):
+            lvl.append(2)
+        if perms._check(ctx, 1):
+            lvl.append(1)
+        await ctx.channel.send(f'Your permission level is {max(lvl)}')
+
+
+
+def setup(adjutant):
+    n = SC2OESettings(adjutant)
+    adjutant.add_cog(n)
