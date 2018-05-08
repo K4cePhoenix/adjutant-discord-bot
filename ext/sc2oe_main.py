@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from random import choice as randchoice
 import aiohttp
 import asyncio
 import discord
@@ -70,7 +69,7 @@ class SC2OpenEvents():
                         pEvCount += 1
                         pMsg = MsgsEv
                         break
-            if (0 < countdown < float(self.srvInf['general']['countdown'])):
+            if 0 < countdown < float(self.srvInf['general']['countdown']):
                 aEvCount += 1
                 cd_hours = eventXY[9].seconds // (60 * 60)
                 cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
@@ -181,7 +180,7 @@ class SC2OpenEvents():
         for guild in self.adjutant.guilds:
             msgs = []
             chan = []
-            for x, evType in enumerate([ 'general', 'amateur', 'team' ]):
+            for x, evType in enumerate(['general', 'amateur', 'team']):
                 log.info('processing {} events in {}'.format(evType, guild.name))
                 print('processing {} events in {}'.format(evType, guild.name))
                 for channel in guild.channels:
