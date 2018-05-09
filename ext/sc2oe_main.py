@@ -74,28 +74,30 @@ class SC2OpenEvents():
                 cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
                 evName = '_'.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1])
 
-                em = discord.Embed(title=eventXY[0], colour=discord.Colour(0xFFFFFF), description="{}".format(eventXY[1]))
+                if evName in self.evInf.keys() and self.evInf[evName]['colour']:
+                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.evInf[evName]['colour'], 16)), description="{}".format(eventXY[1]))
+                else:
+                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description="{}".format(eventXY[1]))
 
-                if evType == 'general':
-                    msg = f'General Event is happening in {cd_hours}h {cd_minutes}min'
-                    em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
-                elif evType == 'amateur':
-                    msg = 'Amateur Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
+                msg = f'{evType} Event is happening in {cd_hours}h {cd_minutes}min'
+                if evType == 'General':
+                    em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/lTur4HM.png")
+                elif evType == 'Amateur':
                     if 'Master' in eventXY[3]:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/R3M8AlH.png")
                     elif 'Diamond' in eventXY[3]:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/9/90/DiamondMedium.png")
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/i3ceEMq.png")
                     elif 'Platinum' in eventXY[3]:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/2b/PlatinumMedium.png")
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/7iWG4Rl.png")
                     elif 'Gold' in eventXY[3]:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/5/55/GoldMedium.png")
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/oxuGOem.png")
                     elif 'Silver' in eventXY[3]:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/22/SilverMedium.png")
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/CS3hGFX.png")
                     elif 'Bronze' in eventXY[3]:
-                        em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/c/cb/BronzeMedium.png")
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/47tb6qR.png")
                     else:
-                        em.set_author(name="Amateur Event", icon_url="https://i.imgur.com/HlsskVP.png")
-                elif evType == 'team':
+                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/HlsskVP.png")
+                elif evType == 'Team':
                     pass
 
                 if evName in self.evInf.keys() and self.evInf[evName]['logo']:
@@ -103,9 +105,9 @@ class SC2OpenEvents():
                 else:
                     em.set_thumbnail(url=self.evInf['Other']['logo'])
 
-                if (evType == 'general') and (eventXY[2] != None):
+                if (evType == 'General') and (eventXY[2] != None):
                     em.add_field(name="Region", value=eventXY[2], inline=True)
-                elif (evType == 'amateur') and (eventXY[3] != None):
+                elif (evType == 'Amateur') and (eventXY[3] != None):
                     em.add_field(name="League", value=eventXY[3], inline=True)
 
                 if eventXY[4]:
@@ -132,7 +134,7 @@ class SC2OpenEvents():
                 if eventXY[8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventXY[8]), inline=False)
 
-                #em.set_footer(text="Adjutant Discord Bot by Phoenix#2694")
+                #em.set_footer(text="All information is provided by Liquipedia.net", icon_url='http://liquipedia.net/commons/skins/LiquiFlow/images/liquipedia_logo.png')
 
                 if p:
                     await self.send_event(msg, em, srv, evType)
@@ -140,10 +142,7 @@ class SC2OpenEvents():
                     await self.send_event_update(pMsg, msg, em)
 
             elif (-float(self.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
-                if evType == 'general':
-                    msg = 'General Event already started.'
-                elif evType == 'amateur':
-                    msg = 'Amateur Event already started.'
+                msg = f'{evType} Event already started.'
                 await self.send_event_update(pMsg, msg, pMsg.embeds[0])
 
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
@@ -153,32 +152,30 @@ class SC2OpenEvents():
 
 
     async def fetch_soup(self, url, parser):
-        async with aiohttp.ClientSession() as session:
+        # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information. 
+        headers = {'User-Agent': 'AdjutantDiscordBot (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as response:
-                raw_html = await response.text()
-                return BeautifulSoup(raw_html, parser)
+                json_body = await response.json()
+                return BeautifulSoup(json_body['parse']['text'], parser)
 
 
     async def check_all_events(self):
         events = [[], [], []]
+        eventTypes = ['Open', 'Amateur', 'Team']
 
-        linkG = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Open_Tournaments'
-        linkA = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Amateur_Tournaments'
-        #linkT = 'http://liquipedia.net/starcraft2/User:(16thSq)_Kuro/Team_Tournaments'
-
-        soupG = await self.fetch_soup(linkG, 'html.parser')
-        soupA = await self.fetch_soup(linkA, 'html.parser')
-        #soupT = await self.fetch_soup(linkT, 'html.parser')
-
-        events[0] = kuevst.steal('general', soupG)
-        events[1] = kuevst.steal('amateur', soupA)
-        #events[2] = kuevst.steal('team', soupT)
+        for ind, evt in enumerate(eventTypes):
+            link = f'http://liquipedia.net/starcraft2/api.php?action=parse&format=json&page=User:(16thSq)_Kuro/{evt}_Tournaments&prop=text%7Cdisplaytitle&formatversion=2'
+            soup = await self.fetch_soup(link, 'html.parser')
+            if ind == len(eventTypes)-1:
+               await asyncio.sleep(40) # Liquipedia API usage guideline: "action=parse" [...] requests should not exceed 1 request per 30 seconds [...].
+            events[ind] = kuevst.steal(evt, soup)
 
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
             chan = []
-            for x, evType in enumerate(['general', 'amateur', 'team']):
+            for x, evType in enumerate(['General', 'Amateur', 'Team']):
                 log.info('processing {} events in {}'.format(evType, guild.name))
                 print('processing {} events in {}'.format(evType, guild.name))
                 for channel in guild.channels:

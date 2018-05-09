@@ -122,14 +122,14 @@ def get_matcherino_code(data):
 
 
 def steal(tourType: str, soup: BeautifulSoup):
-    if tourType == 'general':
+    if tourType == 'Open':
         if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
         else:
             tableTour = soup.find_all('table')[0]
-    elif tourType == 'amateur':
+    elif tourType == 'Amateur':
         tableTour = soup.find_all('table')[0]
-    elif tourType == 'team':
+    elif tourType == 'Team':
         if len(soup.find_all('table')) == 2:
             tableTour = soup.find_all('table')[1]
         else:
@@ -148,7 +148,6 @@ def steal(tourType: str, soup: BeautifulSoup):
         matcherinoCode = get_matcherino_code(tableTour('tr')[tRow]('td')[7])
         bracket = get_bracket(tableTour('tr')[tRow]('td')[7])
 
-        events[tRow - 2] = [name, date, region, league, server, prize,
-                            matcherino, matcherinoCode, bracket, countdown, mode]
+        events[tRow - 2] = [name, date, region, league, server, prize, matcherino, matcherinoCode, bracket, countdown, mode]
 
     return events
