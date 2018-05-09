@@ -18,15 +18,15 @@ Change the target channel for a specific event type (general, amateur, team).
 
 **Adjutant** uses a 5-level permissions system to allow usage of her commands (not yet fully implemented).
 
-Level 4: Bot Owner
+Level 4: Server Owner
 
-Level 3: Server Owner
+Level 3: Administrators
 
-Level 2: Administrators
+Level 2: Moderators
 
-Level 1: Moderators
+Level 1: Members
 
-Level 0: Members and Bots
+Level 0: Bots
 
 ## Requirements
 
