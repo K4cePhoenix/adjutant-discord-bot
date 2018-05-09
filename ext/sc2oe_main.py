@@ -9,7 +9,6 @@ import pytz
 import toml
 
 from .sc2 import kuevst
-from .utils.chat_formatting import *
 
 log = logging.getLogger('adjutant.sc2oe')
 

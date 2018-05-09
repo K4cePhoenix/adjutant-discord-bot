@@ -10,8 +10,6 @@ import pytz
 import time
 import toml
 
-from .utils.chat_formatting import *
-
 
 log = logging.getLogger('adjutant.rss')
 
