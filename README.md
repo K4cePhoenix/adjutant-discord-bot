@@ -1,5 +1,6 @@
 # Adjutant Discord Bot
 
+[![Adjutant Support Server](https://discordapp.com/api/guilds/391304338099929092/widget.png?style=shield)](https://discord.gg/nfa9jnu)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ba5633514ea9401f82156d79122fa0b1)](https://www.codacy.com/app/K4cePhoenix/Adjutant-DiscordBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=K4cePhoenix/Adjutant-DiscordBot&amp;utm_campaign=Badge_Grade)
 
 **Adjutant** is a personal Discord bot written in [Python](https://www.python.org "Python homepage") 3.6+ using [discord.py](https://github.com/Rapptz/discord.py).
