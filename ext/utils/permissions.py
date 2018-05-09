@@ -13,13 +13,13 @@ def _get(ctx):
             lvl.append(2)
         elif r.name in perms[ctx.guild.name]['lvl1']:
             lvl.append(1)
-    if ctx.message.author.id == '146597960744960000':
+    if ctx.message.author.id == ctx.message.guild.owner_id:
         lvl.append(4)
-    elif ctx.message.author.id == ctx.message.guild.owner_id:
-        lvl.append(3)
     elif ctx.message.author.guild_permissions.administrator:
-        lvl.append(2)
+        lvl.append(3)
     elif ctx.message.author.guild_permissions.manage_guild:
+        lvl.append(2)
+    elif not ctx.message.author.bot:
         lvl.append(1)
 
     return max(lvl)

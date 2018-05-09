@@ -9,9 +9,6 @@ import time
 import toml
 
 
-""" Adjutant 10-32
-posts informations of open sc2 tournaments."""
-
 def get_prefix(adjutant, message):
     """ A callable Prefix for our bot.
     This could be edited to allow per server prefixes.
@@ -84,8 +81,8 @@ async def _ping(ctx):
         e = discord.Embed(title="Pinging...", colour=0xFF0000)
         msg = await ctx.send(embed=e)
         ping = time.time() - pingtime
-        complete = "Pong, %.01f seconds" % ping
-        em = discord.Embed(title=complete, colour=0x00FFFF)
+        complete = "Pong! %.01f seconds" % ping
+        em = discord.Embed(title=complete, colour=0x00FF00)
         await msg.edit(embed=em)
 
 

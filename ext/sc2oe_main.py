@@ -81,7 +81,6 @@ class SC2OpenEvents():
                     msg = f'General Event is happening in {cd_hours}h {cd_minutes}min'
                     em.set_author(name="General Event", icon_url="http://liquipedia.net/commons/images/7/75/GrandmasterMedium.png")
                 elif evType == 'amateur':
-
                     msg = 'Amateur Event is happening in {}h {}min'.format(cd_hours, cd_minutes)
                     if 'Master' in eventXY[3]:
                         em.set_author(name="Amateur Event", icon_url="http://liquipedia.net/commons/images/2/26/MasterMedium.png")
@@ -175,6 +174,7 @@ class SC2OpenEvents():
         events[0] = kuevst.steal('general', soupG)
         events[1] = kuevst.steal('amateur', soupA)
         #events[2] = kuevst.steal('team', soupT)
+
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
