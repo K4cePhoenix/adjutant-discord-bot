@@ -151,21 +151,30 @@ class SC2OpenEvents():
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
 
-    async def fetch_soups(self, url, eventTypes, parser):
+    async def fetch_soups(self, url, parser):
         soups = [[], [], []]
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
         headers = {'User-Agent': 'Adjutant-DiscordBot (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        params = dict()
+        params['action'] = 'query'
+        params['format'] = 'json'
+        params['titles'] = 'User:(16thSq)_Kuro/Open_Tournaments|User:(16thSq)_Kuro/Amateur_Tournaments|User:(16thSq)_Kuro/Team_Tournaments'
+        params['continue'] = ''
+        params['prop'] = 'revisions'
+        params['rvprop'] = 'content'
+        params['formatversion'] = '2'
+
         async with aiohttp.ClientSession(headers=headers) as session:
-            for ind, evt in enumerate(eventTypes):
-                params = {'action': 'parse', 'format': 'json', 'page': f'User:(16thSq)_Kuro/{evt}_Tournaments', 'prop': 'text', 'formatversion': '2'}
-                async with session.get(url, params=params) as response:
-                    json_body = await response.json()
-                    soups[ind] = BeautifulSoup(json_body['parse']['text'], parser)
-                    print(f'souped {evt}')
-                if ind != len(eventTypes)-1:
-                    print(f'{ind} sleeping...')
-                    # Liquipedia API usage guideline: "action=parse" [...] requests should not exceed 1 request per 30 seconds [...].
-                    await asyncio.sleep(30.1)
+            async with session.get(url, params=params) as response:
+                json_body = await response.json()
+                a=json_body['query']['pages'][0]['revisions'][0]['content']
+                b=json_body['query']['pages'][1]['revisions'][0]['content']
+                c=json_body['query']['pages'][2]['revisions'][0]['content']
+                print(f'[{0}] - {a}')
+                print(f'[{1}] - {b}')
+                print(f'[{2}] - {c}')
+
+                #soups[ind] = BeautifulSoup(json_body['parse']['text'], parser)
             return soups
 
 
@@ -173,15 +182,9 @@ class SC2OpenEvents():
         events = [[], [], []]
         eventTypes = ['Open', 'Amateur', 'Team']
 
-        # for ind, evt in enumerate(eventTypes):
-        #     link = f'http://liquipedia.net/starcraft2/api.php?action=parse&format=json&page=User:(16thSq)_Kuro/{evt}_Tournaments&prop=text%7Cdisplaytitle&formatversion=2'
-        #     soup = await self.fetch_soup(link, eventTypes, 'html.parser')
-        #     if ind != len(eventTypes)-1:
-        #        await asyncio.sleep(30.1) 
-        #     events[ind] = kuevst.steal(evt, soup)
-        soups = await self.fetch_soups('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
-        for ind, evt in enumerate(eventTypes):
-            events[ind] = kuevst.steal(evt, soups[ind])
+        soups = await self.fetch_soups('http://liquipedia.net/starcraft2/api.php', 'html.parser')
+        #for ind, evt in enumerate(eventTypes):
+        #    events[ind] = kuevst.steal(evt, soups[ind])
 
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
