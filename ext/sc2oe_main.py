@@ -134,7 +134,7 @@ class SC2OpenEvents():
                 if eventXY[8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventXY[8]), inline=False)
 
-                em.set_footer(text="Adjutant DiscordBot by Phoenix#2694", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+                em.set_footer(text="Adjutant DiscordBot by Phoenix#2694 | Support: discord.gg/nfa9jnu", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                 if p:
                     await self.send_event(msg, em, srv, evType)
