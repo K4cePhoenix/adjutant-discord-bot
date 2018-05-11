@@ -134,7 +134,7 @@ class SC2OpenEvents():
                 if eventXY[8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventXY[8]), inline=False)
 
-                #em.set_footer(text="All information is provided by Liquipedia.net", icon_url='http://liquipedia.net/commons/skins/LiquiFlow/images/liquipedia_logo.png')
+                em.set_footer(text="Adjutant DiscordBot by Phoenix#2694", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                 if p:
                     await self.send_event(msg, em, srv, evType)
@@ -154,16 +154,14 @@ class SC2OpenEvents():
     async def fetch_soups(self, url, eventTypes, parser):
         soups = [[], [], []]
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
-        headers = {'User-Agent': 'Adjutant-DiscordBot (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        headers = {'User-Agent': 'Adjutant-DiscordBot/1.5 (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
         async with aiohttp.ClientSession(headers=headers) as session:
             for ind, evt in enumerate(eventTypes):
                 params = {'action': 'parse', 'format': 'json', 'page': f'User:(16thSq)_Kuro/{evt}_Tournaments', 'prop': 'text', 'formatversion': '2'}
                 async with session.get(url, params=params) as response:
                     json_body = await response.json()
                     soups[ind] = BeautifulSoup(json_body['parse']['text'], parser)
-                    print(f'souped {evt}')
                 if ind != len(eventTypes)-1:
-                    print(f'{ind} sleeping...')
                     # Liquipedia API usage guideline: "action=parse" [...] requests should not exceed 1 request per 30 seconds [...].
                     await asyncio.sleep(30.1)
             return soups
@@ -173,12 +171,6 @@ class SC2OpenEvents():
         events = [[], [], []]
         eventTypes = ['Open', 'Amateur', 'Team']
 
-        # for ind, evt in enumerate(eventTypes):
-        #     link = f'http://liquipedia.net/starcraft2/api.php?action=parse&format=json&page=User:(16thSq)_Kuro/{evt}_Tournaments&prop=text%7Cdisplaytitle&formatversion=2'
-        #     soup = await self.fetch_soup(link, eventTypes, 'html.parser')
-        #     if ind != len(eventTypes)-1:
-        #        await asyncio.sleep(30.1) 
-        #     events[ind] = kuevst.steal(evt, soup)
         soups = await self.fetch_soups('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
         for ind, evt in enumerate(eventTypes):
             events[ind] = kuevst.steal(evt, soups[ind])
@@ -189,7 +181,6 @@ class SC2OpenEvents():
             chan = []
             for x, evType in enumerate(['General', 'Amateur', 'Team']):
                 log.info('processing {} events in {}'.format(evType, guild.name))
-                print('processing {} events in {}'.format(evType, guild.name))
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
                         if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType}']) and channel.permissions_for(guild.me).read_messages:
