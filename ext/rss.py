@@ -58,7 +58,7 @@ class RSS():
                                     toml.dump(self.feeds, f)
                                     f.close()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.feeds['general']['sleepDelay']))
-            log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
+            log.info('Next rss feed check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
             await asyncio.sleep(float(self.feeds['general']['sleepDelay']) * 60)
 
 

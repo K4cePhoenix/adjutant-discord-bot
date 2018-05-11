@@ -197,7 +197,7 @@ class SC2OpenEvents():
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['sleepDelay']))
             log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
-            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60)
+            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60 - 60)
 
 
 def setup(adjutant):
