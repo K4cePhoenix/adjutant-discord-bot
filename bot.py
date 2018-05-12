@@ -43,7 +43,7 @@ async def on_ready():
     logger.info(f'\nUse this link to invite {adjutant.user.name}:')
     logger.info(f'https://discordapp.com/oauth2/authorize?client_id={adjutant.user.id}&scope=bot')
     logger.info('\nYou are running Adjutant 10-32 Discord Bot by Phoenix#2694')
-    logger.info('Ready at  {:%b %d, %H:%M (%Z)}'.format(datetime.now(tz=pytz.utc)))
+    logger.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
     await adjutant.change_presence(activity=discord.Game(name='with bugs..'))
     for extension in initial_extensions:
         try:
@@ -75,12 +75,12 @@ async def on_command(ctx):
 
 @adjutant.command(name='ping')
 async def _ping(ctx):
+        """ Check the bot latency """
         pingtime = time.time()
         e = discord.Embed(title="Pinging...", colour=0xFF0000)
         msg = await ctx.send(embed=e)
         ping = time.time() - pingtime
-        complete = "Pong! %.01f seconds" % ping
-        em = discord.Embed(title=complete, colour=0x00FF00)
+        em = discord.Embed(title='Pong!', description=f'DiscordBot latency: {1000.*ping:.2f}ms\nWebSocket latency: {1000.*adjutant.latency:.2f}ms', colour=0x00FF00)
         await msg.edit(embed=em)
 
 

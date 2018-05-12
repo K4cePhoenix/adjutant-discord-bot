@@ -30,18 +30,20 @@ class SC2OESettings():
 
     @_settings.command(name='channel')
     async def settings_channel(self, ctx, *, t: str):
+        """ Change the channel, the bot posts events in """
         s = t.split(' ')
-        if len(s) == 2:
+        if len(s) == 2 and s[0] in ['General', 'Amateur', 'Team']:
             self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0]}'] = s[1]
             f = open(self.data_path+self.info_file, 'w')
             toml.dump(self.srvInf, f)
             f.close()
             await ctx.channel.send(f'Changed the {s[0]} events channel to {s[1]}')
         else:
-            await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (gnrl, amtr, team) \nArg 2: channel-name')
+            await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
 
     @_settings.command(name='time')
     async def settings_time(self, ctx, *, t: int):
+        """ Set the timeformat (24h- or 12ham/pm-format) """
         if len(t) == 1:
             if t in [12, 24]:
                 self.srvInf['guilds'][ctx.guild.name]['timeformat'] = t

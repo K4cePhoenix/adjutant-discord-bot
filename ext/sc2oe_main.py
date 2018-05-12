@@ -33,12 +33,16 @@ class SC2OpenEvents():
         if msg.channel.permissions_for(msg.guild.me).manage_messages:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title}')
+        else:
+            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not delete {em.title}')
 
 
     async def send_event_update(self, oldMsg, msg, em):
         if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
             await oldMsg.edit(content=msg, embed=em)
             log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
+        else:
+            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}')
 
 
     async def send_event(self, msg, em, srv, evType):
@@ -47,6 +51,9 @@ class SC2OpenEvents():
                 if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType}'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
                     log.info(f'{srv}, {channel} - sent {em.title}')
+                    return
+                else:
+                    log.error(f'{srv}, {channel} - MISSING PERMISSION - can not send {em.title}')
                     return
 
 
@@ -58,7 +65,7 @@ class SC2OpenEvents():
             if eventXY[9] != None:
                 countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
             else:
-                countdown = -1.0
+                countdown = -5.0
             p = True
             for MsgsEv in msgs:
                 if MsgsEv.embeds:
@@ -75,9 +82,9 @@ class SC2OpenEvents():
                 evName = '_'.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1])
 
                 if evName in self.evInf.keys() and self.evInf[evName]['colour']:
-                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.evInf[evName]['colour'], 16)), description="{}".format(eventXY[1]))
+                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.evInf[evName]['colour'], 16)), description=f"{eventXY[1]}")
                 else:
-                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description="{}".format(eventXY[1]))
+                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description=f"{eventXY[1]}")
 
                 msg = f'{evType} Event is happening in {cd_hours}h {cd_minutes}min'
                 if evType == 'General':
@@ -120,19 +127,19 @@ class SC2OpenEvents():
                     if any(char.isdigit() for char in eventXY[7]) == False and eventXY[7] == None and evName in self.evInf.keys():
                         codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
                         eventXY[7] = self.evInf[evName]['code'].replace("$", str(codeNr))
-                    cfVal = "[Matcherino]({}) - free $1 code `{}`".format(eventXY[6], eventXY[7])
+                    cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
                 if evName in self.evInf.keys():
                     if self.evInf[evName]['patreon']:
                         if cfVal:
-                            cfVal += "\n[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                            cfVal += f"\n[Patreon]({self.evInf[evName]['patreon']}) - contribute to increase the prize pool"
                         else:
-                            cfVal = "[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                            cfVal = f"[Patreon]({self.evInf[evName]['patreon']}) - contribute to increase the prize pool"
 
                 if cfVal:
                     em.add_field(name="Crowdfunding", value=cfVal, inline=False)
 
                 if eventXY[8]:
-                    em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventXY[8]), inline=False)
+                    em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
 
                 em.set_footer(text="Adjutant DiscordBot by Phoenix#2694 | Support: discord.gg/nfa9jnu", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
@@ -180,7 +187,7 @@ class SC2OpenEvents():
             msgs = []
             chan = []
             for x, evType in enumerate(['General', 'Amateur', 'Team']):
-                log.info('processing {} events in {}'.format(evType, guild.name))
+                log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
                         if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType}']) and channel.permissions_for(guild.me).read_messages:
@@ -196,7 +203,7 @@ class SC2OpenEvents():
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['sleepDelay']))
-            log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
+            log.info(f'Next event check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
             await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60 - 60)
 
 
