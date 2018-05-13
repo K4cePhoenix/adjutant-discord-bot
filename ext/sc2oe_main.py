@@ -8,7 +8,7 @@ import os
 import pytz
 import toml
 
-from .sc2 import kuevst
+from .sc2 import kuevstv2
 
 log = logging.getLogger('adjutant.sc2oe')
 
@@ -151,19 +151,9 @@ class SC2OpenEvents():
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
 
-    def eradicate_comments(self, data, s=''):
-        for ind, com_open in enumerate(data.split('<!--')):
-            if ind == 0:
-                s += com_open
-            if len(com_open.split('-->')) > 1:
-                s += com_open.split('-->')[1]
-        return s
-
-
     async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
         headers = {'User-Agent': 'Adjutant-DiscordBot (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
-
         params = dict()
         params['action'] = 'query'
         params['format'] = 'json'
@@ -172,22 +162,12 @@ class SC2OpenEvents():
         params['prop'] = 'revisions'
         params['rvprop'] = 'content'
         params['formatversion'] = '2'
-
         evText = dict()
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url, params=params) as response:
                 json_body = await response.json()
                 for ind, evType in enumerate(eventTypes):
                     evText[evType] = json_body['query']['pages'][ind]['revisions'][0]['content']
-                    # commless = self.eradicate_comments(p)
-                    # data = commless.split('User:(16thSq) Kuro/')[4]
-                    # for i, d in enumerate(data.split('|')):
-                    #     d = d.replace('<br>',' ')
-                    #     d = d.replace('  ',' ')
-                    #     d = d.strip(' ')
-                    #     if i < len(data.split('|'))-2:
-                    #         print(f'|{d}')
-                    #         print()
         return evText
 
 
@@ -195,12 +175,12 @@ class SC2OpenEvents():
         eventTypes = ['General', 'Amateur', 'Team']
 
         txts = await self.fetch_texts('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
-
         #######################################
         # rewrite kuevst.py and call it heeeere
         # example:
         # for ind, evt in enumerate(eventTypes):
         #     events[ind] = kuevst.steal(evt, soups[ind])
+        events = kuevstv2.steal(txts)
         #######################################
 
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
