@@ -48,12 +48,9 @@ class SC2OpenEvents():
     async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType}'] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType.lower()}'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
                     log.info(f'{srv}, {channel} - sent {em.title}')
-                    return
-                else:
-                    log.error(f'{srv}, {channel} - MISSING PERMISSION - can not send {em.title}')
                     return
 
 
@@ -61,6 +58,7 @@ class SC2OpenEvents():
         aEvCount = 0
         pEvCount = 0
         dEvCount = 0
+
         for eventXY in eventsX:
             if eventXY[9] != None:
                 countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
@@ -190,10 +188,23 @@ class SC2OpenEvents():
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
-                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType}']) and channel.permissions_for(guild.me).read_messages:
+                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType.lower()}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
                                 chan.append(channel)
+
+                l = False
+                for MsgsEv in msgs:
+                    if MsgsEv.embeds:
+                        if MsgsEv.embeds[0].title == "Licensing":
+                            l = True
+                if not l:
+                    embed = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
+                    embed.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
+                    for channel in guild.channels:
+                            if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
+                                await channel.send(embed=embed)
+
                 await self.post_events(events[x], msgs, guild, chan, evType)
 
 
@@ -204,7 +215,7 @@ class SC2OpenEvents():
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['sleepDelay']))
             log.info(f'Next event check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
-            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60 - 60)
+            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 - 60)
 
 
 def setup(adjutant):
