@@ -33,18 +33,22 @@ class SC2OpenEvents():
         if msg.channel.permissions_for(msg.guild.me).manage_messages:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title}')
+        else:
+            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not delete {em.title}')
 
 
     async def send_event_update(self, oldMsg, msg, em):
         if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
             await oldMsg.edit(content=msg, embed=em)
             log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
+        else:
+            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}')
 
 
     async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.srvInf['guilds']:
-                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType}'] and channel.permissions_for(srv.me).send_messages:
+                if srv.name == self.srvInf['guilds'][s]['name'] and channel.name == self.srvInf['guilds'][s][f'channel_{evType.lower()}'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
                     log.info(f'{srv}, {channel} - sent {em.title}')
                     return
@@ -54,11 +58,12 @@ class SC2OpenEvents():
         aEvCount = 0
         pEvCount = 0
         dEvCount = 0
+
         for eventXY in eventsX:
             if eventXY[9] != None:
                 countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
             else:
-                countdown = -1.0
+                countdown = -5.0
             p = True
             for MsgsEv in msgs:
                 if MsgsEv.embeds:
@@ -75,9 +80,9 @@ class SC2OpenEvents():
                 evName = '_'.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1])
 
                 if evName in self.evInf.keys() and self.evInf[evName]['colour']:
-                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.evInf[evName]['colour'], 16)), description="{}".format(eventXY[1]))
+                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.evInf[evName]['colour'], 16)), description=f"{eventXY[1]}")
                 else:
-                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description="{}".format(eventXY[1]))
+                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description=f"{eventXY[1]}")
 
                 msg = f'{evType} Event is happening in {cd_hours}h {cd_minutes}min'
                 if evType == 'General':
@@ -120,21 +125,21 @@ class SC2OpenEvents():
                     if any(char.isdigit() for char in eventXY[7]) == False and eventXY[7] == None and evName in self.evInf.keys():
                         codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
                         eventXY[7] = self.evInf[evName]['code'].replace("$", str(codeNr))
-                    cfVal = "[Matcherino]({}) - free $1 code `{}`".format(eventXY[6], eventXY[7])
+                    cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
                 if evName in self.evInf.keys():
                     if self.evInf[evName]['patreon']:
                         if cfVal:
-                            cfVal += "\n[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                            cfVal += f"\n[Patreon]({self.evInf[evName]['patreon']}) - contribute to increase the prize pool"
                         else:
-                            cfVal = "[Patreon]({}) - contribute to increase the prize pool".format(self.evInf[evName]['patreon'])
+                            cfVal = f"[Patreon]({self.evInf[evName]['patreon']}) - contribute to increase the prize pool"
 
                 if cfVal:
                     em.add_field(name="Crowdfunding", value=cfVal, inline=False)
 
                 if eventXY[8]:
-                    em.add_field(name='▬▬▬▬▬▬▬', value='[**SIGN UP HERE**]({})'.format(eventXY[8]), inline=False)
+                    em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
 
-                #em.set_footer(text="All information is provided by Liquipedia.net", icon_url='http://liquipedia.net/commons/skins/LiquiFlow/images/liquipedia_logo.png')
+                em.set_footer(text="Adjutant DiscordBot by Phoenix#2694 | Support: discord.gg/nfa9jnu", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                 if p:
                     await self.send_event(msg, em, srv, evType)
@@ -175,27 +180,33 @@ class SC2OpenEvents():
         eventTypes = ['General', 'Amateur', 'Team']
 
         txts = await self.fetch_texts('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
-        #######################################
-        # rewrite kuevst.py and call it heeeere
-        # example:
-        # for ind, evt in enumerate(eventTypes):
-        #     events[ind] = kuevst.steal(evt, soups[ind])
         events = kuevstv2.steal(txts)
-        #######################################
 
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
             chan = []
             for x, evType in enumerate(eventTypes):
-                log.info('processing {} events in {}'.format(evType, guild.name))
-                print('processing {} events in {}'.format(evType, guild.name))
+                log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
-                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType}']) and channel.permissions_for(guild.me).read_messages:
+                        if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType.lower()}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
                                 chan.append(channel)
+
+                l = False
+                for MsgsEv in msgs:
+                    if MsgsEv.embeds:
+                        if MsgsEv.embeds[0].title == "Licensing":
+                            l = True
+                if not l:
+                    embed = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
+                    embed.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
+                    for channel in guild.channels:
+                            if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
+                                await channel.send(embed=embed)
+
                 await self.post_events(events[x], msgs, guild, chan, evType)
 
 
@@ -205,8 +216,8 @@ class SC2OpenEvents():
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['sleepDelay']))
-            log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
-            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 * 60)
+            log.info(f'Next event check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
+            await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60 - 60)
 
 
 def setup(adjutant):
