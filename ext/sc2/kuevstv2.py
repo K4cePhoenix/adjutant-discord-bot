@@ -2,12 +2,6 @@ from datetime import datetime
 import pytz
 
 
-def get_name(data):
-    """ Returns the name of the event """
-    n = data.a.string
-    return n
-
-
 def get_cd(data):
     """ Returns the countdown of the event
     e.g. event sign up ends on 10:00 on November 4th
@@ -15,15 +9,14 @@ def get_cd(data):
     returns: datetime object with the following info
     +1day7hours
     """
-    cdTime = datetime.strptime(
-        data.text[1:-5] + ' +0900', '%B %d, %Y - %H:%M %z')
+    cdTime = datetime.strptime(data + ' +0900', '%B %d, %Y - %H:%M {{Abbr/KST}} %z')
     currentTime = datetime.now(tz=pytz.timezone('Asia/Seoul'))
     return cdTime - currentTime
 
 
 def get_time(data):
     """ Returns the start date of the event """
-    eventTime = datetime.strptime(data.text[1:-5], '%B %d, %Y - %H:%M')
+    eventTime = datetime.strptime(data, '%B %d, %Y - %H:%M {{Abbr/KST}}')
     allTimes = time_to_times(eventTime)
     eventTimeStr = times_to_string(allTimes)
     return eventTimeStr
@@ -56,68 +49,30 @@ def times_to_string(data):
     return timeStr
 
 
-def get_mode(data):
-    """ Returns the playmode """
-    return data.text.strip()
-
-
-def get_rsl(data, sL):
+def get_rsl(data):
     """ Returns Region, Server and/or League information """
-    r = data('td')[5].text.split('(')[0][1:-1]
-    if len(data('td')[5].text.split('(')) == 2:
-        s = data('td')[5].text.split('(')[1][0:-2]
-    else:
-        s = None
-    if len(data('td')[4].text.split('(')) == 2:
-        l = data('td')[4].text.split('(')[0][1:]
-    else:
-        l = data('td')[4].text.split('(')[0][1:-1]
-    if l == 'Online Qualifier':
-        l = None
-    if l == 'Online':
-        l = None
-    if l == 'Offline':
-        l = None
-    return r, s, l
+    l = data.text.split('(')[0].strip()
+    return l
 
 
 def get_prize(data):
     """ Returns any prizepool, if any """
-    for br in data.find_all("br"):
-        br.replace_with("\n")
-    pr = ' '.join(data.text.split('\n')).strip()
-    pr = ' '.join(pr.split('  '))
+    pr = data
     if pr == "":
         pr = None
     elif pr == "-":
         pr = None
     return pr
 
-def get_bracket(data):
+def get_bracket(dataChallonge, dataBrackets):
     """ Returns the bracket, which is in nearly all cases the signup page as well """
-    if data.find(class_="lp-icon lp-challonge") != None:
-        b = data.find(class_="lp-icon lp-challonge").parent.get('href')
-    elif data.find(class_="lp-icon lp-bracket") != None:
-        b = data.find(class_="lp-icon lp-bracket").parent.get('href')
+    if dataChallonge:
+        return dataChallonge
+    elif dataBrackets:
+        return dataBrackets
     else:
-        b = None
-    return b
+        return None
 
-
-def get_matcherino(data):
-    """ Returns Matcherino information """
-    if data.find(class_="lp-icon lp-matcherino") != None:
-        ma = data.find(class_="lp-icon lp-matcherino").parent.get('href')
-    else:
-        ma = None
-    return ma
-
-def get_matcherino_code(data):
-    if data.find(class_="lp-icon lp-matcherino") != None:
-        code = data.find(class_="lp-icon lp-matcherino").parent.parent.get('title')
-    else:
-        code = ""
-    return code
 
 def eradicate_comments(data, s=''):
     for ind, com_open in enumerate(data.split('<!--')):
@@ -127,64 +82,70 @@ def eradicate_comments(data, s=''):
             s += com_open.split('-->')[1]
     return s
 
+
 def steal(dataset: dict):
-    for key in dataset.keys():
+    events = [[], [], []]
+    for ind, key in enumerate(dataset.keys()):
         data = eradicate_comments(dataset[key])
         dataSplit = data.split('User:(16thSq) Kuro/')
         print(len(dataSplit), key)
         if 'This=1' in dataSplit[3].split('}}')[0]:
             """ General Event """
-            genEvLst = list()
+            evLst = list()
             for i in range(4, len(dataSplit)):
-                genEvDct = dict()
+                evDct = dict()
                 for j, k in enumerate(dataSplit[i].split('|')):
                     k = k.replace('<br>',' ').replace('  ',' ').strip()
                     if 0 < j < 17:
                         if len(k.split('=')) == 2:
-                            genEvDct[k.split('=')[0]] = k.split('=')[1]
-                print(f"{genEvDct['event']}")
-                genEvLst.append(genEvDct)
-            print(f"List len: {len(genEvDct)}")
+                            evDct[k.split('=')[0]] = k.split('=')[1]
+                evLst.append(evDct)
+            print(f"General: {len(evLst)}") 
 
         elif 'This=2' in dataSplit[3].split('}}')[0]:
             """ Amateur Event """
-            genEvLst = list()
+            evLst = list()
             for i in range(4, len(dataSplit)):
-                genEvDct = dict()
+                evDct = dict()
                 for j, k in enumerate(dataSplit[i].split('|')):
                     k = k.replace('<br>',' ').replace('  ',' ').strip()
                     if 0 < j < 17:
                         if len(k.split('=')) == 2:
-                            genEvDct[k.split('=')[0]] = k.split('=')[1]
-                print(f"{genEvDct['event']}")
-                genEvLst.append(genEvDct)
-            print(f"List len: {len(genEvDct)}")
+                            evDct[k.split('=')[0]] = k.split('=')[1]
+                evLst.append(evDct)
+            print(f"Amateur: {len(evLst)}")
 
         elif 'This=3' in dataSplit[3].split('}}')[0]:
             """ Team Event """
-            pass
-        #General 4, Amateur 4, Team 6 => First event
-        #print()
-        # for i, d in enumerate(data.split('|')):
-        #     d = d.replace('<br>',' ')
-        #     d = d.replace('  ',' ')
-        #     d = d.strip(' ')
+            evLst = list()
 
-
-
-    # events = [['1'] * 8 for x in range(len(tableTour('tr')) - 2)]
-
-    # for tRow in range(2, len(tableTour('tr'))):
-    #     countdown = get_cd(tableTour('tr')[tRow]('td')[0])
-    #     date = get_time(tableTour('tr')[tRow]('td')[1])
-    #     mode = get_mode(tableTour('tr')[tRow]('td')[2])
-    #     name = get_name(tableTour('tr')[tRow]('td')[3])
-    #     region, server, league = get_rsl(tableTour('tr')[tRow], tourType)
-    #     prize = get_prize(tableTour('tr')[tRow]('td')[6])
-    #     matcherino = get_matcherino(tableTour('tr')[tRow]('td')[7])
-    #     matcherinoCode = get_matcherino_code(tableTour('tr')[tRow]('td')[7])
-    #     bracket = get_bracket(tableTour('tr')[tRow]('td')[7])
-
-    #     events[tRow - 2] = [name, date, region, league, server, prize, matcherino, matcherinoCode, bracket, countdown, mode]
-
-    return [[],[],[]]
+        l = list()
+        for i in range(len(evLst)):
+            countdown = get_cd(evLst[i]['deadline'].strip())
+            date = get_time(evLst[i]['date'].strip())
+            mode = evLst[i]['mode'].strip()
+            name = evLst[i]['event'].strip()
+            try:
+                region, server = evLst[i]['region'].strip(), evLst[i]['server'].strip()
+                league = get_rsl(evLst[i]['league'].strip())
+            except:
+                region, server = evLst[i]['region'].strip(), evLst[i]['server'].strip()
+                league = None
+            try:
+                prize = get_prize(evLst[i]['prizepool'].strip())
+            except:
+                prize = None
+            try:
+                matcherino = evLst[i]['matcherino'].strip()
+            except:
+                matcherino = None
+            try:
+                matcherinoCode = evLst[i]['coupon'].strip()
+            except:
+                matcherinoCode = None
+            try:
+                bracket = get_bracket(evLst[i]['challonge'].strip(), evLst[i]['brackets'].strip())
+            except:
+                bracket = evLst[i]['challonge'].strip()
+            events[ind].append([name, date, region, league, server, prize, matcherino, matcherinoCode, bracket, countdown, mode])
+    return events

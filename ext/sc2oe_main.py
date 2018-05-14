@@ -54,7 +54,7 @@ class SC2OpenEvents():
                     return
 
 
-    async def post_events(self, eventsX, msgs, srv, ch, evType):
+    async def post_events(self, eventsX, msgs, srv, evType):
         aEvCount = 0
         pEvCount = 0
         dEvCount = 0
@@ -185,7 +185,6 @@ class SC2OpenEvents():
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
-            chan = []
             for x, evType in enumerate(eventTypes):
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
@@ -193,7 +192,6 @@ class SC2OpenEvents():
                         if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType.lower()}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
-                                chan.append(channel)
 
                 l = False
                 for MsgsEv in msgs:
@@ -207,7 +205,7 @@ class SC2OpenEvents():
                             if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
                                 await channel.send(embed=embed)
 
-                await self.post_events(events[x], msgs, guild, chan, evType)
+                await self.post_events(events[x], msgs, guild, evType)
 
 
     async def check_events_in_background(self):
