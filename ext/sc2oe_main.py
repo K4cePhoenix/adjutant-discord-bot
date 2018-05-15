@@ -84,7 +84,7 @@ class SC2OpenEvents():
                 else:
                     em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description=f"{eventXY[1]}")
 
-                msg = f'{evType} Event is happening in {cd_hours}h {cd_minutes}min'
+                msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
                 if evType == 'General':
                     em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/lTur4HM.png")
                 elif evType == 'Amateur':
@@ -147,7 +147,7 @@ class SC2OpenEvents():
                     await self.send_event_update(pMsg, msg, em)
 
             elif (-float(self.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
-                msg = f'{evType} Event already started.'
+                msg = f'{evType} event has started.'
                 await self.send_event_update(pMsg, msg, pMsg.embeds[0])
 
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
