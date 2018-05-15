@@ -51,7 +51,7 @@ def times_to_string(data):
 
 def get_rsl(data):
     """ Returns Region, Server and/or League information """
-    l = data.text.split('(')[0].strip()
+    l = data.split('(')[0].strip()
     return l
 
 
@@ -88,7 +88,6 @@ def steal(dataset: dict):
     for ind, key in enumerate(dataset.keys()):
         data = eradicate_comments(dataset[key])
         dataSplit = data.split('User:(16thSq) Kuro/')
-        print(len(dataSplit), key)
         if 'This=1' in dataSplit[3].split('}}')[0]:
             """ General Event """
             evLst = list()
@@ -100,7 +99,6 @@ def steal(dataset: dict):
                         if len(k.split('=')) == 2:
                             evDct[k.split('=')[0]] = k.split('=')[1]
                 evLst.append(evDct)
-            print(f"General: {len(evLst)}") 
 
         elif 'This=2' in dataSplit[3].split('}}')[0]:
             """ Amateur Event """
@@ -110,10 +108,10 @@ def steal(dataset: dict):
                 for j, k in enumerate(dataSplit[i].split('|')):
                     k = k.replace('<br>',' ').replace('  ',' ').strip()
                     if 0 < j < 17:
+                        #print(k)
                         if len(k.split('=')) == 2:
                             evDct[k.split('=')[0]] = k.split('=')[1]
                 evLst.append(evDct)
-            print(f"Amateur: {len(evLst)}")
 
         elif 'This=3' in dataSplit[3].split('}}')[0]:
             """ Team Event """
@@ -130,7 +128,7 @@ def steal(dataset: dict):
                 league = get_rsl(evLst[i]['league'].strip())
             except:
                 region, server = evLst[i]['region'].strip(), evLst[i]['server'].strip()
-                league = None
+                league = ''
             try:
                 prize = get_prize(evLst[i]['prizepool'].strip())
             except:
