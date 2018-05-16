@@ -159,7 +159,7 @@ class SC2OpenEvents():
     async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
 
-        headers = {'User-Agent': 'Adjutant-DiscordBot (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        headers = {'User-Agent': 'Adjutant-DiscordBot/v2.0 (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'
         params['format'] = 'json'
