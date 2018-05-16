@@ -158,6 +158,7 @@ class SC2OpenEvents():
 
     async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
+
         headers = {'User-Agent': 'Adjutant-DiscordBot (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'
@@ -185,7 +186,9 @@ class SC2OpenEvents():
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
+
             for x, evType in enumerate(eventTypes):
+    
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:

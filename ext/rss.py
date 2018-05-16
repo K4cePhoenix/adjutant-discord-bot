@@ -41,11 +41,11 @@ class RSS():
                 log.info(f'RSS check: {feed}')
                 feed_data = await self.fetch_feed(self.feeds['feeds'][feed]['feedURL'])
                 for key in range(len(feed_data['entries'])-(len(feed_data['entries'])-2), -1, -1):
-                    msg = "{}: {}".format(self.feeds['feeds'][feed]['name'], feed_data['entries'][key]['title'])
+                    msg = f"{self.feeds['feeds'][feed]['name']}: {feed_data['entries'][key]['title']}"
                     em = discord.Embed(title=feed_data['entries'][key]['title'], colour=discord.Colour(int(self.feeds['feeds'][feed]['colour'], 16)), description=BeautifulSoup(feed_data['entries'][key]['summary'], 'html.parser').text.rstrip('More'))
                     em.set_author(name=self.feeds['feeds'][feed]['name'], icon_url=self.feeds['feeds'][feed]['icon'])
-                    em.add_field(name='\u200b', value='[**READ MORE**]({}{})'.format(self.feeds['feeds'][feed]['blogURL'], feed_data['entries'][key]['id'].split('/')[-1]), inline=False)
-                    em.set_footer(text="Published at {} UTC".format(time.strftime('%b %d, %H:%M', feed_data['entries'][key]['published_parsed'])))
+                    em.add_field(name='\u200b', value=f"[**READ MORE**]({self.feeds['feeds'][feed]['blogURL']}{feed_data['entries'][key]['id'].split('/')[-1]})", inline=False)
+                    em.set_footer(text=f"Published at {time.strftime('%b %d, %H:%M', feed_data['entries'][key]['published_parsed'])} UTC")
                     log.info(f'{msg}')
                     for fSrv in self.feeds['servers']:
                         fChan = self.feeds['servers'][fSrv]['channel']
@@ -58,7 +58,7 @@ class RSS():
                                     toml.dump(self.feeds, f)
                                     f.close()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.feeds['general']['sleepDelay']))
-            log.info('Next event check at {:%b %d, %H:%M (%Z)}'.format(nextUpdateTime))
+            log.info(f'Next rss feed check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
             await asyncio.sleep(float(self.feeds['general']['sleepDelay']) * 60)
 
 
