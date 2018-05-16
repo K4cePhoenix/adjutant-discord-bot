@@ -188,7 +188,7 @@ class SC2OpenEvents():
             msgs = []
 
             for x, evType in enumerate(eventTypes):
-    
+
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
