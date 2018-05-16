@@ -141,6 +141,6 @@ def steal(dataset: dict):
             try:
                 bracket = get_bracket(evLstItem['challonge'].strip(), evLstItem['brackets'].strip())
             except:
-                bracket = evLst[i]['challonge'].strip()
+                bracket = evLstItem['challonge'].strip()
             events[ind].append([name, date, region, league, server, prize, matcherino, matcherinoCode, bracket, countdown, mode])
     return events
