@@ -89,19 +89,17 @@ def steal(dataset: dict):
         data = eradicate_comments(dataset[key])
         dataSplit = data.split('User:(16thSq) Kuro/')
         if 'This=1' in dataSplit[3].split('}}')[0]:
-            """ General Event """
             evLst = list()
             for i in range(4, len(dataSplit)):
                 evDct = dict()
                 for j, k in enumerate(dataSplit[i].split('|')):
-                    k = k.replace('<br>',' ').replace('  ',' ').strip()
+                    k = k.replace('<br>', ' ').replace('  ', ' ').strip()
                     if 0 < j < 17:
                         if len(k.split('=')) == 2:
                             evDct[k.split('=')[0]] = k.split('=')[1]
                 evLst.append(evDct)
 
         elif 'This=2' in dataSplit[3].split('}}')[0]:
-            """ Amateur Event """
             evLst = list()
             for i in range(4, len(dataSplit)):
                 evDct = dict()
@@ -114,35 +112,34 @@ def steal(dataset: dict):
                 evLst.append(evDct)
 
         elif 'This=3' in dataSplit[3].split('}}')[0]:
-            """ Team Event """
             evLst = list()
 
         l = list()
-        for i in range(len(evLst)):
-            countdown = get_cd(evLst[i]['deadline'].strip())
-            date = get_time(evLst[i]['date'].strip())
-            mode = evLst[i]['mode'].strip()
-            name = evLst[i]['event'].strip()
+        for evLstItem in evLst:
+            countdown = get_cd(evLstItem['deadline'].strip())
+            date = get_time(evLstItem['date'].strip())
+            mode = evLstItem['mode'].strip()
+            name = evLstItem['event'].strip()
             try:
-                region, server = evLst[i]['region'].strip(), evLst[i]['server'].strip()
-                league = get_rsl(evLst[i]['league'].strip())
+                region, server = evLstItem['region'].strip(), evLstItem['server'].strip()
+                league = get_rsl(evLstItem['league'].strip())
             except:
-                region, server = evLst[i]['region'].strip(), evLst[i]['server'].strip()
+                region, server = evLstItem['region'].strip(), evLstItem['server'].strip()
                 league = ''
             try:
-                prize = get_prize(evLst[i]['prizepool'].strip())
+                prize = get_prize(evLstItem['prizepool'].strip())
             except:
                 prize = None
             try:
-                matcherino = evLst[i]['matcherino'].strip()
+                matcherino = evLstItem['matcherino'].strip()
             except:
                 matcherino = None
             try:
-                matcherinoCode = evLst[i]['coupon'].strip()
+                matcherinoCode = evLstItem['coupon'].strip()
             except:
                 matcherinoCode = None
             try:
-                bracket = get_bracket(evLst[i]['challonge'].strip(), evLst[i]['brackets'].strip())
+                bracket = get_bracket(evLstItem['challonge'].strip(), evLstItem['brackets'].strip())
             except:
                 bracket = evLst[i]['challonge'].strip()
             events[ind].append([name, date, region, league, server, prize, matcherino, matcherinoCode, bracket, countdown, mode])
