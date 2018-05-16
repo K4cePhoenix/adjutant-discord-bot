@@ -30,18 +30,18 @@ class SC2OpenEvents():
 
 
     async def del_old_events(self, msg):
-        if msg.channel.permissions_for(msg.guild.me).manage_messages:
+        try:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title}')
-        else:
-            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not delete {em.title}')
+        except:
+            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - can not delete {em.title}')
 
 
     async def send_event_update(self, oldMsg, msg, em):
-        if oldMsg.channel.permissions_for(oldMsg.guild.me).manage_messages:
+        try:
             await oldMsg.edit(content=msg, embed=em)
             log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
-        else:
+        except:
             log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}')
 
 
