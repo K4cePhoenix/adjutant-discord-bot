@@ -8,7 +8,7 @@ import os
 import pytz
 import toml
 
-from .sc2 import kuevst
+from .sc2 import kuevstv2
 
 log = logging.getLogger('adjutant.sc2oe')
 
@@ -54,7 +54,7 @@ class SC2OpenEvents():
                     return
 
 
-    async def post_events(self, eventsX, msgs, srv, ch, evType):
+    async def post_events(self, eventsX, msgs, srv, evType):
         aEvCount = 0
         pEvCount = 0
         dEvCount = 0
@@ -84,7 +84,7 @@ class SC2OpenEvents():
                 else:
                     em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description=f"{eventXY[1]}")
 
-                msg = f'{evType} Event is happening in {cd_hours}h {cd_minutes}min'
+                msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
                 if evType == 'General':
                     em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/lTur4HM.png")
                 elif evType == 'Amateur':
@@ -147,7 +147,7 @@ class SC2OpenEvents():
                     await self.send_event_update(pMsg, msg, em)
 
             elif (-float(self.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
-                msg = f'{evType} Event already started.'
+                msg = f'{evType} event has started.'
                 await self.send_event_update(pMsg, msg, pMsg.embeds[0])
 
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
@@ -156,42 +156,45 @@ class SC2OpenEvents():
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
 
-    async def fetch_soups(self, url, eventTypes, parser):
-        soups = [[], [], []]
+    async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
-        headers = {'User-Agent': 'Adjutant-DiscordBot/1.5 (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+
+        headers = {'User-Agent': 'Adjutant-DiscordBot/v2.0 (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        params = dict()
+        params['action'] = 'query'
+        params['format'] = 'json'
+        params['titles'] = 'User:(16thSq)_Kuro/Open_Tournaments|User:(16thSq)_Kuro/Amateur_Tournaments|User:(16thSq)_Kuro/Team_Tournaments'
+        params['continue'] = ''
+        params['prop'] = 'revisions'
+        params['rvprop'] = 'content'
+        params['formatversion'] = '2'
+        evText = dict()
         async with aiohttp.ClientSession(headers=headers) as session:
-            for ind, evt in enumerate(eventTypes):
-                params = {'action': 'parse', 'format': 'json', 'page': f'User:(16thSq)_Kuro/{evt}_Tournaments', 'prop': 'text', 'formatversion': '2'}
-                async with session.get(url, params=params) as response:
-                    json_body = await response.json()
-                    soups[ind] = BeautifulSoup(json_body['parse']['text'], parser)
-                if ind != len(eventTypes)-1:
-                    # Liquipedia API usage guideline: "action=parse" [...] requests should not exceed 1 request per 30 seconds [...].
-                    await asyncio.sleep(30.1)
-            return soups
+            async with session.get(url, params=params) as response:
+                json_body = await response.json()
+                for ind, evType in enumerate(eventTypes):
+                    evText[evType] = json_body['query']['pages'][ind]['revisions'][0]['content']
+        return evText
 
 
     async def check_all_events(self):
-        events = [[], [], []]
-        eventTypes = ['Open', 'Amateur', 'Team']
+        eventTypes = ['General', 'Amateur', 'Team']
 
-        soups = await self.fetch_soups('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
-        for ind, evt in enumerate(eventTypes):
-            events[ind] = kuevst.steal(evt, soups[ind])
+        txts = await self.fetch_texts('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
+        events = kuevstv2.steal(txts)
 
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.adjutant.guilds:
             msgs = []
-            chan = []
-            for x, evType in enumerate(['General', 'Amateur', 'Team']):
+
+            for x, evType in enumerate(eventTypes):
+
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.srvInf['guilds']:
                         if (guild.name == srv) and (channel.name == self.srvInf['guilds'][srv][f'channel_{evType.lower()}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
-                                chan.append(channel)
 
                 l = False
                 for MsgsEv in msgs:
@@ -205,7 +208,7 @@ class SC2OpenEvents():
                             if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
                                 await channel.send(embed=embed)
 
-                await self.post_events(events[x], msgs, guild, chan, evType)
+                await self.post_events(events[x], msgs, guild, evType)
 
 
     async def check_events_in_background(self):
