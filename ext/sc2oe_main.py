@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import aiohttp
 import asyncio
@@ -214,6 +213,7 @@ class SC2OpenEvents():
     async def check_events_in_background(self):
         await self.adjutant.wait_until_ready()
         while True:
+            self.evInf = toml.load(self.data_path + self.eventinfo_file)
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(hours=float(self.srvInf['general']['sleepDelay']))

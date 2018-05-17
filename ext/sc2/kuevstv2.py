@@ -104,7 +104,7 @@ def steal(dataset: dict):
             for i in range(4, len(dataSplit)):
                 evDct = dict()
                 for j, k in enumerate(dataSplit[i].split('|')):
-                    k = k.replace('<br>',' ').replace('  ',' ').strip()
+                    k = k.replace('<br>', ' ').replace('  ', ' ').strip()
                     if 0 < j < 17:
                         #print(k)
                         if len(k.split('=')) == 2:
@@ -114,7 +114,6 @@ def steal(dataset: dict):
         elif 'This=3' in dataSplit[3].split('}}')[0]:
             evLst = list()
 
-        l = list()
         for evLstItem in evLst:
             countdown = get_cd(evLstItem['deadline'].strip())
             date = get_time(evLstItem['date'].strip())
