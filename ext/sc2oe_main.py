@@ -199,13 +199,16 @@ class SC2OpenEvents():
                 for MsgsEv in msgs:
                     if MsgsEv.embeds:
                         if MsgsEv.embeds[0].title == "Licensing":
+                            em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
+                            em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
+                            await MsgsEv.edit(embed=em)
                             l = True
                 if not l:
-                    embed = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
-                    embed.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
+                    em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
+                    em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
                     for channel in guild.channels:
                             if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
-                                await channel.send(embed=embed)
+                                await channel.send(embed=em)
 
                 await self.post_events(events[x], msgs, guild, evType)
 
