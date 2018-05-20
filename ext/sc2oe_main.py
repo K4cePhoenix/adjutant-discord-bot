@@ -207,8 +207,12 @@ class SC2OpenEvents():
                             evTmp = list()
                             for eventXY in events[x]:
                                 evTmp.append(eventXY[0])
-                            if not MsgsEv.embeds[0].title in evTmp:
-                                await MsgsEv.delete()
+                            if MsgsEv.author.id == MsgsEv.guild.me.id:
+                                if not MsgsEv.embeds[0].title in evTmp:
+                                    try:
+                                        await MsgsEv.delete()
+                                    except:
+                                        log.error(f'{MsgsEv.guild}, {MsgsEv.channel} - MISSING PERMISSION - can not delete {MsgsEv.id}')
                 if not l:
                     em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
                     em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
