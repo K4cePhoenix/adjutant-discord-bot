@@ -207,7 +207,7 @@ class SC2OpenEvents():
                             evTmp = list()
                             for eventXY in events[x]:
                                 evTmp.append(eventXY[0])
-                            if MsgsEv.embeds[0].title in evTmp:
+                            if not MsgsEv.embeds[0].title in evTmp:
                                 await MsgsEv.delete()
                 if not l:
                     em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
