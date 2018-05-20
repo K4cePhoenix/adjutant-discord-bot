@@ -136,7 +136,7 @@ def steal(dataset: dict):
             try:
                 matcherinoCode = evLstItem['coupon'].strip()
             except:
-                matcherinoCode = None
+                matcherinoCode = ''
             try:
                 bracket = get_bracket(evLstItem['challonge'].strip(), evLstItem['brackets'].strip())
             except:

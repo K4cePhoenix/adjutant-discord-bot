@@ -121,7 +121,7 @@ class SC2OpenEvents():
 
                 cfVal = None
                 if eventXY[6]:
-                    if any(char.isdigit() for char in eventXY[7]) == False and eventXY[7] == None and evName in self.evInf.keys():
+                    if any(char.isdigit() for char in eventXY[7]) == False and eventXY[7] == '' and evName in self.evInf.keys():
                         codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
                         eventXY[7] = self.evInf[evName]['code'].replace("$", str(codeNr))
                     cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
