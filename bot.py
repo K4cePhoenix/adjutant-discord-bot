@@ -80,7 +80,7 @@ async def _ping(ctx):
         e = discord.Embed(title="Pinging...", colour=0xFF0000)
         msg = await ctx.send(embed=e)
         ping = time.time() - pingtime
-        em = discord.Embed(title='Pong!', description=f'DiscordBot latency: {1000.*ping:.2f}ms\nWebSocket latency: {1000.*adjutant.latency:.2f}ms', colour=0x00FF00)
+        em = discord.Embed(title='Pong!', description=f'Response latency: {1000.*ping:.2f}ms\nWebSocket latency: {1000.*adjutant.latency:.2f}ms', colour=0x00FF00)
         await msg.edit(embed=em)
 
 

@@ -32,12 +32,12 @@ class SC2OESettings():
     async def settings_channel(self, ctx, *, t: str):
         """ Change the channel, the bot posts events in """
         s = t.split(' ')
-        if len(s) == 2 and s[0] in ['General', 'Amateur', 'Team']:
-            self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0]}'] = s[1]
+        if len(s) == 2 and s[0].lower() in ['general', 'amateur', 'team']:
+            self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0].lower()}'] = s[1].lower()
             f = open(self.data_path+self.info_file, 'w')
             toml.dump(self.srvInf, f)
             f.close()
-            await ctx.channel.send(f'Changed the {s[0]} events channel to {s[1]}')
+            await ctx.channel.send(f'Changed the {s[0].lower()} events channel to {s[1].lower()}')
         else:
             await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
 
@@ -58,15 +58,23 @@ class SC2OESettings():
     @commands.command(name='permcheck')
     async def check_permissions(self, ctx):
         lvl = [0]
+        pname = ''
+        if perms._check(ctx, 5):
+            lvl.append(5)
+            pname = 'Phoenix'
         if perms._check(ctx, 4):
             lvl.append(4)
+            pname = 'Server Owner'
         if perms._check(ctx, 3):
             lvl.append(3)
+            pname = 'Admin'
         if perms._check(ctx, 2):
             lvl.append(2)
+            pname = 'Moderator'
         if perms._check(ctx, 1):
             lvl.append(1)
-        await ctx.channel.send(f'Your permission level is {max(lvl)}')
+            pname = 'User'
+        await ctx.channel.send(f'Your permission level is {max(lvl)}, ({pname}).')
 
 
 
