@@ -62,7 +62,7 @@ class SC2OpenEvents():
             if eventXY[9] != None:
                 countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
             else:
-                countdown = -5.0
+                countdown = -1.0
             p = True
             for MsgsEv in msgs:
                 if MsgsEv.embeds:
