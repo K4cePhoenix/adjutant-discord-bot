@@ -76,7 +76,7 @@ class SC2OpenEvents():
                 aEvCount += 1
                 cd_hours = eventXY[9].seconds // (60 * 60)
                 cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
-                evName = '_'.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1])
+                evName = ''.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1]).lower()
 
                 if evName in self.evInf.keys() and self.evInf[evName]['colour']:
                     em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.evInf[evName]['colour'], 16)), description=f"{eventXY[1]}")
