@@ -107,7 +107,7 @@ class SC2OpenEvents():
                 if evName in self.evInf.keys() and self.evInf[evName]['logo']:
                     em.set_thumbnail(url=self.evInf[evName]['logo'])
                 else:
-                    em.set_thumbnail(url=self.evInf['Other']['logo'])
+                    em.set_thumbnail(url=self.evInf['other']['logo'])
 
                 if (evType == 'General') and (eventXY[2] != None):
                     em.add_field(name="Region", value=eventXY[2], inline=True)
