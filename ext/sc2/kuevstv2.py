@@ -9,8 +9,8 @@ def get_cd(data):
     returns: datetime object with the following info
     +1day7hours
     """
-    cdTime = datetime.strptime(f'{data}', '%B %d, %Y - %H:%M {{Abbr/KST}}')
-    currentTime = datetime.now()
+    cdTime = datetime.strptime(f'{data} +0900', '%B %d, %Y - %H:%M {{Abbr/KST}} %z')
+    currentTime = datetime.now(tz=pytz.timezone('Asia/Seoul'))
     return cdTime - currentTime
 
 
