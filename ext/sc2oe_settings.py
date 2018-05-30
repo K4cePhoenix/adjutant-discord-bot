@@ -62,19 +62,21 @@ class SC2OESettings():
         if perms._check(ctx, 5):
             lvl.append(5)
             pname = 'Phoenix'
-        if perms._check(ctx, 4):
+        elif perms._check(ctx, 4):
             lvl.append(4)
             pname = 'Server Owner'
-        if perms._check(ctx, 3):
+        elif perms._check(ctx, 3):
             lvl.append(3)
             pname = 'Admin'
-        if perms._check(ctx, 2):
+        elif perms._check(ctx, 2):
             lvl.append(2)
             pname = 'Moderator'
-        if perms._check(ctx, 1):
+        elif perms._check(ctx, 1):
             lvl.append(1)
             pname = 'User'
-        await ctx.channel.send(f'Your permission level is {max(lvl)}, ({pname}).')
+        else:
+            pname = 'Bot'
+        await ctx.channel.send(f'Your permission level is {max(lvl)} - ({pname}).')
 
 
 
