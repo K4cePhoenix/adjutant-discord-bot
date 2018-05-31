@@ -28,12 +28,12 @@ class SC2OpenEvents():
         self.evInf = toml.load(self.data_path + self.eventinfo_file)
 
 
-    async def del_old_events(self, msg):
+    async def del_old_events(self, msg, countdown):
         try:
             await msg.delete()
-            log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title}')
+            log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title} - {countdown}')
         except:
-            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - can not delete {em.title}')
+            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - can not delete {em.title} - {countdown}')
 
 
     async def send_event_update(self, oldMsg, msg, em):
@@ -151,7 +151,7 @@ class SC2OpenEvents():
 
             elif (countdown < -float(self.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
-                await self.del_old_events(pMsg)
+                await self.del_old_events(pMsg, countdown)
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
 
