@@ -13,8 +13,8 @@ log = logging.getLogger('adjutant.sc2oe')
 
 
 class SC2OpenEvents():
-    def __init__(self, adjutant):
-        self.adjutant = adjutant
+    def __init__(self, bot):
+        self.bot = bot
         self.data_path = './data/sc2oe/'
         self.serverinfo_file = 'srvInf.toml'
         self.eventinfo_file = 'evInf.toml'
@@ -138,7 +138,7 @@ class SC2OpenEvents():
                 if eventXY[8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
 
-                em.set_footer(text="Adjutant DiscordBot by Phoenix#2694 | Support: discord.gg/nfa9jnu", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+                em.set_footer(text="Information provided by Liquipedia under CC BY-SA 3.0 | https://liquipedia.net/", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                 if p:
                     await self.send_event(msg, em, srv, evType)
@@ -157,8 +157,7 @@ class SC2OpenEvents():
 
     async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
-
-        headers = {'User-Agent': 'Adjutant-DiscordBot/v2.0 (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot.version} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'
         params['format'] = 'json'
@@ -183,7 +182,7 @@ class SC2OpenEvents():
         events = kuevstv2.steal(txts)
 
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
-        for guild in self.adjutant.guilds:
+        for guild in self.bot.guilds:
             msgs = []
 
             for x, evType in enumerate(eventTypes):
@@ -195,36 +194,36 @@ class SC2OpenEvents():
                             async for message in channel.history():
                                 msgs.append(message)
 
-                l = False
-                for MsgsEv in msgs:
-                    if MsgsEv.embeds:
-                        if MsgsEv.embeds[0].title == "Licensing":
-                            em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
-                            em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
-                            await MsgsEv.edit(embed=em)
-                            l = True
-                        elif 'has started' in MsgsEv.content:
-                            evTmp = list()
-                            for eventXY in events[x]:
-                                evTmp.append(eventXY[0])
-                            if MsgsEv.author.id == MsgsEv.guild.me.id:
-                                if not MsgsEv.embeds[0].title in evTmp:
-                                    try:
-                                        await MsgsEv.delete()
-                                    except:
-                                        log.error(f'{MsgsEv.guild}, {MsgsEv.channel} - MISSING PERMISSION - can not delete {MsgsEv.id}')
-                if not l:
-                    em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
-                    em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
-                    for channel in guild.channels:
-                            if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
-                                await channel.send(embed=em)
+                # l = False
+                # for MsgsEv in msgs:
+                #     if MsgsEv.embeds:
+                #         if MsgsEv.embeds[0].title == "Licensing":
+                #             em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
+                #             em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
+                #             await MsgsEv.edit(embed=em)
+                #             l = True
+                #         elif 'has started' in MsgsEv.content:
+                #             evTmp = list()
+                #             for eventXY in events[x]:
+                #                 evTmp.append(eventXY[0])
+                #             if MsgsEv.author.id == MsgsEv.guild.me.id:
+                #                 if not MsgsEv.embeds[0].title in evTmp:
+                #                     try:
+                #                         await MsgsEv.delete()
+                #                     except:
+                #                         log.error(f'{MsgsEv.guild}, {MsgsEv.channel} - MISSING PERMISSION - can not delete {MsgsEv.id}')
+                # if not l:
+                #     em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
+                #     em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
+                #     for channel in guild.channels:
+                #            if channel.name == self.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
+                #                await channel.send(embed=em)
 
                 await self.post_events(events[x], msgs, guild, evType)
 
 
     async def check_events_in_background(self):
-        await self.adjutant.wait_until_ready()
+        await self.bot.wait_until_ready()
         while True:
             self.evInf = toml.load(self.data_path + self.eventinfo_file)
             self.srvInf = toml.load(self.data_path + self.serverinfo_file)
@@ -234,7 +233,7 @@ class SC2OpenEvents():
             await asyncio.sleep(float(self.srvInf['general']['sleepDelay']) * 60)
 
 
-def setup(adjutant):
-    n = SC2OpenEvents(adjutant)
-    adjutant.add_cog(n)
-    adjutant.loop.create_task(n.check_events_in_background())
+def setup(bot):
+    n = SC2OpenEvents(bot)
+    bot.add_cog(n)
+    bot.loop.create_task(n.check_events_in_background())

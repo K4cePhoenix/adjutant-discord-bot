@@ -10,8 +10,8 @@ log = logging.getLogger(__name__)
 
 
 class SC2OESettings():
-    def __init__(self, adjutant):
-        self.adjutant = adjutant
+    def __init__(self, bot):
+        self.bot = bot
         self.data_path = './data/sc2oe/'
         self.info_file = 'srvInf.toml'
         if os.path.isdir(self.data_path) is False:
@@ -80,6 +80,6 @@ class SC2OESettings():
 
 
 
-def setup(adjutant):
-    n = SC2OESettings(adjutant)
-    adjutant.add_cog(n)
+def setup(bot):
+    n = SC2OESettings(bot)
+    bot.add_cog(n)

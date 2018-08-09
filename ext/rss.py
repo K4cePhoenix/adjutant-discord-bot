@@ -15,8 +15,8 @@ log = logging.getLogger('adjutant.rss')
 
 
 class RSS():
-    def __init__(self, adjutant):
-        self.adjutant = adjutant
+    def __init__(self, bot):
+        self.bot = bot
         self.data_path = './data/rss/'
         self.feeds_file = 'feeds.toml'
         if os.path.isdir(self.data_path) is False:
@@ -34,7 +34,7 @@ class RSS():
 
 
     async def read_feeds_in_background(self):
-        await self.adjutant.wait_until_ready()
+        await self.bot.wait_until_ready()
         while True:
             self.feeds = toml.load(self.data_path + self.feeds_file)
             for feed in self.feeds['feeds']:
@@ -49,7 +49,7 @@ class RSS():
                     log.info(f'{msg}')
                     for fSrv in self.feeds['servers']:
                         fChan = self.feeds['servers'][fSrv]['channel']
-                        for guild in self.adjutant.guilds:
+                        for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['servers'][guild.name][f'ids_{feed}'] and channel.permissions_for(guild.me).send_messages:
                                     await channel.send(msg, embed=em)
@@ -62,7 +62,7 @@ class RSS():
             await asyncio.sleep(float(self.feeds['general']['sleepDelay']) * 60)
 
 
-def setup(adjutant):
-    n = RSS(adjutant)
-    adjutant.add_cog(n)
-    adjutant.loop.create_task(n.read_feeds_in_background())
+def setup(bot):
+    n = RSS(bot)
+    bot.add_cog(n)
+    bot.loop.create_task(n.read_feeds_in_background())
