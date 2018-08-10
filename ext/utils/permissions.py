@@ -17,9 +17,9 @@ def _get(ctx):
     #         lvl.append(2)
     #     elif r.name in perms[ctx.guild.name]['lvl1']:
     #         lvl.append(1)
-    if ctx.message.author.id == conf['owner']['id']:
+    if ctx.message.author.id == conf['owner']['id'] and ctx.guild.id == 391304338099929092:
         lvl.append(5)
-    if ctx.message.author.id == ctx.message.guild.owner_id:
+    if "Ducklings" in ctx.message.author.roles and ctx.message.guild.id == 391304338099929092:
         lvl.append(4)
     elif ctx.message.author.guild_permissions.administrator:
         lvl.append(3)
