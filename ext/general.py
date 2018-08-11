@@ -22,8 +22,8 @@ class General():
     async def _ping(self, ctx):
         """ Check the bot latency. """
         pingtime = time.time()
-        e = discord.Embed(title="Pinging...", colour=0xFF0000)
-        msg = await ctx.send(embed=e)
+        embed = discord.Embed(title="Pinging...", colour=0xFF0000)
+        msg = await ctx.send(embed=embed)
         ping = time.time() - pingtime
         em = discord.Embed(title='Pong!', description=f'Response latency: {1000.*ping:.2f}ms\nWebSocket latency: {1000.*self.bot.latency:.2f}ms', colour=0x00FF00)
         await msg.edit(embed=em)
@@ -64,12 +64,13 @@ class General():
             user = ctx.message.author
         roles = []
         for r in user.roles:
-            roles.append(r.name)
+            if "everyone" not in r.name:
+                roles.append(r.name)
         user_roles = "\n".join(roles)
         embed = discord.Embed(color=user.color, description=f"Here's some information about {user.name}!")
         if perms._check(ctx, 5):
             embed.title = f"{user} 🐦"
-        if perms._check(ctx, 4):
+        elif perms._check(ctx, 4):
             embed.title = f"{user} 🦆"
         elif perms._check(ctx, 3):
             embed.title = f"{user} 🐧"

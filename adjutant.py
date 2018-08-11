@@ -83,18 +83,18 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info('\nYou are running Adjutant 10-32 Discord Bot by Phoenix#2694')
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
-        c = self.get_channel(436581310379720705)
-        e = discord.Embed(color=discord.Color.blue(), title="Adjutant ready!")#All shards ready!")
+        chan = self.get_channel(436581310379720705)
+        embed = discord.Embed(color=discord.Color.blue(), title="Adjutant ready!")#All shards ready!")
         try:
-            await c.send(embed=e)
+            await chan.send(embed=embed)
         except:
             pass
 
     # async def on_shard_ready(self, id):
-    #     c = self.get_channel(477110208225738752)
-    #     e = discord.Embed(color=discord.Color.blue(), title=f"Shard {id} ready!")
+    #     chan = self.get_channel(477110208225738752)
+    #     embed = discord.Embed(color=discord.Color.blue(), title=f"Shard {id} ready!")
     #     try:
-    #         await c.send(embed=e)
+    #         await chan.send(embed=embed)
     #     except:
     #         pass
 
@@ -117,15 +117,15 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         else:
             self.log.info(f"Couldn't change my name on {guild.name}")
 
-        c = self.get_channel(436581310379720705)
-        e = discord.Embed(color=discord.Color.green(), title="Established new connection.", description=f"Now connected to {len(self.guilds)} guilds!")
-        e.set_thumbnail(url=guild.icon_url)
-        e.add_field(name="Name", value=guild.name)
-        e.add_field(name="Owner", value=guild.owner)
-        e.add_field(name="Members", value=guild.member_count)
-        e.add_field(name="Creation date", value=guild.created_at.split('.')[0])
+        chan = self.get_channel(436581310379720705)
+        embed = discord.Embed(color=discord.Color.green(), title="Established new connection.", description=f"Now connected to {len(self.guilds)} guilds!")
+        embed.set_thumbnail(url=guild.icon_url)
+        embed.add_field(name="Name", value=guild.name)
+        embed.add_field(name="Owner", value=guild.owner)
+        embed.add_field(name="Members", value=guild.member_count)
+        embed.add_field(name="Creation date", value=guild.created_at.split('.')[0])
         try:
-            m = await c.send(embed=e)
+            msg = await chan.send(embed=embed)
         except:
             pass
 
@@ -137,7 +137,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
             tomlStr = toml.dumps(self.srvInf)
             async with aiofiles.open(self.sc2dat_path+self.srvinf_file, 'w') as f:
                 await f.write(tomlStr)
-            await m.add_reaction('☑')
+            await msg.add_reaction('☑')
         except Exception:
             self.log.error("on_guild_join: Couldn't save server info file.")
             traceback.print_exc()
@@ -145,15 +145,15 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
 
     async def on_guild_remove(self, guild):
-        c = self.get_channel(436581310379720705)
-        e = discord.Embed(color=discord.Color.red(), title="Lost contact to a guild...", description=f"{len(self.guilds)} guild relays remaining.")
-        e.set_thumbnail(url=guild.icon_url)
-        e.add_field(name="Name", value=guild.name)
-        e.add_field(name="Owner", value=guild.owner)
-        e.add_field(name="Members", value=guild.member_count)
-        e.add_field(name="Creation date", value=guild.created_at.split('.')[0])
+        chan = self.get_channel(436581310379720705)
+        embed = discord.Embed(color=discord.Color.red(), title="Lost contact to a guild...", description=f"{len(self.guilds)} guild relays remaining.")
+        embed.set_thumbnail(url=guild.icon_url)
+        embed.add_field(name="Name", value=guild.name)
+        embed.add_field(name="Owner", value=guild.owner)
+        embed.add_field(name="Members", value=guild.member_count)
+        embed.add_field(name="Creation date", value=guild.created_at.split('.')[0])
         try:
-            m = await c.send(embed=e)
+            msg = await chan.send(embed=embed)
         except:
             pass
 
@@ -165,7 +165,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
             async with aiofiles.open(self.sc2dat_path+self.srvinf_file, 'w') as f:
                 tomlStr = toml.dumps(self.srvInf)
                 await f.write(tomlStr)
-            await m.add_reaction('☑')
+            await msg.add_reaction('☑')
         except Exception:
             self.log.error("on_guild_join: Couldn't save server info file.")
             traceback.print_exc()
