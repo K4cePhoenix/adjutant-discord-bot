@@ -1,5 +1,6 @@
 from datetime import datetime
 from discord.ext import commands
+import aiofiles
 import discord
 import logging
 import os
@@ -8,6 +9,7 @@ import pytz
 import sys
 import time
 import toml
+import traceback
 
 
 def _get_prefix(bot, message):
@@ -34,6 +36,20 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         conf_name = 'conf.toml'
         self.config = toml.load(conf_path+conf_name)
         self.version = self.config['owner']['version']
+        self.startTime = datetime.now(tz=pytz.utc)
+
+        
+        self.sc2dat_path = './data/sc2oe/'
+        self.srvinf_file = 'srvInf.toml'
+        self.evtinf_file = 'evInf.toml'
+        if os.path.isdir(self.sc2dat_path) is False:
+            os.makedirs(self.sc2dat_path)
+        if os.path.isfile(self.sc2dat_path + self.srvinf_file) is False:
+            open(self.sc2dat_path+self.srvinf_file, 'a').close()
+        if os.path.isfile(self.sc2dat_path + self.evtinf_file) is False:
+            open(self.sc2dat_path+self.evtinf_file, 'a').close()
+        self.srvInf = toml.load(self.sc2dat_path + self.srvinf_file)
+        self.evInf = toml.load(self.sc2dat_path + self.evtinf_file)
 
         self.remove_command('help')
 
@@ -101,37 +117,59 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         else:
             self.log.info(f"Couldn't change my name on {guild.name}")
 
-        # INSERT DATABASE CONTENT HERE
-
         c = self.get_channel(436581310379720705)
-        e = discord.Embed(color=discord.Color.green(), title="New guild!", description=f"We're now in {len(self.guilds)} guilds!")
+        e = discord.Embed(color=discord.Color.green(), title="Established new connection.", description=f"Now connected to {len(self.guilds)} guilds!")
         e.set_thumbnail(url=guild.icon_url)
         e.add_field(name="Name", value=guild.name)
         e.add_field(name="Owner", value=guild.owner)
         e.add_field(name="Members", value=guild.member_count)
+        e.add_field(name="Creation date", value=guild.created_at.split('.')[0])
         try:
-            await c.send(embed=e)
+            m = await c.send(embed=e)
         except:
             pass
+
+        self.log.info(f"Joined the {guild.name} guild")
+
+        # INSERT DATABASE CONTENT HERE
+        try:
+            self.srvInf['guilds'][guild.name] = {'name': guild.name, 'id': guild.id, 'channel_general': "", 'channel_amateur': "", 'channel_team': "", 'timeformat': 12}
+            tomlStr = toml.dumps(self.srvInf)
+            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, 'w') as f:
+                await f.write(tomlStr)
+            await m.add_reaction('☑')
+        except Exception:
+            self.log.error("on_guild_join: Couldn't save server info file.")
+            traceback.print_exc()
+            pass
+
 
     async def on_guild_remove(self, guild):
-
-        # INSERT DATABASE CONTENT HERE
-
         c = self.get_channel(436581310379720705)
-        e = discord.Embed(color=discord.Color.red(), title="We lost a guild...", description=f"But it's okay, we're still in {len(self.guilds)} other guilds!")
+        e = discord.Embed(color=discord.Color.red(), title="Lost contact to a guild...", description=f"{len(self.guilds)} guild relays remaining.")
         e.set_thumbnail(url=guild.icon_url)
         e.add_field(name="Name", value=guild.name)
         e.add_field(name="Owner", value=guild.owner)
         e.add_field(name="Members", value=guild.member_count)
+        e.add_field(name="Creation date", value=guild.created_at.split('.')[0])
         try:
-            await c.send(embed=e)
+            m = await c.send(embed=e)
         except:
             pass
 
-    async def restart_adjutant(self):
-        sys.exit(1)
+        self.log.info(f"Left the {guild.name} guild")
 
+        # INSERT DATABASE CONTENT HERE
+        try:
+            self.srvInf['guilds'].pop(guild.name, None)
+            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, 'w') as f:
+                tomlStr = toml.dumps(self.srvInf)
+                await f.write(tomlStr)
+            await m.add_reaction('☑')
+        except Exception:
+            self.log.error("on_guild_join: Couldn't save server info file.")
+            traceback.print_exc()
+            pass
 
 bot = Adjutant()
 conf_path = './data/bot/'

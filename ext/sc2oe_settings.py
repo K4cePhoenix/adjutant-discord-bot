@@ -26,7 +26,7 @@ class SC2OESettings():
         if perms._check(ctx, 3):
             pass
         else:
-            print('You have no permissions to execute this command.')
+            await ctx.send('You have no permissions to execute this command.')
 
     @_settings.command(name='channel')
     async def settings_channel(self, ctx, *, t: str):
