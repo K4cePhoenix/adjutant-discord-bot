@@ -89,7 +89,7 @@ class General():
             embed.add_field(name="Playing", value=user.game.name, inline=False)
         except:
             pass
-        embed.add_field(name="Date of Account Creation", value=user.created_at, inline=False)
+        embed.add_field(name="Date of Account Creation", value=user.created_at.split('.')[0], inline=False)
         await ctx.send(embed=embed)
 
     @commands.command(name='server')
