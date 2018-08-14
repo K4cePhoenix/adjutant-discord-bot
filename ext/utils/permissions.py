@@ -21,9 +21,9 @@ def _get(ctx):
         lvl.append(5)
     if "Ducklings" in ctx.message.author.roles and ctx.message.guild.id == 391304338099929092:
         lvl.append(4)
-    elif ctx.message.author.guild_permissions.administrator:
+    if ctx.message.author.guild_permissions.administrator:
         lvl.append(3)
-    elif ctx.message.author.guild_permissions.manage_guild:
+    if ctx.message.author.guild_permissions.manage_guild:
         lvl.append(2)
     else:
         lvl.append(1)
