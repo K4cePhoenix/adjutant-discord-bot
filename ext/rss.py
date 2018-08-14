@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
+import aiofiles
 import aiohttp
 import asyncio
 import discord
@@ -9,6 +10,7 @@ import os
 import pytz
 import time
 import toml
+import traceback
 
 
 log = logging.getLogger('adjutant.rss')
@@ -54,9 +56,17 @@ class RSS():
                                 if (guild.name == fSrv) and (channel.name == fChan) and not feed_data['entries'][key]['id'].split('/')[-1] in self.feeds['servers'][guild.name][f'ids_{feed}'] and channel.permissions_for(guild.me).send_messages:
                                     await channel.send(msg, embed=em)
                                     self.feeds['servers'][guild.name][f'ids_{feed}'].append(feed_data['entries'][key]['id'].split('/')[-1])
-                                    f = open(self.data_path+self.feeds_file, 'w')
-                                    toml.dump(self.feeds, f)
-                                    f.close()
+                                    # f = open(self.data_path+self.feeds_file, 'w')
+                                    # toml.dump(self.feeds, f)
+                                    # f.close()
+                                    try:
+                                        tomlStr = toml.dumps(self.feeds)
+                                        async with aiofiles.open(self.data_path+self.feeds_file, 'w') as f:
+                                            await f.write(tomlStr)
+                                    except Exception:
+                                        log.error("on_guild_join: Couldn't save server info file.")
+                                        traceback.print_exc()
+                                        pass
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.feeds['general']['sleepDelay']))
             log.info(f'Next rss feed check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
             await asyncio.sleep(float(self.feeds['general']['sleepDelay']) * 60)

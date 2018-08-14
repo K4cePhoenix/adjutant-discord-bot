@@ -38,6 +38,18 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.version = self.config['owner']['version']
         self.startTime = datetime.now(tz=pytz.utc)
 
+        dbuser = self.config['db']['user']
+        dbpass = self.config['db']['pass']
+        dbname = self.config['db']['name']
+        dbhost = self.config['db']['host']
+        dbcred = {"user": dbuser, "password": dbpass, "database": dbname, "host": dbhost}
+
+        async def _init_db():
+            self.db = await asyncpg.create_pool(**dbcred)
+            await self.db.execute("CREATE TABLE IF NOT EXISTS guilds (id bigint primary key, name text, general bigint, amateur bigint, team bigint, osc bigint, feeds bigint, feedList text[], feedIds text[][], timeFormat boolean, );")
+
+        # self.loop.create_task(_init_db())
+
         
         self.sc2dat_path = './data/sc2oe/'
         self.srvinf_file = 'srvInf.toml'

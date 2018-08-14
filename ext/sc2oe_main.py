@@ -35,6 +35,15 @@ class SC2OpenEvents():
     async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
             for s in self.bot.srvInf['guilds']:
+                ############# IDS INSTEAD OF NAMES #############
+                # smth like
+                # if srv.id == self.bot.srvInf['guilds'][s]['id']:
+                
+                #     ch = self.bot.get_channel(srv.id)
+                #     if ch.permissions_for(srv.me):
+                #         ch.send(msg, embed=em)
+                #         log.info(f'{srv.name}/{srv.id}, {ch} - sent {em.title}')
+                #         return
                 if srv.name == self.bot.srvInf['guilds'][s]['name'] and channel.name == self.bot.srvInf['guilds'][s][f'channel_{evType.lower()}'] and channel.permissions_for(srv.me).send_messages:
                     await channel.send(msg, embed=em)
                     log.info(f'{srv}, {channel} - sent {em.title}')
@@ -178,6 +187,7 @@ class SC2OpenEvents():
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.bot.srvInf['guilds']:
+                        ############# IDS INSTEAD OF NAMES #############
                         if (guild.name == srv) and (channel.name == self.bot.srvInf['guilds'][srv][f'channel_{evType.lower()}']) and channel.permissions_for(guild.me).read_messages:
                             async for message in channel.history():
                                 msgs.append(message)
