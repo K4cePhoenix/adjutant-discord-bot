@@ -173,8 +173,9 @@ class SC2OpenEvents():
                 await self.del_old_events(MsgsEv, -1.0)
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
-    async def fetch_texts(self, url, eventTypes, parser):
+    async def fetch_texts(self, eventTypes):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
+        _URL = 'http://liquipedia.net/starcraft2/api.php'
         headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot.VERSION} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 
                    'Accept-Encoding': 'gzip'}
         params = dict()
@@ -187,7 +188,7 @@ class SC2OpenEvents():
         params['formatversion'] = '2'
         evText = dict()
         async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url, params=params) as response:
+            async with session.get(_URL, params=params) as response:
                 json_body = await response.json()
                 for ind, evType in enumerate(eventTypes):
                     evText[evType] = json_body['query']['pages'][ind]['revisions'][0]['content']
@@ -195,7 +196,7 @@ class SC2OpenEvents():
 
     async def check_all_events(self):
         eventTypes = ['General', 'Amateur', 'Team']
-        txts = await self.fetch_texts('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
+        txts = await self.fetch_texts(eventTypes)
         events = kuevstv2.steal(txts)
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.bot.guilds:
