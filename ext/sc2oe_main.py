@@ -149,12 +149,24 @@ class SC2OpenEvents():
             elif (countdown < -float(self.bot.srvInf['general']['deleteDelay'])) and not p:
                 dEvCount += 1
                 await self.del_old_events(pMsg, countdown)
+
+        for MsgsEv in msgs:
+            p = True
+            for eventXY in eventsX:
+                if MsgsEv.embeds:
+                    if eventXY[0] == MsgsEv.embeds[0].title:
+                        p = False
+                        break
+            if p == True:
+                dEvCount += 1
+                await self.del_old_events(MsgsEv, -1.0)
+
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
 
     async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
-        headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot.version} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot._version} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'
         params['format'] = 'json'

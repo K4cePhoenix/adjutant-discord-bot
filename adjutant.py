@@ -35,8 +35,9 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         conf_path = './data/bot/'
         conf_name = 'conf.toml'
         self.config = toml.load(conf_path+conf_name)
-        self.version = self.config['owner']['version']
+        self._version = self.config['owner']['version']
         self.startTime = datetime.now(tz=pytz.utc)
+
 
         dbuser = self.config['db']['user']
         dbpass = self.config['db']['pass']
