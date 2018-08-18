@@ -32,10 +32,10 @@ class Adjutant(commands.Bot):#AutoShardedBot):
                          activity=discord.Game(name="Restarting..."),
                          case_insensitive=True)
 
-        conf_path = './data/bot/'
-        conf_name = 'conf.toml'
-        self.config = toml.load(conf_path+conf_name)
-        self._version = self.config['owner']['version']
+        CONF_PATH = './data/bot/'
+        CONF_NAME = 'conf.toml'
+        self.config = toml.load(CONF_PATH+CONF_NAME)
+        self.VERSION = self.config['owner']['version']
         self.startTime = datetime.now(tz=pytz.utc)
 
 
@@ -93,7 +93,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'Current Discord.py Version: {discord.__version__} | Current Python Version: {platform.python_version()}')
         self.log.info(f'\nUse this link to invite {self.user.name}:')
         self.log.info(f'https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot')
-        self.log.info('\nYou are running Adjutant 10-32 Discord Bot by Phoenix#2694')
+        self.log.info(f'\nYou are running Adjutant DiscordBot/v{self.bot.VERSION} by Phoenix#2694')
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
         chan = self.get_channel(436581310379720705)
@@ -185,12 +185,12 @@ class Adjutant(commands.Bot):#AutoShardedBot):
             pass
 
 bot = Adjutant()
-conf_path = './data/bot/'
-conf_name = 'conf.toml'
-if os.path.isdir(conf_path) is False:
-    print(f'Could not find folder {conf_path}')
-elif os.path.isfile(conf_path+conf_name) is False:
-    print(f'Could not find config file in {conf_path}')
+CONF_PATH = './data/bot/'
+CONF_NAME = 'conf.toml'
+if os.path.isdir(CONF_PATH) is False:
+    print(f'Could not find folder {CONF_PATH}')
+elif os.path.isfile(CONF_PATH+CONF_NAME) is False:
+    print(f'Could not find config file in {CONF_PATH}')
 else:
-    config = toml.load(conf_path+conf_name)
+    config = toml.load(CONF_PATH+CONF_NAME)
 bot.run(config['owner']['token'])

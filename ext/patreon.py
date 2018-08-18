@@ -15,8 +15,8 @@ log = logging.getLogger('adjutant.patreon')
 class Patreon():
     def __init__(self, bot):
         self.bot = bot
-        self.patreon_file_path = './data/patreon/patreon.toml'
-        self.sc2patreons = toml.load(self.patreon_file_path)
+        self.PATREON_FILE_PATH = './data/patreon/patreon.toml'
+        self.sc2patreons = toml.load(self.PATREON_FILE_PATH)
 
     @commands.command(name='patreons')
     async def _patreons(self, ctx):

@@ -16,7 +16,7 @@ log = logging.getLogger('adjutant.admin')
 class Administration:
     def __init__(self, bot):
         self.bot = bot
-        self._last_result = None
+        self._lastResult = None
 
     def cleanup_code(self, content):
         """Removes code blocks."""
@@ -35,7 +35,7 @@ class Administration:
                 'author': ctx.author,
                 'guild': ctx.guild,
                 'message': ctx.message,
-                '_': self._last_result
+                '_': self._lastResult
             }
             env.update(globals())
 
@@ -67,11 +67,11 @@ class Administration:
                     if value:
                         await ctx.send(f'```py\n{value}\n```')
                 else:
-                    self._last_result = ret
+                    self._lastResult = ret
                     await ctx.send(f'```py\n{value}{ret}\n```')
 
-    @commands.command()
-    async def load(self, ctx, *, module):
+    @commands.command(name='load')
+    async def _load(self, ctx, *, module):
         """Loads a module."""
         if perms._check(ctx, 4): # Ducklings and meh
             try:
@@ -84,8 +84,8 @@ class Administration:
                 except:
                     pass
 
-    @commands.command()
-    async def unload(self, ctx, *, module):
+    @commands.command(name='unload')
+    async def _unload(self, ctx, *, module):
         """Unloads a module."""
         if perms._check(ctx, 4): # Ducklings and meh
             try:
@@ -98,8 +98,8 @@ class Administration:
                 except:
                     pass
 
-    @commands.command()
-    async def reload(self, ctx, *, module):
+    @commands.command(name='reload')
+    async def _reload(self, ctx, *, module):
         """Reloads a module."""
         if perms._check(ctx, 4): # Ducklings and meh
             try:

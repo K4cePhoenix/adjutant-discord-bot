@@ -66,7 +66,7 @@ class General():
         for r in user.roles:
             if "everyone" not in r.name:
                 roles.append(r.name)
-        user_roles = "\n".join(roles)
+        userRoles = "\n".join(roles)
         embed = discord.Embed(color=user.color, description=f"Here's some information about {user.name}!")
         if perms._check(ctx, 5):
             embed.title = f"{user} 🐦"
@@ -84,7 +84,7 @@ class General():
         embed.add_field(name="Username", value=user.name, inline=False)
         embed.add_field(name="Discriminator", value=user.discriminator, inline=False)
         embed.add_field(name="ID", value=str(user.id), inline=False)
-        embed.add_field(name="Roles", value=user_roles, inline=False)
+        embed.add_field(name="Roles", value=userRoles, inline=False)
         try:
             embed.add_field(name="Playing", value=user.game.name, inline=False)
         except:
@@ -104,9 +104,9 @@ class General():
         embed = discord.Embed(title="Invite me!", description=f"You can invite me [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot).")
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def suggest(self, ctx, *, suggestion: str):
-        """ Sends a suggestion. """
+    @commands.command(name='suggest')
+    async def _suggest(self, ctx, *, suggestion: str):
+        """ Sends a feature suggestion. """
         channel = self.bot.get_channel(436581310379720705)
         color = discord.Colour.blue()
         embed = discord.Embed(color=color, title="New suggestion!", description="I'm so excited to read it!")
@@ -120,11 +120,11 @@ class General():
             traceback.print_exc()
         await ctx.send("I sent your suggestion, <@{}>~".format(ctx.message.author.id))
 
-    @commands.command()
-    async def report(self, ctx, *, report: str):
+    @commands.command(name='report')
+    async def _report(self, ctx, *, report: str):
         """ Sends a bug report. """
         channel = self.bot.get_channel(436581310379720705)
-        color = discord.Colour.blue()
+        color = discord.Colour.red()
         embed = discord.Embed(color=color, title="New report!", description="Hopefully, you guys can fix it..")
         embed.set_thumbnail(url=ctx.message.author.avatar_url)
         embed.add_field(name="Report", value="{} sent this report: ``{}``".format(ctx.message.author, report))

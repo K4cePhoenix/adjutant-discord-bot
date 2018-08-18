@@ -12,13 +12,13 @@ log = logging.getLogger(__name__)
 class SC2OESettings():
     def __init__(self, bot):
         self.bot = bot
-        self.data_path = './data/sc2oe/'
-        self.info_file = 'srvInf.toml'
-        if os.path.isdir(self.data_path) is False:
-            os.makedirs(self.data_path)
-        if os.path.isfile(self.data_path + self.info_file) is False:
-            open(self.data_path+self.info_file, 'a').close()
-        self.srvInf = toml.load(self.data_path + self.info_file)
+        self.DATA_PATH = './data/sc2oe/'
+        self.INFO_FILE = 'srvInf.toml'
+        if os.path.isdir(self.DATA_PATH) is False:
+            os.makedirs(self.DATA_PATH)
+        if os.path.isfile(self.DATA_PATH + self.INFO_FILE) is False:
+            open(self.DATA_PATH+self.INFO_FILE, 'a').close()
+        self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
 
     @commands.group(name='set')
     async def _settings(self, ctx):
@@ -29,12 +29,12 @@ class SC2OESettings():
             await ctx.send('You have no permissions to execute this command.')
 
     @_settings.command(name='channel')
-    async def settings_channel(self, ctx, *, t: str):
+    async def _settings_channel(self, ctx, *, t: str):
         """ Change the channel, the bot posts events in """
         s = t.split(' ')
         if len(s) == 2 and s[0].lower() in ['general', 'amateur', 'team']:
             self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0].lower()}'] = s[1].lower()
-            f = open(self.data_path+self.info_file, 'w')
+            f = open(self.DATA_PATH+self.INFO_FILE, 'w')
             toml.dump(self.srvInf, f)
             f.close()
             await ctx.channel.send(f'Changed the {s[0].lower()} events channel to {s[1].lower()}')
@@ -42,12 +42,12 @@ class SC2OESettings():
             await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
 
     @_settings.command(name='time')
-    async def settings_time(self, ctx, *, t: int):
+    async def _settings_time(self, ctx, *, t: int):
         """ Set the timeformat (24h- or 12ham/pm-format) """
         if len(t) == 1:
             if t in [12, 24]:
                 self.srvInf['guilds'][ctx.guild.name]['timeformat'] = t
-                f = open(self.data_path+self.info_file, 'w')
+                f = open(self.DATA_PATH+self.INFO_FILE, 'w')
                 toml.dump(self.srvInf, f)
                 f.close()
                 await ctx.channel.send(f'Changed the time format to {t} hours')
@@ -56,7 +56,7 @@ class SC2OESettings():
 
 
     @commands.command(name='permcheck')
-    async def check_permissions(self, ctx):
+    async def _check_permissions(self, ctx):
         lvl = [0]
         pname = ''
         if perms._check(ctx, 5):

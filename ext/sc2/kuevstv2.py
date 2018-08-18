@@ -9,17 +9,10 @@ def get_cd(data):
     returns: datetime object with the following info
     +1day7hours
     """
-    cdTime = datetime.strptime(f'{data} +0900', '%B %d, %Y - %H:%M {{Abbr/KST}} %z')
-    currentTime = datetime.now(tz=pytz.timezone('Asia/Seoul'))
-    return cdTime - currentTime
-
-
-def get_time(data):
-    """ Returns the start date of the event """
-    eventTime = datetime.strptime(data, '%B %d, %Y - %H:%M {{Abbr/KST}}')
-    allTimes = time_to_times(eventTime)
-    eventTimeStr = times_to_string(allTimes)
-    return eventTimeStr
+    cdTime = datetime.strptime(f'{data} +0900', 
+                                '%B %d, %Y - %H:%M {{Abbr/KST}} %z')
+    curTime = datetime.now(tz=pytz.timezone('Asia/Seoul'))
+    return cdTime - curTime
 
 
 def time_to_times(data):
@@ -32,27 +25,52 @@ def time_to_times(data):
 
 def times_to_string(data):
     """ Returns beautiful date data """
-    mmKR, ddKR, hhKR, ampmKR, tzKR = data[0].strftime("%B"), data[0].strftime("%#d").lstrip('0'), data[0].strftime("%#I").lstrip('0'), data[0].strftime("%p").lower(), data[0].strftime("%Z")
+    mmKR = data[0].strftime("%B")
+    ddKR = data[0].strftime("%#d").lstrip('0')
+    hhKR = data[0].strftime("%#I").lstrip('0')
+    ampmKR = data[0].strftime("%p").lower()
+    tzKR = data[0].strftime("%Z")
     timeStr = f'{mmKR} {ddKR}, {hhKR}{ampmKR} {tzKR} '
+
     if data[1].strftime("%d") == data[0].strftime("%d"):
-        hhEU, ampmEU, tzEU = data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
+        hhEU = data[1].strftime("%#I").lstrip('0')
+        ampmEU = data[1].strftime("%p").lower()
+        tzEU = data[1].strftime("%Z")
         timeStr += f'( {hhEU}{ampmEU} {tzEU} '
     else:
-        mmEU, ddEU, hhEU, ampmEU, tzEU = data[1].strftime("%b"), data[1].strftime("%#d").lstrip('0'), data[1].strftime("%#I").lstrip('0'), data[1].strftime("%p").lower(), data[1].strftime("%Z")
+        mmEU = data[1].strftime("%b")
+        ddEU = data[1].strftime("%#d").lstrip('0')
+        hhEU = data[1].strftime("%#I").lstrip('0')
+        ampmEU = data[1].strftime("%p").lower()
+        tzEU = data[1].strftime("%Z")
         timeStr += f'( {mmEU} {ddEU}, {hhEU}{ampmEU} {tzEU} '
     if data[2].strftime("%d") == data[0].strftime("%d"):
-        hhAM, ampmAM, tzAM = data[2].strftime("%#I").lstrip('0').lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
+        hhAM = data[2].strftime("%#I").lstrip('0').lstrip('0')
+        ampmAM = data[2].strftime("%p").lower()
+        tzAM = data[2].strftime("%Z")
         timeStr += f'/ {hhAM}{ampmAM} {tzAM} )'
     else:
-        mmAM, ddAM, hhAM, ampmAM, tzAM = data[2].strftime("%b"), data[2].strftime("%#d").lstrip('0'), data[2].strftime("%#I").lstrip('0'), data[2].strftime("%p").lower(), data[2].strftime("%Z")
+        mmAM = data[2].strftime("%b")
+        ddAM = data[2].strftime("%#d").lstrip('0')
+        hhAM = data[2].strftime("%#I").lstrip('0')
+        ampmAM = data[2].strftime("%p").lower()
+        tzAM = data[2].strftime("%Z")
         timeStr += f'/ {mmAM} {ddAM}, {hhAM}{ampmAM} {tzAM} )'
     return timeStr
 
 
+def get_time(data):
+    """ Returns the start date of the event """
+    evTime = datetime.strptime(data, '%B %d, %Y - %H:%M {{Abbr/KST}}')
+    allTimes = time_to_times(evTime)
+    evTimeStr = times_to_string(allTimes)
+    return evTimeStr
+
+
 def get_rsl(data):
     """ Returns Region, Server and/or League information """
-    l = data.split('(')[0].strip()
-    return l
+    lg = data.split('(')[0].strip()
+    return lg
 
 
 def get_prize(data):
@@ -65,7 +83,7 @@ def get_prize(data):
     return pr
 
 def get_bracket(dataChallonge, dataBrackets):
-    """ Returns the bracket, which is in nearly all cases the signup page as well """
+    """ Returns the bracket, which is in most cases the signup page too """
     if dataChallonge:
         return dataChallonge
     elif dataBrackets:
@@ -75,11 +93,11 @@ def get_bracket(dataChallonge, dataBrackets):
 
 
 def eradicate_comments(data, s=''):
-    for ind, com_open in enumerate(data.split('<!--')):
+    for ind, comOpen in enumerate(data.split('<!--')):
         if ind == 0:
-            s += com_open
-        if len(com_open.split('-->')) > 1:
-            s += com_open.split('-->')[1]
+            s += comOpen
+        if len(comOpen.split('-->')) > 1:
+            s += comOpen.split('-->')[1]
     return s
 
 
@@ -120,10 +138,12 @@ def steal(dataset: dict):
             mode = evLstItem['mode'].strip()
             name = evLstItem['event'].strip()
             try:
-                region, server = evLstItem['region'].strip(), evLstItem['server'].strip()
+                region = evLstItem['region'].strip()
+                server = evLstItem['server'].strip()
                 league = get_rsl(evLstItem['league'].strip())
             except:
-                region, server = evLstItem['region'].strip(), evLstItem['server'].strip()
+                region = evLstItem['region'].strip()
+                server = evLstItem['server'].strip()
                 league = ''
             try:
                 prize = get_prize(evLstItem['prizepool'].strip())
@@ -138,8 +158,12 @@ def steal(dataset: dict):
             except:
                 matcherinoCode = ''
             try:
-                bracket = get_bracket(evLstItem['challonge'].strip(), evLstItem['brackets'].strip())
+                bracket = get_bracket(evLstItem['challonge'].strip(), 
+                                      evLstItem['brackets'].strip())
             except:
                 bracket = evLstItem['challonge'].strip()
-            events[ind].append([name, date, region, league, server, prize, matcherino, matcherinoCode, bracket, countdown, mode])
+            events[ind].append([
+                name, date, region, league, server, prize, 
+                matcherino, matcherinoCode, bracket, countdown, mode
+                ])
     return events

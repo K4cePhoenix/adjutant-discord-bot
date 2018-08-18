@@ -15,6 +15,14 @@ log = logging.getLogger('adjutant.sc2oe')
 class SC2OpenEvents():
     def __init__(self, bot):
         self.bot = bot
+        ICN_GRN = "https://i.imgur.com/lTur4HM.png"
+        ICN_MST = "https://i.imgur.com/R3M8AlH.png"
+        ICN_DIA = "https://i.imgur.com/i3ceEMq.png"
+        ICN_PLT = "https://i.imgur.com/7iWG4Rl.png"
+        ICN_GLD = "https://i.imgur.com/oxuGOem.png"
+        ICN_SLV = "https://i.imgur.com/CS3hGFX.png"
+        ICN_BRN = "https://i.imgur.com/47tb6qR.png"
+        ICN_ALT = "https://i.imgur.com/HlsskVP.png"
 
     async def del_old_events(self, msg, countdown):
         try:
@@ -23,14 +31,12 @@ class SC2OpenEvents():
         except:
             log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - can not delete {em.title} - {countdown}')
 
-
     async def send_event_update(self, oldMsg, msg, em):
         try:
             await oldMsg.edit(content=msg, embed=em)
             log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
         except:
             log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}')
-
 
     async def send_event(self, msg, em, srv, evType):
         for channel in srv.channels:
@@ -44,11 +50,12 @@ class SC2OpenEvents():
                 #         ch.send(msg, embed=em)
                 #         log.info(f'{srv.name}/{srv.id}, {ch} - sent {em.title}')
                 #         return
-                if srv.name == self.bot.srvInf['guilds'][s]['name'] and channel.name == self.bot.srvInf['guilds'][s][f'channel_{evType.lower()}'] and channel.permissions_for(srv.me).send_messages:
+                if (srv.name == self.bot.srvInf['guilds'][s]['name'] 
+                        and channel.name == self.bot.srvInf['guilds'][s][f'channel_{evType.lower()}'] 
+                        and channel.permissions_for(srv.me).send_messages):
                     await channel.send(msg, embed=em)
                     log.info(f'{srv}, {channel} - sent {em.title}')
                     return
-
 
     async def post_events(self, eventsX, msgs, srv, evType):
         aEvCount = 0
@@ -74,30 +81,33 @@ class SC2OpenEvents():
                 cd_hours = eventXY[9].seconds // (60 * 60)
                 cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
                 evName = ''.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1]).lower()
-
                 if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['colour']:
-                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)), description=f"{eventXY[1]}")
+                    em = discord.Embed(title=eventXY[0],
+                                       colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
+                                       description=f"{eventXY[1]}")
                 else:
-                    em = discord.Embed(title=eventXY[0], colour=discord.Colour(0x555555), description=f"{eventXY[1]}")
+                    em = discord.Embed(title=eventXY[0],
+                                       colour=discord.Colour(0x555555),
+                                       description=f"{eventXY[1]}")
 
                 msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
                 if evType == 'General':
-                    em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/lTur4HM.png")
+                    em.set_author(name=f"{evType} Event", icon_url=ICN_GRN)
                 elif evType == 'Amateur':
                     if 'Master' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/R3M8AlH.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_MST)
                     elif 'Diamond' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/i3ceEMq.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_DIA)
                     elif 'Platinum' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/7iWG4Rl.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_PLT)
                     elif 'Gold' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/oxuGOem.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_GLD)
                     elif 'Silver' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/CS3hGFX.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_SLV)
                     elif 'Bronze' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/47tb6qR.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_BRN)
                     else:
-                        em.set_author(name=f"{evType} Event", icon_url="https://i.imgur.com/HlsskVP.png")
+                        em.set_author(name=f"{evType} Event", icon_url=ICN_ALT)
                 elif evType == 'Team':
                     pass
 
@@ -118,7 +128,9 @@ class SC2OpenEvents():
 
                 cfVal = None
                 if eventXY[6]:
-                    if any(char.isdigit() for char in eventXY[7]) == False and eventXY[7] == '' and evName in self.bot.evInf.keys():
+                    if (any(char.isdigit() for char in eventXY[7]) == False 
+                            and eventXY[7] == '' 
+                            and evName in self.bot.evInf.keys()):
                         codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
                         eventXY[7] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
                     cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
@@ -128,14 +140,13 @@ class SC2OpenEvents():
                             cfVal += f"\n[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
                         else:
                             cfVal = f"[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
-
                 if cfVal:
                     em.add_field(name="Crowdfunding", value=cfVal, inline=False)
 
                 if eventXY[8]:
                     em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
-
-                em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/", icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+                em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/", 
+                              icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                 if p:
                     await self.send_event(msg, em, srv, evType)
@@ -160,13 +171,12 @@ class SC2OpenEvents():
             if p == True:
                 dEvCount += 1
                 await self.del_old_events(MsgsEv, -1.0)
-
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
-
 
     async def fetch_texts(self, url, eventTypes, parser):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
-        headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot._version} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 'Accept-Encoding': 'gzip'}
+        headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot.VERSION} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 
+                   'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'
         params['format'] = 'json'
@@ -183,54 +193,24 @@ class SC2OpenEvents():
                     evText[evType] = json_body['query']['pages'][ind]['revisions'][0]['content']
         return evText
 
-
     async def check_all_events(self):
         eventTypes = ['General', 'Amateur', 'Team']
-
         txts = await self.fetch_texts('http://liquipedia.net/starcraft2/api.php', eventTypes, 'html.parser')
         events = kuevstv2.steal(txts)
-
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
         for guild in self.bot.guilds:
             msgs = []
-
             for x, evType in enumerate(eventTypes):
-
                 log.info(f'processing {evType} events in {guild.name}')
                 for channel in guild.channels:
                     for srv in self.bot.srvInf['guilds']:
                         ############# IDS INSTEAD OF NAMES #############
-                        if (guild.name == srv) and (channel.name == self.bot.srvInf['guilds'][srv][f'channel_{evType.lower()}']) and channel.permissions_for(guild.me).read_messages:
+                        if (guild.name == srv 
+                                and channel.name == self.bot.srvInf['guilds'][srv][f'channel_{evType.lower()}'] 
+                                and channel.permissions_for(guild.me).read_messages):
                             async for message in channel.history():
                                 msgs.append(message)
-
-                # l = False
-                # for MsgsEv in msgs:
-                #     if MsgsEv.embeds:
-                #         if MsgsEv.embeds[0].title == "Licensing":
-                #             em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
-                #             em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
-                #             await MsgsEv.edit(embed=em)
-                #             l = True
-                #         elif 'has started' in MsgsEv.content:
-                #             evTmp = list()
-                #             for eventXY in events[x]:
-                #                 evTmp.append(eventXY[0])
-                #             if MsgsEv.author.id == MsgsEv.guild.me.id:
-                #                 if not MsgsEv.embeds[0].title in evTmp:
-                #                     try:
-                #                         await MsgsEv.delete()
-                #                     except:
-                #                         log.error(f'{MsgsEv.guild}, {MsgsEv.channel} - MISSING PERMISSION - can not delete {MsgsEv.id}')
-                # if not l:
-                #     em = discord.Embed(title="Licensing", colour=discord.Colour(0xc223f), description="Information provided by [Liquipedia](http://liquipedia.net/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).")
-                #     em.add_field(name="​\u200b", value="The relevant subpages are\n[User:(16thSq) Kuro/Open Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Open_Tournaments), \n[User:(16thSq) Kuro/Amateur Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Amateur_Tournaments) and\n[User:(16thSq) Kuro/Team Tournaments](http://liquipedia.net/starcraft2/User:%2816thSq%29_Kuro/Team_Tournaments).")
-                #     for channel in guild.channels:
-                #            if channel.name == self.bot.srvInf['guilds'][guild.name][f'channel_{evType.lower()}'] and channel.permissions_for(guild.me).send_messages:
-                #                await channel.send(embed=em)
-
                 await self.post_events(events[x], msgs, guild, evType)
-
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
