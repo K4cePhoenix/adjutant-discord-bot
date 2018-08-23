@@ -2,11 +2,11 @@ import toml
 
 
 def _get(ctx):
-    data_path = './data/bot/'
-    perm_file = 'perms.toml'
-    perms = toml.load(data_path + perm_file)
-    conf_file = 'conf.toml'
-    conf = toml.load(data_path + conf_file)
+    DATA_PATH = './data/bot/'
+    PERM_FILE = 'perms.toml'
+    perms = toml.load(DATA_PATH + PERM_FILE)
+    CONF_FILE = 'conf.toml'
+    conf = toml.load(DATA_PATH + CONF_FILE)
 
     if ctx.message.author.bot:
         return 0

@@ -1,4 +1,5 @@
 from discord.ext import commands
+import aiofiles
 import logging
 import os
 import toml
@@ -24,7 +25,10 @@ class SC2OESettings():
     async def _settings(self, ctx):
         """ Change a setting """
         if perms._check(ctx, 3):
-            self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
+            # self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
+            async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='r') as f:
+                tmpInf = await f.read()
+            self.srvInf = toml.loads(tmpInf)
         else:
             await ctx.send('You have no permissions to execute this command.')
 
@@ -34,9 +38,9 @@ class SC2OESettings():
         s = t.split(' ')
         if len(s) == 2 and s[0].lower() in ['general', 'amateur', 'team']:
             self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0].lower()}'] = s[1].lower()
-            f = open(self.DATA_PATH+self.INFO_FILE, 'w')
-            toml.dump(self.srvInf, f)
-            f.close()
+            tomlStr = toml.dumps(self.srvInf)
+            async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
+                await f.write(tomlStr)
             await ctx.channel.send(f'Changed the {s[0].lower()} events channel to {s[1].lower()}')
         else:
             await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
@@ -47,9 +51,9 @@ class SC2OESettings():
         if len(t) == 1:
             if t in [12, 24]:
                 self.srvInf['guilds'][ctx.guild.name]['timeformat'] = t
-                f = open(self.DATA_PATH+self.INFO_FILE, 'w')
-                toml.dump(self.srvInf, f)
-                f.close()
+                tomlStr = toml.dumps(self.srvInf)
+                async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
+                    await f.write(tomlStr)
                 await ctx.channel.send(f'Changed the time format to {t} hours')
             else:
                 await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
@@ -59,30 +63,6 @@ class SC2OESettings():
         gec = self.srvInf['guilds'][ctx.guild.name]['channel_general']
         aec = self.srvInf['guilds'][ctx.guild.name]['channel_amateur']
         await ctx.channel.send(f'The currently set SC2 event channels are\nGeneral events channel: `{gec}`\nAmateur events channel: `{aec}`')
-
-    @commands.command(name='permcheck')
-    async def _check_permissions(self, ctx):
-        lvl = [0]
-        pname = ''
-        if perms._check(ctx, 5):
-            lvl.append(5)
-            pname = 'Phoenix'
-        elif perms._check(ctx, 4):
-            lvl.append(4)
-            pname = 'Server Owner'
-        elif perms._check(ctx, 3):
-            lvl.append(3)
-            pname = 'Admin'
-        elif perms._check(ctx, 2):
-            lvl.append(2)
-            pname = 'Moderator'
-        elif perms._check(ctx, 1):
-            lvl.append(1)
-            pname = 'User'
-        else:
-            pname = 'Bot'
-        await ctx.channel.send(f'Your permission level is {max(lvl)} - ({pname}).')
-
 
 
 def setup(bot):

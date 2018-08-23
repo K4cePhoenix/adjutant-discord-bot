@@ -100,6 +100,17 @@ def eradicate_comments(data, s=''):
             s += comOpen.split('-->')[1]
     return s
 
+def get_list(data):
+    evLst = list()
+    for i in range(4, len(data)):
+        evDct = dict()
+        for j, k in enumerate(data[i].split('|')):
+            k = k.replace('<br>', ' ').replace('  ', ' ').strip()
+            if 0 < j < 17:
+                if len(k.split('=')) == 2:
+                    evDct[k.split('=')[0]] = k.split('=')[1]
+        evLst.append(evDct)
+    return evLst
 
 def steal(dataset: dict):
     events = [[], [], []]
@@ -107,28 +118,9 @@ def steal(dataset: dict):
         data = eradicate_comments(dataset[key])
         dataSplit = data.split('User:(16thSq) Kuro/')
         if 'This=1' in dataSplit[3].split('}}')[0]:
-            evLst = list()
-            for i in range(4, len(dataSplit)):
-                evDct = dict()
-                for j, k in enumerate(dataSplit[i].split('|')):
-                    k = k.replace('<br>', ' ').replace('  ', ' ').strip()
-                    if 0 < j < 17:
-                        if len(k.split('=')) == 2:
-                            evDct[k.split('=')[0]] = k.split('=')[1]
-                evLst.append(evDct)
-
+            evLst = get_list(dataSplit)
         elif 'This=2' in dataSplit[3].split('}}')[0]:
-            evLst = list()
-            for i in range(4, len(dataSplit)):
-                evDct = dict()
-                for j, k in enumerate(dataSplit[i].split('|')):
-                    k = k.replace('<br>', ' ').replace('  ', ' ').strip()
-                    if 0 < j < 17:
-                        #print(k)
-                        if len(k.split('=')) == 2:
-                            evDct[k.split('=')[0]] = k.split('=')[1]
-                evLst.append(evDct)
-
+            evLst = get_list(dataSplit)
         elif 'This=3' in dataSplit[3].split('}}')[0]:
             evLst = list()
 

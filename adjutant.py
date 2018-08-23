@@ -148,7 +148,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         try:
             self.srvInf['guilds'][guild.name] = {'name': guild.name, 'id': guild.id, 'channel_general': "", 'channel_amateur': "", 'channel_team': "", 'timeformat': 12}
             tomlStr = toml.dumps(self.srvInf)
-            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, 'w') as f:
+            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, mode='w') as f:
                 await f.write(tomlStr)
             await msg.add_reaction('☑')
         except Exception:
@@ -175,7 +175,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         # INSERT DATABASE CONTENT HERE
         try:
             self.srvInf['guilds'].pop(guild.name, None)
-            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, 'w') as f:
+            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, mode='w') as f:
                 tomlStr = toml.dumps(self.srvInf)
                 await f.write(tomlStr)
             await msg.add_reaction('☑')
