@@ -1,12 +1,13 @@
 import toml
 
-data_path = './data/bot/'
-perm_file = 'perms.toml'
-perms = toml.load(data_path + perm_file)
-conf_file = 'conf.toml'
-conf = toml.load(data_path + conf_file)
 
 def _get(ctx):
+    data_path = './data/bot/'
+    perm_file = 'perms.toml'
+    perms = toml.load(data_path + perm_file)
+    conf_file = 'conf.toml'
+    conf = toml.load(data_path + conf_file)
+
     if ctx.message.author.bot:
         return 0
     lvl = [0]
@@ -19,8 +20,9 @@ def _get(ctx):
     #         lvl.append(1)
     if ctx.message.author.id == conf['owner']['id'] and ctx.guild.id == 391304338099929092:
         lvl.append(5)
-    if "Ducklings" in ctx.message.author.roles and ctx.message.guild.id == 391304338099929092:
-        lvl.append(4)
+    for i in perms["moderators"]:
+        if ctx.message.author.id == perms["moderators"][i] and ctx.guild.id == 391304338099929092:
+            lvl.append(4)
     if ctx.message.author.guild_permissions.administrator:
         lvl.append(3)
     if ctx.message.author.guild_permissions.manage_guild:

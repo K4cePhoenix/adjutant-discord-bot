@@ -51,7 +51,7 @@ class General():
             embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nShards: **{len(self.bot.shards)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.startTime).split('.')[0]}**")
         except:
             embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.startTime).split('.')[0]}**")
-        embed.add_field(name="Version: ", value=f"Adjutant: **{self.bot.version}**\ndiscord.py: **{discord.__version__}**\nPython: **{platform.python_version()}**")
+        embed.add_field(name="Version: ", value=f"Adjutant: **{self.bot.VERSION}**\ndiscord.py: **{discord.__version__}**\nPython: **{platform.python_version()}**")
         embed.add_field(name="Other: ", value = "Website: Coming soon™")#https://k4cephoenix.github.io/adjutant-discordbot\nDiscord: https://discord.gg/nfa9jnu")
         await ctx.send(embed=embed)
 
@@ -84,7 +84,8 @@ class General():
         embed.add_field(name="Username", value=user.name, inline=False)
         embed.add_field(name="Discriminator", value=user.discriminator, inline=False)
         embed.add_field(name="ID", value=str(user.id), inline=False)
-        embed.add_field(name="Roles", value=userRoles, inline=False)
+        if len(user.roles) > 1:
+            embed.add_field(name="Roles", value=userRoles, inline=False)
         try:
             embed.add_field(name="Playing", value=user.game.name, inline=False)
         except:
@@ -107,7 +108,7 @@ class General():
     @commands.command(name='suggest')
     async def _suggest(self, ctx, *, suggestion: str):
         """ Sends a feature suggestion. """
-        channel = self.bot.get_channel(436581310379720705)
+        channel = self.bot.get_channel(446965463776231425)
         color = discord.Colour.blue()
         embed = discord.Embed(color=color, title="New suggestion!", description="I'm so excited to read it!")
         embed.set_thumbnail(url=ctx.message.author.avatar_url)
@@ -123,7 +124,7 @@ class General():
     @commands.command(name='report')
     async def _report(self, ctx, *, report: str):
         """ Sends a bug report. """
-        channel = self.bot.get_channel(436581310379720705)
+        channel = self.bot.get_channel(443497493766864906)
         color = discord.Colour.red()
         embed = discord.Embed(color=color, title="New report!", description="Hopefully, you guys can fix it..")
         embed.set_thumbnail(url=ctx.message.author.avatar_url)

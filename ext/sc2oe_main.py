@@ -15,21 +15,21 @@ log = logging.getLogger('adjutant.sc2oe')
 class SC2OpenEvents():
     def __init__(self, bot):
         self.bot = bot
-        ICN_GRN = "https://i.imgur.com/lTur4HM.png"
-        ICN_MST = "https://i.imgur.com/R3M8AlH.png"
-        ICN_DIA = "https://i.imgur.com/i3ceEMq.png"
-        ICN_PLT = "https://i.imgur.com/7iWG4Rl.png"
-        ICN_GLD = "https://i.imgur.com/oxuGOem.png"
-        ICN_SLV = "https://i.imgur.com/CS3hGFX.png"
-        ICN_BRN = "https://i.imgur.com/47tb6qR.png"
-        ICN_ALT = "https://i.imgur.com/HlsskVP.png"
+        self.ICN_GRN = "https://i.imgur.com/lTur4HM.png"
+        self.ICN_MST = "https://i.imgur.com/R3M8AlH.png"
+        self.ICN_DIA = "https://i.imgur.com/i3ceEMq.png"
+        self.ICN_PLT = "https://i.imgur.com/7iWG4Rl.png"
+        self.ICN_GLD = "https://i.imgur.com/oxuGOem.png"
+        self.ICN_SLV = "https://i.imgur.com/CS3hGFX.png"
+        self.ICN_BRN = "https://i.imgur.com/47tb6qR.png"
+        self.ICN_ALT = "https://i.imgur.com/HlsskVP.png"
 
     async def del_old_events(self, msg, countdown):
         try:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title} - {countdown}')
         except:
-            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - can not delete {em.title} - {countdown}')
+            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - event deletion')
 
     async def send_event_update(self, oldMsg, msg, em):
         try:
@@ -92,22 +92,22 @@ class SC2OpenEvents():
 
                 msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
                 if evType == 'General':
-                    em.set_author(name=f"{evType} Event", icon_url=ICN_GRN)
+                    em.set_author(name=f"{evType} Event", icon_url=self.ICN_GRN)
                 elif evType == 'Amateur':
                     if 'Master' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_MST)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_MST)
                     elif 'Diamond' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_DIA)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_DIA)
                     elif 'Platinum' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_PLT)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_PLT)
                     elif 'Gold' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_GLD)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_GLD)
                     elif 'Silver' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_SLV)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_SLV)
                     elif 'Bronze' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_BRN)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_BRN)
                     else:
-                        em.set_author(name=f"{evType} Event", icon_url=ICN_ALT)
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_ALT)
                 elif evType == 'Team':
                     pass
 
@@ -162,13 +162,13 @@ class SC2OpenEvents():
                 await self.del_old_events(pMsg, countdown)
 
         for MsgsEv in msgs:
-            p = True
+            p2 = True
             for eventXY in eventsX:
                 if MsgsEv.embeds:
                     if eventXY[0] == MsgsEv.embeds[0].title:
-                        p = False
+                        p2 = False
                         break
-            if p == True:
+            if p2 == True:
                 dEvCount += 1
                 await self.del_old_events(MsgsEv, -1.0)
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')

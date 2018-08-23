@@ -69,6 +69,11 @@ class Administration:
                 else:
                     self._lastResult = ret
                     await ctx.send(f'```py\n{value}{ret}\n```')
+        else:
+            try:
+                await ctx.message.add_reaction('❌')
+            except:
+                pass
 
     @commands.command(name='load')
     async def _load(self, ctx, *, module):
@@ -83,6 +88,11 @@ class Administration:
                     await ctx.message.add_reaction('☑')
                 except:
                     pass
+        else:
+            try:
+                await ctx.message.add_reaction('❌')
+            except:
+                pass
 
     @commands.command(name='unload')
     async def _unload(self, ctx, *, module):
@@ -97,6 +107,11 @@ class Administration:
                     await ctx.message.add_reaction('☑')
                 except:
                     pass
+        else:
+            try:
+                await ctx.message.add_reaction('❌')
+            except:
+                pass
 
     @commands.command(name='reload')
     async def _reload(self, ctx, *, module):
@@ -112,6 +127,11 @@ class Administration:
                     await ctx.message.add_reaction('☑')
                 except:
                     pass
+        else:
+            try:
+                await ctx.message.add_reaction('❌')
+            except:
+                pass
 
 def setup(bot):
     n = Administration(bot)

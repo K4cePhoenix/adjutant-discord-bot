@@ -93,7 +93,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'Current Discord.py Version: {discord.__version__} | Current Python Version: {platform.python_version()}')
         self.log.info(f'\nUse this link to invite {self.user.name}:')
         self.log.info(f'https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot')
-        self.log.info(f'\nYou are running Adjutant DiscordBot/v{self.bot.VERSION} by Phoenix#2694')
+        self.log.info(f'\nYou are running Adjutant DiscordBot/v{self.VERSION} by Phoenix#2694')
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
         chan = self.get_channel(436581310379720705)
