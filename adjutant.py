@@ -130,13 +130,13 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         else:
             self.log.info(f"Couldn't change my name on {guild.name}")
 
-        chan = self.get_channel(436581310379720705)
+        chan = self.get_channel(477110208225738752)
         embed = discord.Embed(color=discord.Color.green(), title="Established new connection.", description=f"Now connected to {len(self.guilds)} guilds!")
         embed.set_thumbnail(url=guild.icon_url)
         embed.add_field(name="Name", value=guild.name)
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Members", value=guild.member_count)
-        embed.add_field(name="Creation date", value=guild.created_at.split('.')[0])
+        embed.add_field(name="Creation date", value=guild.created_at.strftime('%Y/%m/%d'))
         try:
             msg = await chan.send(embed=embed)
         except:
@@ -158,13 +158,13 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
 
     async def on_guild_remove(self, guild):
-        chan = self.get_channel(436581310379720705)
+        chan = self.get_channel(477110208225738752)
         embed = discord.Embed(color=discord.Color.red(), title="Lost contact to a guild...", description=f"{len(self.guilds)} guild relays remaining.")
         embed.set_thumbnail(url=guild.icon_url)
         embed.add_field(name="Name", value=guild.name)
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Members", value=guild.member_count)
-        embed.add_field(name="Creation date", value=guild.created_at.split('.')[0])
+        embed.add_field(name="Creation date", value=guild.created_at.strftime('%Y/%m/%d'))
         try:
             msg = await chan.send(embed=embed)
         except:

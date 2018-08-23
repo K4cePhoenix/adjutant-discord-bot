@@ -161,16 +161,16 @@ class SC2OpenEvents():
                 dEvCount += 1
                 await self.del_old_events(pMsg, countdown)
 
-        for MsgsEv in msgs:
-            p2 = True
-            for eventXY in eventsX:
-                if MsgsEv.embeds:
-                    if eventXY[0] == MsgsEv.embeds[0].title:
-                        p2 = False
-                        break
-            if p2 == True:
-                dEvCount += 1
-                await self.del_old_events(MsgsEv, -1.0)
+        # for MsgsEv in msgs:
+        #     p2 = True
+        #     for eventXY in eventsX:
+        #         if MsgsEv.embeds:
+        #             if eventXY[0] == MsgsEv.embeds[0].title:
+        #                 p2 = False
+        #                 break
+        #     if p2 == True:
+        #         dEvCount += 1
+        #         await self.del_old_events(MsgsEv, -1.0)
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
 
     async def fetch_texts(self, eventTypes):

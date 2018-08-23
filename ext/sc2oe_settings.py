@@ -24,7 +24,7 @@ class SC2OESettings():
     async def _settings(self, ctx):
         """ Change a setting """
         if perms._check(ctx, 3):
-            pass
+            self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
         else:
             await ctx.send('You have no permissions to execute this command.')
 
@@ -54,6 +54,11 @@ class SC2OESettings():
             else:
                 await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
 
+    @commands.command(name='listchannel')
+    async def _list_channels(self, ctx):
+        gec = self.srvInf['guilds'][ctx.guild.name]['channel_general']
+        aec = self.srvInf['guilds'][ctx.guild.name]['channel_amateur']
+        await ctx.channel.send(f'The currently set SC2 event channels are\nGeneral events channel: `{gec}`\nAmateur events channel: `{aec}`')
 
     @commands.command(name='permcheck')
     async def _check_permissions(self, ctx):
