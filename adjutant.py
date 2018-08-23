@@ -34,15 +34,15 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
         CONF_PATH = './data/bot/'
         CONF_NAME = 'conf.toml'
-        self.config = toml.load(CONF_PATH+CONF_NAME)
-        self.VERSION = self.config['owner']['version']
-        self.startTime = datetime.now(tz=pytz.utc)
+        self.CONFIG = toml.load(CONF_PATH+CONF_NAME)
+        self.VERSION = self.CONFIG['owner']['version']
+        self.START_TIME = datetime.now(tz=pytz.utc)
 
 
-        dbuser = self.config['db']['user']
-        dbpass = self.config['db']['pass']
-        dbname = self.config['db']['name']
-        dbhost = self.config['db']['host']
+        dbuser = self.CONFIG['db']['user']
+        dbpass = self.CONFIG['db']['pass']
+        dbname = self.CONFIG['db']['name']
+        dbhost = self.CONFIG['db']['host']
         dbcred = {"user": dbuser, "password": dbpass, "database": dbname, "host": dbhost}
 
         async def _init_db():
@@ -52,17 +52,17 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         # self.loop.create_task(_init_db())
 
         
-        self.sc2dat_path = './data/sc2oe/'
-        self.srvinf_file = 'srvInf.toml'
-        self.evtinf_file = 'evInf.toml'
-        if os.path.isdir(self.sc2dat_path) is False:
-            os.makedirs(self.sc2dat_path)
-        if os.path.isfile(self.sc2dat_path + self.srvinf_file) is False:
-            open(self.sc2dat_path+self.srvinf_file, 'a').close()
-        if os.path.isfile(self.sc2dat_path + self.evtinf_file) is False:
-            open(self.sc2dat_path+self.evtinf_file, 'a').close()
-        self.srvInf = toml.load(self.sc2dat_path + self.srvinf_file)
-        self.evInf = toml.load(self.sc2dat_path + self.evtinf_file)
+        self.SC2DAT_PATH = './data/sc2oe/'
+        self.SRVINF_FILE = 'srvInf.toml'
+        self.EVTINF_FILE = 'evInf.toml'
+        if os.path.isdir(self.SC2DAT_PATH) is False:
+            os.makedirs(self.SC2DAT_PATH)
+        if os.path.isfile(self.SC2DAT_PATH + self.SRVINF_FILE) is False:
+            open(self.SC2DAT_PATH+self.SRVINF_FILE, 'a').close()
+        if os.path.isfile(self.SC2DAT_PATH + self.EVTINF_FILE) is False:
+            open(self.SC2DAT_PATH+self.EVTINF_FILE, 'a').close()
+        self.srvInf = toml.load(self.SC2DAT_PATH + self.SRVINF_FILE)
+        self.evInf = toml.load(self.SC2DAT_PATH + self.EVTINF_FILE)
 
         self.remove_command('help')
 
@@ -148,7 +148,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         try:
             self.srvInf['guilds'][guild.name] = {'name': guild.name, 'id': guild.id, 'channel_general': "", 'channel_amateur': "", 'channel_team': "", 'timeformat': 12}
             tomlStr = toml.dumps(self.srvInf)
-            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, mode='w') as f:
+            async with aiofiles.open(self.SC2DAT_PATH+self.SRVINF_FILE, mode='w') as f:
                 await f.write(tomlStr)
             await msg.add_reaction('☑')
         except Exception:
@@ -175,7 +175,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         # INSERT DATABASE CONTENT HERE
         try:
             self.srvInf['guilds'].pop(guild.name, None)
-            async with aiofiles.open(self.sc2dat_path+self.srvinf_file, mode='w') as f:
+            async with aiofiles.open(self.SC2DAT_PATH+self.SRVINF_FILE, mode='w') as f:
                 tomlStr = toml.dumps(self.srvInf)
                 await f.write(tomlStr)
             await msg.add_reaction('☑')
