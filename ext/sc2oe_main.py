@@ -216,8 +216,8 @@ class SC2OpenEvents():
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
         while True:
-            self.bot.evInf = toml.load(self.bot.sc2dat_path + self.bot.evtinf_file)
-            self.bot.srvInf = toml.load(self.bot.sc2dat_path + self.bot.srvinf_file)
+            self.bot.evInf = toml.load(self.bot.SC2DAT_PATH + self.bot.EVTINF_FILE)
+            self.bot.srvInf = toml.load(self.bot.SC2DAT_PATH + self.bot.SRVINF_FILE)
             await self.check_all_events()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.bot.srvInf['general']['sleepDelay']))
             log.info(f'Next event check at {nextUpdateTime:%b %d, %H:%M (%Z)}')

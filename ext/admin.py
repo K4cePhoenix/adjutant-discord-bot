@@ -80,7 +80,7 @@ class Administration:
         """Loads a module."""
         if perms._check(ctx, 4): # Ducklings and meh
             try:
-                self.bot.load_extension(module)
+                self.bot.load_extension('ext.'+module)
             except Exception as e:
                 await ctx.send(f'```py\n{traceback.format_exc()}\n```')
             else:
@@ -99,7 +99,7 @@ class Administration:
         """Unloads a module."""
         if perms._check(ctx, 4): # Ducklings and meh
             try:
-                self.bot.unload_extension(module)
+                self.bot.unload_extension('ext.'+module)
             except Exception as e:
                 await ctx.send(f'```py\n{traceback.format_exc()}\n```')
             else:
@@ -118,8 +118,8 @@ class Administration:
         """Reloads a module."""
         if perms._check(ctx, 4): # Ducklings and meh
             try:
-                self.bot.unload_extension(module)
-                self.bot.load_extension(module)
+                self.bot.unload_extension('ext.'+module)
+                self.bot.load_extension('ext.'+module)
             except Exception as e:
                 await ctx.send(f'```py\n{traceback.format_exc()}\n```')
             else:

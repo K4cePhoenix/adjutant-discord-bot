@@ -21,6 +21,13 @@ class SC2OESettings():
             open(self.DATA_PATH+self.INFO_FILE, 'a').close()
         self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
 
+    async def _save_serverinfo_file(self, evType, g, t):
+        self.srvInf['guilds'][g][f'channel_{evType}'] = t.lower()
+        tomlStr = toml.dumps(self.srvInf)
+        async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
+            await f.write(tomlStr)
+
+
     @commands.group(name='set')
     async def _settings(self, ctx):
         """ Change a setting """
@@ -32,18 +39,54 @@ class SC2OESettings():
         else:
             await ctx.send('You have no permissions to execute this command.')
 
-    @_settings.command(name='channel')
-    async def _settings_channel(self, ctx, *, t: str):
-        """ Change the channel, the bot posts events in """
-        s = t.split(' ')
-        if len(s) == 2 and s[0].lower() in ['general', 'amateur', 'team']:
-            self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0].lower()}'] = s[1].lower()
-            tomlStr = toml.dumps(self.srvInf)
-            async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
-                await f.write(tomlStr)
-            await ctx.channel.send(f'Changed the {s[0].lower()} events channel to {s[1].lower()}')
-        else:
-            await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
+    @_settings.command(name='general')
+    async def _settings_general(self, ctx, *, t: str):
+        """ Set the channel name for general events """
+        try:
+            await self._save_serverinfo_file('general', ctx.guild.name, t)
+            # self.srvInf['guilds'][ctx.guild.name]['channel_general'] = t.lower()
+            # tomlStr = toml.dumps(self.srvInf)
+            # async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
+            #     await f.write(tomlStr)
+            await ctx.channel.send(f'Changed the general events channel to {t.lower()}')
+        except:
+            await ctx.channel.send('**ERROR**: Could not change channel name')
+
+    @_settings.command(name='amateur')
+    async def _settings_amateur(self, ctx, *, t: str):
+        """ Set the channel name for amateur events """
+        try:
+            await self._save_serverinfo_file('amateur', ctx.guild.name, t)
+            # self.srvInf['guilds'][ctx.guild.name]['channel_amateur'] = t.lower()
+            # tomlStr = toml.dumps(self.srvInf)
+            # async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
+            #     await f.write(tomlStr)
+            await ctx.channel.send(f'Changed the amateur events channel to {t.lower()}')
+        except:
+            await ctx.channel.send('**ERROR**: Could not change channel name')
+
+    @_settings.command(name='team')
+    async def _settings_team(self, ctx, *, t: str):
+        """ Set the channel name for team events """
+        pass
+
+    @_settings.command(name='osc')
+    async def _settings_osc(self, ctx, *, t: str):
+        """ Set the channel name for osc events """
+        pass
+
+    # @_settings.command(name='channel')
+    # async def _settings_channel(self, ctx, *, t: str):
+    #     """ Change the channel, the bot posts events in """
+    #     s = t.split(' ')
+    #     if len(s) == 2 and s[0].lower() in ['general', 'amateur', 'team']:
+    #         self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0].lower()}'] = s[1].lower()
+    #         tomlStr = toml.dumps(self.srvInf)
+    #         async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
+    #             await f.write(tomlStr)
+    #         await ctx.channel.send(f'Changed the {s[0].lower()} events channel to {s[1].lower()}')
+    #     else:
+    #         await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
 
     @_settings.command(name='time')
     async def _settings_time(self, ctx, *, t: int):

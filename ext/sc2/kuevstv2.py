@@ -125,10 +125,22 @@ def steal(dataset: dict):
             evLst = list()
 
         for evLstItem in evLst:
-            countdown = get_cd(evLstItem['deadline'].strip())
-            date = get_time(evLstItem['date'].strip())
-            mode = evLstItem['mode'].strip()
-            name = evLstItem['event'].strip()
+            try:
+                countdown = get_cd(evLstItem['deadline'].strip())
+            except:
+                countdown = None
+            try:
+                date = get_time(evLstItem['date'].strip())
+            except:
+                date = None
+            try:
+                mode = evLstItem['mode'].strip()
+            except:
+                mode = None
+            try:
+                name = evLstItem['event'].strip()
+            except:
+                name = None
             try:
                 region = evLstItem['region'].strip()
                 server = evLstItem['server'].strip()

@@ -53,8 +53,9 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
         
         self.SC2DAT_PATH = './data/sc2oe/'
-        self.SRVINF_FILE = 'srvInf.toml'
         self.EVTINF_FILE = 'evInf.toml'
+        self.SRVINF_FILE = 'srvInf.toml'
+        
         if os.path.isdir(self.SC2DAT_PATH) is False:
             os.makedirs(self.SC2DAT_PATH)
         if os.path.isfile(self.SC2DAT_PATH + self.SRVINF_FILE) is False:
