@@ -63,103 +63,119 @@ class SC2OpenEvents():
         dEvCount = 0
 
         for eventXY in eventsX:
-            if eventXY[9] != None:
-                countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
-            else:
-                countdown = -1.0
-            p = True
-            for MsgsEv in msgs:
-                if MsgsEv.embeds:
-                    if eventXY[0] == MsgsEv.embeds[0].title:
-                        p = False
-                        aEvCount += 1
-                        pEvCount += 1
-                        pMsg = MsgsEv
-                        break
-            if 0 < countdown < float(self.bot.srvInf['general']['countdown']):
-                aEvCount += 1
-                cd_hours = eventXY[9].seconds // (60 * 60)
-                cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
-                evName = ''.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1]).lower()
-                if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['colour']:
-                    em = discord.Embed(title=eventXY[0],
-                                       colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
-                                       description=f"{eventXY[1]}")
+            try:
+                if eventXY[9] != None:
+                    countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
                 else:
-                    em = discord.Embed(title=eventXY[0],
-                                       colour=discord.Colour(0x555555),
-                                       description=f"{eventXY[1]}")
-
-                msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
-                if evType == 'General':
-                    em.set_author(name=f"{evType} Event", icon_url=self.ICN_GRN)
-                elif evType == 'Amateur':
-                    if 'Master' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_MST)
-                    elif 'Diamond' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_DIA)
-                    elif 'Platinum' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_PLT)
-                    elif 'Gold' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_GLD)
-                    elif 'Silver' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_SLV)
-                    elif 'Bronze' in eventXY[3]:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_BRN)
+                    countdown = -1.0
+                p = True
+                for MsgsEv in msgs:
+                    if MsgsEv.embeds:
+                        if eventXY[0] == MsgsEv.embeds[0].title:
+                            p = False
+                            aEvCount += 1
+                            pEvCount += 1
+                            pMsg = MsgsEv
+                            break
+                if 0 < countdown < float(self.bot.srvInf['general']['countdown']):
+                    aEvCount += 1
+                    cd_hours = eventXY[9].seconds // (60 * 60)
+                    cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
+                    evName = ''.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1]).lower()
+                    if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['colour']:
+                        try:
+                            em = discord.Embed(title=eventXY[0],
+                                            colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
+                                            description=f"{eventXY[1]}")
+                        except:
+                            em = discord.Embed(title=eventXY[0],
+                                            colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
+                                            description="-")
                     else:
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_ALT)
-                elif evType == 'Team':
-                    pass
+                        try:
+                            em = discord.Embed(title=eventXY[0],
+                                            colour=discord.Colour(0x555555),
+                                            description=f"{eventXY[1]}")
+                        except:
+                            em = discord.Embed(title=eventXY[0],
+                                            colour=discord.Colour(0x555555),
+                                            description="-")
 
-                if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['logo']:
-                    em.set_thumbnail(url=self.bot.evInf[evName]['logo'])
-                else:
-                    em.set_thumbnail(url=self.bot.evInf['other']['logo'])
-
-                if (evType == 'General') and (eventXY[2] != None):
-                    em.add_field(name="Region", value=eventXY[2], inline=True)
-                elif (evType == 'Amateur') and (eventXY[3] != None):
-                    em.add_field(name="League", value=eventXY[3], inline=True)
-
-                if eventXY[4]:
-                    em.add_field(name="Server", value=eventXY[4], inline=True)
-                if eventXY[5]:
-                    em.add_field(name="Prizepool", value=eventXY[5], inline=False)
-
-                cfVal = None
-                if eventXY[6]:
-                    if (any(char.isdigit() for char in eventXY[7]) == False 
-                            and eventXY[7] == '' 
-                            and evName in self.bot.evInf.keys()):
-                        codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
-                        eventXY[7] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
-                    cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
-                if evName in self.bot.evInf.keys():
-                    if self.bot.evInf[evName]['patreon']:
-                        if cfVal:
-                            cfVal += f"\n[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
+                    msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
+                    if evType == 'General':
+                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_GRN)
+                    elif evType == 'Amateur':
+                        if 'Master' in eventXY[3]:
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_MST)
+                        elif 'Diamond' in eventXY[3]:
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_DIA)
+                        elif 'Platinum' in eventXY[3]:
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_PLT)
+                        elif 'Gold' in eventXY[3]:
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_GLD)
+                        elif 'Silver' in eventXY[3]:
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_SLV)
+                        elif 'Bronze' in eventXY[3]:
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_BRN)
                         else:
-                            cfVal = f"[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
-                if cfVal:
-                    em.add_field(name="Crowdfunding", value=cfVal, inline=False)
+                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_ALT)
+                    elif evType == 'Team':
+                        pass
 
-                if eventXY[8]:
-                    em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
-                em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/", 
-                              icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+                    if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['logo']:
+                        em.set_thumbnail(url=self.bot.evInf[evName]['logo'])
+                    else:
+                        em.set_thumbnail(url=self.bot.evInf['other']['logo'])
 
-                if p:
-                    await self.send_event(msg, em, srv, evType)
-                elif not p:
-                    await self.send_event_update(pMsg, msg, em)
+                    if (evType == 'General') and (eventXY[2] != None):
+                        em.add_field(name="Region", value=eventXY[2], inline=True)
+                    elif (evType == 'Amateur') and (eventXY[3] != None):
+                        em.add_field(name="League", value=eventXY[3], inline=True)
 
-            elif (-float(self.bot.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
-                msg = f'{evType} event has started.'
-                await self.send_event_update(pMsg, msg, pMsg.embeds[0])
+                    if eventXY[4]:
+                        em.add_field(name="Server", value=eventXY[4], inline=True)
+                    if eventXY[5]:
+                        em.add_field(name="Prizepool", value=eventXY[5], inline=False)
 
-            elif (countdown < -float(self.bot.srvInf['general']['deleteDelay'])) and not p:
-                dEvCount += 1
-                await self.del_old_events(pMsg, countdown)
+                    cfVal = None
+                    if eventXY[6]:
+                        if (any(char.isdigit() for char in eventXY[7]) == False 
+                                and eventXY[7] == '' 
+                                and evName in self.bot.evInf.keys()):
+                            codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
+                            eventXY[7] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
+                        cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
+                    if evName in self.bot.evInf.keys():
+                        if self.bot.evInf[evName]['patreon']:
+                            if cfVal:
+                                cfVal += f"\n[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
+                            else:
+                                cfVal = f"[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
+                    if cfVal:
+                        em.add_field(name="Crowdfunding", value=cfVal, inline=False)
+
+                    if eventXY[8]:
+                        em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
+                    em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/", 
+                                icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+
+                    if p:
+                        await self.send_event(msg, em, srv, evType)
+                    elif not p:
+                        await self.send_event_update(pMsg, msg, em)
+
+                elif (-float(self.bot.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
+                    msg = f'{evType} event has started.'
+                    await self.send_event_update(pMsg, msg, pMsg.embeds[0])
+
+                elif (countdown < -float(self.bot.srvInf['general']['deleteDelay'])) and not p:
+                    dEvCount += 1
+                    await self.del_old_events(pMsg, countdown)
+
+            except Exception as e:
+                    exc = f'{type(e).__name__}: {e}'
+                    print(evType + ' failed to update.')
+                    log.error(f'Failed to update {evType} - {exc}')
 
         # for MsgsEv in msgs:
         #     p2 = True

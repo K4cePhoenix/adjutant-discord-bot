@@ -59,8 +59,8 @@ class General():
     async def _user(self, ctx):
         """ Shows info on the specified user. """
         try:
-            user = ctx.message.mentions[0]
-        except Exception:
+        #     user = ctx.message.mentions[0]
+        # except Exception:
             user = ctx.message.author
         roles = []
         for r in user.roles:

@@ -101,7 +101,7 @@ class SC2OESettings():
             else:
                 await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
 
-    @commands.command(name='listchannel')
+    @commands.command(name='list')
     async def _list_channels(self, ctx):
         gec = self.srvInf['guilds'][ctx.guild.name]['channel_general']
         aec = self.srvInf['guilds'][ctx.guild.name]['channel_amateur']
