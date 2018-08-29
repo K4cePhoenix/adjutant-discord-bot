@@ -62,6 +62,8 @@ class General():
         #     user = ctx.message.mentions[0]
         # except Exception:
             user = ctx.message.author
+        except:
+            pass
         roles = []
         for r in user.roles:
             if "everyone" not in r.name:

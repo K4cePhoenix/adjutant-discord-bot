@@ -133,6 +133,15 @@ def steal(dataset: dict):
                 date = get_time(evLstItem['date'].strip())
             except:
                 date = None
+            if not date:
+                try:
+                    _tmpData = evLstItem['date'].strip()
+                    _tmpDate = datetime.strptime(_tmpData, '%B %d, %Y - %H:%M {{Abbr/KST}}')
+                    _tmpMm = _tmpDate[0].strftime("%B")
+                    _tmpDd = _tmpDate[0].strftime("%#d").lstrip('0')
+                    date = f'{_tmpMm} {_tmpDd}'
+                except:
+                    pass        
             try:
                 mode = evLstItem['mode'].strip()
             except:
