@@ -192,7 +192,7 @@ class SC2OpenEvents():
     async def fetch_texts(self, eventTypes):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
         _URL = 'http://liquipedia.net/starcraft2/api.php'
-        headers = {'User-Agent': f'Adjutant-DiscordBot/v{self.bot.VERSION} (https://github.com/K4cePhoenix/Adjutant-DiscordBot; k4cephoenix@gmail.com)', 
+        headers = {'User-Agent': f'{self.bot.FULL_NAME}/v{self.bot.VERSION} ({self.bot.GITHUB}; {self.bot.MAIL})', 
                    'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'

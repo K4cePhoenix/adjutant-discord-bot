@@ -121,7 +121,7 @@ class General():
             self.bot.rclient.captureException()
             await ctx.send("There was an error... But don't worry! You can post your suggestion in my server. To receive an invitation, just say `a>server`!")
             traceback.print_exc()
-        await ctx.send("I sent your suggestion, <@{}>~".format(ctx.message.author.id))
+        await ctx.send("I sent your suggestion, <@{}>".format(ctx.message.author.id))
 
     @commands.command(name='report')
     async def _report(self, ctx, *, report: str):
@@ -137,7 +137,7 @@ class General():
             self.bot.rclient.captureException()
             await ctx.send("There was an error... Don't worry! You can contact my developers in my server. To enter my server, just say ``$!server``!")
             traceback.print_exc()
-        await ctx.send("I sent your report, <@{}>~".format(ctx.message.author.id))
+        await ctx.send("I sent your report, <@{}>".format(ctx.message.author.id))
 
 
 def setup(bot):

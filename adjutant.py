@@ -35,7 +35,12 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         CONF_PATH = './data/bot/'
         CONF_NAME = 'conf.toml'
         self.CONFIG = toml.load(CONF_PATH+CONF_NAME)
-        self.VERSION = self.CONFIG['owner']['version']
+
+        self.MAIL = self.CONFIG['owner']['mail']
+        self.FULL_NAME = self.CONFIG['bot']['fname']
+        self.GITHUB = self.CONFIG['bot']['github']
+        self.VERSION = self.CONFIG['bot']['version']
+
         self.START_TIME = datetime.now(tz=pytz.utc)
 
 
@@ -94,7 +99,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'Current Discord.py Version: {discord.__version__} | Current Python Version: {platform.python_version()}')
         self.log.info(f'\nUse this link to invite {self.user.name}:')
         self.log.info(f'https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot')
-        self.log.info(f'\nYou are running Adjutant DiscordBot/v{self.VERSION} by Phoenix#2694')
+        self.log.info(f'\nYou are running {self.FULL_NAME}/v{self.VERSION} by Phoenix#2694')
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
         chan = self.get_channel(436581310379720705)
@@ -126,11 +131,6 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'{message.created_at}: {message.author.name} in {destination}: {message.content}')
 
     async def on_guild_join(self, guild):
-        if guild.me.guild_permissions.change_nickname:
-            await guild.me.edit(nick='Adjutant 10-32')
-        else:
-            self.log.info(f"Couldn't change my name on {guild.name}")
-
         chan = self.get_channel(477110208225738752)
         embed = discord.Embed(color=discord.Color.green(), title="Established new connection.", description=f"Now connected to {len(self.guilds)} guilds!")
         embed.set_thumbnail(url=guild.icon_url)
@@ -194,4 +194,4 @@ elif os.path.isfile(CONF_PATH+CONF_NAME) is False:
     print(f'Could not find config file in {CONF_PATH}')
 else:
     config = toml.load(CONF_PATH+CONF_NAME)
-bot.run(config['owner']['token'])
+bot.run(config['bot']['token'])
