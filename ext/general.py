@@ -2,11 +2,9 @@ from datetime import datetime
 from discord.ext import commands
 import discord
 import logging
-import os
 import platform
 import pytz
 import time
-import toml
 
 from .utils import permissions as perms
 
@@ -39,7 +37,7 @@ class General():
         embed.add_field(name="Server", value="Join Adjutants support server [here](https://discordapp.com/invite/nfa9jnu).", inline=False)
         embed.add_field(name="More Information", value="You can find more information using the `info` command.", inline=False)
         await ctx.send(embed=embed)
-    
+
     @commands.command(name='info')
     async def _info(self, ctx):
         """ Display information about Adjutant. """
@@ -52,7 +50,7 @@ class General():
         except:
             embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.startTime).split('.')[0]}**")
         embed.add_field(name="Version: ", value=f"Adjutant: **{self.bot.VERSION}**\ndiscord.py: **{discord.__version__}**\nPython: **{platform.python_version()}**")
-        embed.add_field(name="Other: ", value = "Website: Coming soon™")#https://k4cephoenix.github.io/adjutant-discordbot\nDiscord: https://discord.gg/nfa9jnu")
+        embed.add_field(name="Other: ", value="Website: Coming soon™")#https://k4cephoenix.github.io/adjutant-discordbot\nDiscord: https://discord.gg/nfa9jnu")
         await ctx.send(embed=embed)
 
     @commands.command(name='user')

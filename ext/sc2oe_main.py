@@ -3,7 +3,6 @@ import aiohttp
 import asyncio
 import discord
 import logging
-import os
 import pytz
 import toml
 
@@ -44,14 +43,14 @@ class SC2OpenEvents():
                 ############# IDS INSTEAD OF NAMES #############
                 # smth like
                 # if srv.id == self.bot.srvInf['guilds'][s]['id']:
-                
+
                 #     ch = self.bot.get_channel(srv.id)
                 #     if ch.permissions_for(srv.me):
                 #         ch.send(msg, embed=em)
                 #         log.info(f'{srv.name}/{srv.id}, {ch} - sent {em.title}')
                 #         return
-                if (srv.name == self.bot.srvInf['guilds'][s]['name'] 
-                        and channel.name == self.bot.srvInf['guilds'][s][f'channel_{evType.lower()}'] 
+                if (srv.name == self.bot.srvInf['guilds'][s]['name']
+                        and channel.name == self.bot.srvInf['guilds'][s][f'channel_{evType.lower()}']
                         and channel.permissions_for(srv.me).send_messages):
                     await channel.send(msg, embed=em)
                     log.info(f'{srv}, {channel} - sent {em.title}')
@@ -139,8 +138,8 @@ class SC2OpenEvents():
 
                     cfVal = None
                     if eventXY[6]:
-                        if (any(char.isdigit() for char in eventXY[7]) == False 
-                                and eventXY[7] == '' 
+                        if (any(char.isdigit() for char in eventXY[7]) == False
+                                and eventXY[7] == ''
                                 and evName in self.bot.evInf.keys()):
                             codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
                             eventXY[7] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
@@ -156,7 +155,7 @@ class SC2OpenEvents():
 
                     if eventXY[8]:
                         em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
-                    em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/", 
+                    em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
                                 icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                     if p:
@@ -192,7 +191,7 @@ class SC2OpenEvents():
     async def fetch_texts(self, eventTypes):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
         _URL = 'http://liquipedia.net/starcraft2/api.php'
-        headers = {'User-Agent': f'{self.bot.FULL_NAME}/v{self.bot.VERSION} ({self.bot.GITHUB}; {self.bot.MAIL})', 
+        headers = {'User-Agent': f'{self.bot.FULL_NAME}/v{self.bot.VERSION} ({self.bot.GITHUB}; {self.bot.MAIL})',
                    'Accept-Encoding': 'gzip'}
         params = dict()
         params['action'] = 'query'
@@ -222,8 +221,8 @@ class SC2OpenEvents():
                 for channel in guild.channels:
                     for srv in self.bot.srvInf['guilds']:
                         ############# IDS INSTEAD OF NAMES #############
-                        if (guild.name == srv 
-                                and channel.name == self.bot.srvInf['guilds'][srv][f'channel_{evType.lower()}'] 
+                        if (guild.name == srv
+                                and channel.name == self.bot.srvInf['guilds'][srv][f'channel_{evType.lower()}']
                                 and channel.permissions_for(guild.me).read_messages):
                             async for message in channel.history():
                                 msgs.append(message)

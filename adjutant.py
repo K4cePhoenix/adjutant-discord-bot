@@ -6,8 +6,6 @@ import logging
 import os
 import platform
 import pytz
-import sys
-import time
 import toml
 import traceback
 
@@ -56,7 +54,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
         # self.loop.create_task(_init_db())
 
-        
+
         self.SC2DAT_PATH = './data/sc2oe/'
         self.EVTINF_FILE = 'evInf.toml'
         self.SRVINF_FILE = 'srvInf.toml'
@@ -155,7 +153,6 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         except Exception:
             self.log.error("on_guild_join: Couldn't save server info file.")
             traceback.print_exc()
-            pass
 
 
     async def on_guild_remove(self, guild):

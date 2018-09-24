@@ -9,7 +9,7 @@ def get_cd(data):
     returns: datetime object with the following info
     +1day7hours
     """
-    cdTime = datetime.strptime(f'{data} +0900', 
+    cdTime = datetime.strptime(f'{data} +0900',
                                 '%B %d, %Y - %H:%M {{Abbr/KST}} %z')
     curTime = datetime.now(tz=pytz.timezone('Asia/Seoul'))
     return cdTime - curTime
@@ -141,7 +141,7 @@ def steal(dataset: dict):
                     _tmpDd = _tmpDate[0].strftime("%#d").lstrip('0')
                     date = f'{_tmpMm} {_tmpDd}'
                 except:
-                    pass        
+                    pass
             try:
                 mode = evLstItem['mode'].strip()
             except:
@@ -171,12 +171,12 @@ def steal(dataset: dict):
             except:
                 matcherinoCode = ''
             try:
-                bracket = get_bracket(evLstItem['challonge'].strip(), 
+                bracket = get_bracket(evLstItem['challonge'].strip(),
                                       evLstItem['brackets'].strip())
             except:
                 bracket = evLstItem['challonge'].strip()
             events[ind].append([
-                name, date, region, league, server, prize, 
+                name, date, region, league, server, prize,
                 matcherino, matcherinoCode, bracket, countdown, mode
                 ])
     return events

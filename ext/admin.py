@@ -1,9 +1,7 @@
 from contextlib import redirect_stdout
-import discord
 from discord.ext import commands
 import io
 import logging
-import subprocess
 import textwrap
 import traceback
 
@@ -18,11 +16,11 @@ class Administration:
         self.bot = bot
         self._lastResult = None
 
-    def cleanup_code(self, content):
-        """Removes code blocks."""
-        if content.startswith('```') and content.endswith('```'):
-            return '\n'.join(content.split('\n')[1:-1])
-        return content.strip('` \n')
+    # def cleanup_code(self, content):
+    #     """Removes code blocks."""
+    #     if content.startswith('```') and content.endswith('```'):
+    #         return '\n'.join(content.split('\n')[1:-1])
+    #     return content.strip('` \n')
 
     # @commands.command(name='eval')
     # async def _eval(self, ctx, *, body: str):
