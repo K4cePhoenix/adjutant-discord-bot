@@ -190,17 +190,19 @@ class SC2OpenEvents():
 
     async def fetch_texts(self, eventTypes):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
-        _URL = 'http://liquipedia.net/starcraft2/api.php'
+        _URL = 'https://liquipedia.net/starcraft2/api.php'
         headers = {'User-Agent': f'{self.bot.FULL_NAME}/v{self.bot.VERSION} ({self.bot.GITHUB}; {self.bot.MAIL})',
                    'Accept-Encoding': 'gzip'}
-        params = dict()
-        params['action'] = 'query'
-        params['format'] = 'json'
-        params['titles'] = 'User:(16thSq)_Kuro/Open_Tournaments|User:(16thSq)_Kuro/Amateur_Tournaments|User:(16thSq)_Kuro/Team_Tournaments'
-        params['continue'] = ''
-        params['prop'] = 'revisions'
-        params['rvprop'] = 'content'
-        params['formatversion'] = '2'
+        params = {
+            'format': 'json',
+            'formatversion': '2',
+            'action': 'query',
+            'titles': 'User:(16thSq)_Kuro/Open_Tournaments|User:(16thSq)_Kuro/Amateur_Tournaments|User:(16thSq)_Kuro/Team_Tournaments',
+            'continue': '',
+            'prop': 'revisions',
+            'rvprop': 'content',
+        }
+
         evText = dict()
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(_URL, params=params) as response:
