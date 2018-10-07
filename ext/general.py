@@ -102,7 +102,7 @@ class General():
     @commands.command(name='invite')
     async def _invite(self, ctx):
         """ Link to add Adjutant to a guild. """
-        embed = discord.Embed(title="Invite me!", description=f"You can invite me [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot).")
+        embed = discord.Embed(title="Invite me!", description=f"You can invite me [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).")
         await ctx.send(embed=embed)
 
     @commands.command(name='suggest')
