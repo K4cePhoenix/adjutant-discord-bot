@@ -46,10 +46,16 @@ class RSS():
                 feed_data = await self.fetch_feed(self.feeds['feeds'][feed]['feedURL'])
                 for key in range(len(feed_data['entries'])-(len(feed_data['entries'])-2), -1, -1):
                     msg = f"{self.feeds['feeds'][feed]['name']}: {feed_data['entries'][key]['title']}"
-                    em = discord.Embed(title=feed_data['entries'][key]['title'],
-                                       colour=discord.Colour(int(self.feeds['feeds'][feed]['colour'], 16)),
-                                       description=BeautifulSoup(feed_data['entries'][key]['summary'],
-                                                                 'html.parser').text.rstrip('More'))
+                    if len(feed_data['entries'][key]['summary']) <= 200:
+                        em = discord.Embed(title=feed_data['entries'][key]['title'],
+                                        colour=discord.Colour(int(self.feeds['feeds'][feed]['colour'], 16)),
+                                        description=BeautifulSoup(feed_data['entries'][key]['summary'],
+                                                                    'html.parser').text.rstrip('More'))
+                    else:
+                        em = discord.Embed(title=feed_data['entries'][key]['title'],
+                                        colour=discord.Colour(int(self.feeds['feeds'][feed]['colour'], 16)),
+                                        description=BeautifulSoup(feed_data['entries'][key]['summary'][:197]+"...",
+                                                                    'html.parser').text.rstrip('More'))
                     em.set_author(name=self.feeds['feeds'][feed]['name'],
                                   icon_url=self.feeds['feeds'][feed]['icon'])
                     em.add_field(name='\u200b',
