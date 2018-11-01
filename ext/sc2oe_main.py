@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import aiohttp
+import aiosqlite
 import asyncio
 import discord
 import logging
@@ -37,26 +38,11 @@ class SC2OpenEvents():
         except:
             log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}')
 
-    async def send_event(self, msg, em, srv, evType):
-        for channel in srv.channels:
-            for s in self.bot.srvInf['guilds']:
-                ############# IDS INSTEAD OF NAMES #############
-                # smth like
-                # if srv.id == self.bot.srvInf['guilds'][s]['id']:
+    async def send_event(self, msg, em, channel, evType):
+        if channel.permissions_for(channel.guild.me).send_messages:
+            await channel.send(msg, embed=em)
 
-                #     ch = self.bot.get_channel(srv.id)
-                #     if ch.permissions_for(srv.me):
-                #         ch.send(msg, embed=em)
-                #         log.info(f'{srv.name}/{srv.id}, {ch} - sent {em.title}')
-                #         return
-                if (srv.name == self.bot.srvInf['guilds'][s]['name']
-                        and channel.name == self.bot.srvInf['guilds'][s][f'channel_{evType.lower()}']
-                        and channel.permissions_for(srv.me).send_messages):
-                    await channel.send(msg, embed=em)
-                    log.info(f'{srv}, {channel} - sent {em.title}')
-                    return
-
-    async def post_events(self, eventsX, msgs, srv, evType):
+    async def post_events(self, eventsX, msgs, guild, channel, evType):
         aEvCount = 0
         pEvCount = 0
         dEvCount = 0
@@ -76,7 +62,7 @@ class SC2OpenEvents():
                             pEvCount += 1
                             pMsg = MsgsEv
                             break
-                if 0 < countdown < float(self.bot.srvInf['general']['countdown']):
+                if 0 < countdown < float(self.bot.CONFIG['sc2oe']['countdown']):
                     aEvCount += 1
                     cd_hours = eventXY[9].seconds // (60 * 60)
                     cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
@@ -159,15 +145,25 @@ class SC2OpenEvents():
                                 icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                     if p:
-                        await self.send_event(msg, em, srv, evType)
+                        data = guild[9]
+                        if data:
+                            data_list = data.split('$')
+                            if len(data_list) == 1 and data_list[0] == '*':
+                                await self.send_event(msg, em, channel, evType)
+                            elif len(data_list) > 1:
+                                for eventsItem in data_list[1:]:
+                                    if eventsItem in eventXY[0]:
+                                        await self.send_event(msg, em, channel, evType)
+                            else:
+                                pass
                     elif not p:
                         await self.send_event_update(pMsg, msg, em)
 
-                elif (-float(self.bot.srvInf['general']['deleteDelay']) <= countdown <= 0) and not p:
+                elif (-float(self.bot.CONFIG['sc2oe']['deleteDelay']) <= countdown <= 0) and not p:
                     msg = f'{evType} event has started.'
                     await self.send_event_update(pMsg, msg, pMsg.embeds[0])
 
-                elif (countdown < -float(self.bot.srvInf['general']['deleteDelay'])) and not p:
+                elif (countdown < -float(self.bot.CONFIG['sc2oe']['deleteDelay'])) and not p:
                     dEvCount += 1
                     await self.del_old_events(pMsg, countdown)
 
@@ -176,17 +172,7 @@ class SC2OpenEvents():
                     print(evType + ' failed to update.')
                     log.error(f'Failed to update {evType} - {exc}')
 
-        # for MsgsEv in msgs:
-        #     p2 = True
-        #     for eventXY in eventsX:
-        #         if MsgsEv.embeds:
-        #             if eventXY[0] == MsgsEv.embeds[0].title:
-        #                 p2 = False
-        #                 break
-        #     if p2 == True:
-        #         dEvCount += 1
-        #         await self.del_old_events(MsgsEv, -1.0)
-        log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {srv.name}')
+        log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {channel.guild.name}')
 
     async def fetch_texts(self, eventTypes):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
@@ -216,29 +202,34 @@ class SC2OpenEvents():
         txts = await self.fetch_texts(eventTypes)
         events = kuevstv2.steal(txts)
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
-        for guild in self.bot.guilds:
+
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            sql = "SELECT * FROM guilds;"
+            cursor = await db.execute(sql)
+            guilds = await cursor.fetchall()
+            await cursor.close()
+        for guild in guilds:
             msgs = []
-            for x, evType in enumerate(eventTypes):
-                log.info(f'processing {evType} events in {guild.name}')
-                for channel in guild.channels:
-                    for srv in self.bot.srvInf['guilds']:
-                        ############# IDS INSTEAD OF NAMES #############
-                        if (guild.name == srv
-                                and channel.name == self.bot.srvInf['guilds'][srv][f'channel_{evType.lower()}']
-                                and channel.permissions_for(guild.me).read_messages):
-                            async for message in channel.history():
+            for ind, evType in enumerate(eventTypes[:-1]):
+                log.info(f'Processing {evType} Events in {guild[1]}')
+                if guild[2*ind+2] != -1:
+                    channel = self.bot.get_channel(guild[2*ind+2])
+                    if channel.permissions_for(channel.guild.me).read_messages:
+                        async for message in channel.history():
+                            if message.author == channel.guild.me:
                                 msgs.append(message)
-                await self.post_events(events[x], msgs, guild, evType)
+                    else:
+                        return
+                    await self.post_events(events[ind], msgs, guild, channel, evType)
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
+        self.bot.evInf = toml.load(self.bot.SC2DAT_PATH + self.bot.EVTINF_FILE)
         while True:
-            self.bot.evInf = toml.load(self.bot.SC2DAT_PATH + self.bot.EVTINF_FILE)
-            self.bot.srvInf = toml.load(self.bot.SC2DAT_PATH + self.bot.SRVINF_FILE)
             await self.check_all_events()
-            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.bot.srvInf['general']['sleepDelay']))
+            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.bot.CONFIG['sc2oe']['sleepDelay']))
             log.info(f'Next event check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
-            await asyncio.sleep(float(self.bot.srvInf['general']['sleepDelay']) * 60)
+            await asyncio.sleep(float(self.bot.CONFIG['sc2oe']['sleepDelay']) * 60)
 
 
 def setup(bot):

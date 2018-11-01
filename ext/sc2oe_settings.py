@@ -1,5 +1,6 @@
 from discord.ext import commands
 import aiofiles
+import aiosqlite
 import logging
 import os
 import toml
@@ -13,99 +14,125 @@ log = logging.getLogger(__name__)
 class SC2OESettings():
     def __init__(self, bot):
         self.bot = bot
-        self.DATA_PATH = './data/sc2oe/'
-        self.INFO_FILE = 'srvInf.toml'
-        if os.path.isdir(self.DATA_PATH) is False:
-            os.makedirs(self.DATA_PATH)
-        if os.path.isfile(self.DATA_PATH + self.INFO_FILE) is False:
-            open(self.DATA_PATH+self.INFO_FILE, 'a').close()
-        self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
-
-    async def _save_serverinfo_file(self, evType, g, t):
-        self.srvInf['guilds'][g][f'channel_{evType}'] = t.lower()
-        tomlStr = toml.dumps(self.srvInf)
-        async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
-            await f.write(tomlStr)
-
+    
+    async def _get_db_entry(self, sql, val):
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                cursor = await db.execute(sql, val)
+                data = await cursor.fetchone()
+                await cursor.close()
+                return data[0]
+            except:
+                return None
+    
+    async def _set_db_entry(self, sql, val):
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                await db.execute(sql, val)
+            except:
+                await db.rollback()
+            finally:
+                await db.commit()
 
     @commands.group(name='set')
     async def _settings(self, ctx):
         """ Change a setting """
         if perms._check(ctx, 3):
-            # self.srvInf = toml.load(self.DATA_PATH + self.INFO_FILE)
-            async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='r') as f:
-                tmpInf = await f.read()
-            self.srvInf = toml.loads(tmpInf)
+            pass
         else:
             await ctx.send('You have no permissions to execute this command.')
+            raise PermissionError()
 
     @_settings.command(name='general')
     async def _settings_general(self, ctx, *, t: str):
         """ Set the channel name for general events """
-        try:
-            await self._save_serverinfo_file('general', ctx.guild.name, t)
-            # self.srvInf['guilds'][ctx.guild.name]['channel_general'] = t.lower()
-            # tomlStr = toml.dumps(self.srvInf)
-            # async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
-            #     await f.write(tomlStr)
-            await ctx.channel.send(f'Changed the general events channel to {t.lower()}')
-        except:
-            await ctx.channel.send('**ERROR**: Could not change channel name')
+        if t[:2] == "<#":
+            temp_name = self.bot.get_channel(int(t[2:-1]))
+            sql = f"UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
+            await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
 
     @_settings.command(name='amateur')
     async def _settings_amateur(self, ctx, *, t: str):
         """ Set the channel name for amateur events """
-        try:
-            await self._save_serverinfo_file('amateur', ctx.guild.name, t)
-            # self.srvInf['guilds'][ctx.guild.name]['channel_amateur'] = t.lower()
-            # tomlStr = toml.dumps(self.srvInf)
-            # async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
-            #     await f.write(tomlStr)
-            await ctx.channel.send(f'Changed the amateur events channel to {t.lower()}')
-        except:
-            await ctx.channel.send('**ERROR**: Could not change channel name')
+        if t[:2] == "<#":
+            temp_name = self.bot.get_channel(int(t[2:-1]))
+            sql = f"UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
+            await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
 
     @_settings.command(name='team')
     async def _settings_team(self, ctx, *, t: str):
         """ Set the channel name for team events """
         pass
 
-    @_settings.command(name='osc')
-    async def _settings_osc(self, ctx, *, t: str):
-        """ Set the channel name for osc events """
-        pass
+    @_settings.command(name='events')
+    async def _settings_events(self, ctx, _type=None, *, t: str = None):
+        if _type == "all":
+            sql = "UPDATE guilds SET events = ? WHERE id = ?"
+            await self._set_db_entry(sql, ("*", ctx.guild.id,))
+        elif _type == "add":
+            sql = "SELECT events FROM guilds WHERE id = ?"
+            data = await self._get_db_entry(sql, (ctx.guild.id,))
+            if data and t:
+                if not "$" in t:
+                    data_list = data.split('$')
+                    data_list.append(t)
+                    sql = "UPDATE guilds SET events = ? WHERE id = ?"
+                    await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
+        elif _type == "del":
+            sql = "SELECT events FROM guilds WHERE id = ?"
+            data = await self._get_db_entry(sql, (ctx.guild.id,))
+            if data and t:
+                if not "$" in t:
+                    data_list = data.split('$')
+                    for ind, item in enumerate(data_list):
+                        if item == t:
+                            data_list = data_list[:ind] + data_list[ind+1:]
+                            break
+                    sql = "UPDATE guilds SET events = ? WHERE id = ?"
+                    await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
+        elif _type == "show":
+            sql = "SELECT events FROM guilds WHERE id = ?"
+            data = await self._get_db_entry(sql, (ctx.guild.id,))
+            if data:
+                data_list = data.split('$')
+                data_send = ', '.join(data_list)
+                if data_send == '*':
+                    await ctx.send("All events will be posted!")
+                else:
+                    await ctx.send(f"Currently events including `{data_send}` will be posted.")
+        else:
+            ctx.send("**ERROR**: Couldn't execute your request ")
 
-    # @_settings.command(name='channel')
-    # async def _settings_channel(self, ctx, *, t: str):
-    #     """ Change the channel, the bot posts events in """
-    #     s = t.split(' ')
-    #     if len(s) == 2 and s[0].lower() in ['general', 'amateur', 'team']:
-    #         self.srvInf['guilds'][ctx.guild.name][f'channel_{s[0].lower()}'] = s[1].lower()
-    #         tomlStr = toml.dumps(self.srvInf)
-    #         async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
-    #             await f.write(tomlStr)
-    #         await ctx.channel.send(f'Changed the {s[0].lower()} events channel to {s[1].lower()}')
-    #     else:
-    #         await ctx.channel.send('Error: only 2 arguments allowed.\n Arg 1: channel type (General, Amateur, Team) \nArg 2: channel-name')
-
-    @_settings.command(name='time')
-    async def _settings_time(self, ctx, *, t: int):
+    @_settings.command(name='timeformat', aliases=['time', 'tf'])
+    async def _settings_timeformat(self, ctx, *, t: int):
         """ Set the timeformat (24h- or 12ham/pm-format) """
-        if len(t) == 1:
-            if t in [12, 24]:
-                self.srvInf['guilds'][ctx.guild.name]['timeformat'] = t
-                tomlStr = toml.dumps(self.srvInf)
-                async with aiofiles.open(self.DATA_PATH+self.INFO_FILE, mode='w') as f:
-                    await f.write(tomlStr)
-                await ctx.channel.send(f'Changed the time format to {t} hours')
-            else:
-                await ctx.channel.send('Error: time has to be either `12` or `24` hour format')
+        pass
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                if 12 == t:
+                    tmp = 0
+                elif 24 == t:
+                    tmp = 1
+                sql = "UPDATE guilds SET tf = ? WHERE id = ?;"
+                await db.execute(sql, (tmp, ctx.guild.id,))            
+                if tmp:
+                    await ctx.channel.send('Changed the time format to 24h')
+                else:
+                    await ctx.channel.send('Changed the time format to 12h am/pm')
+            except:
+                await db.rollback()
+                await ctx.channel.send('**ERROR**: Could not change time format. Can only set time format to `12` or `24`')
+            finally:
+                await db.commit()
 
     @commands.command(name='list')
     async def _list_channels(self, ctx):
-        gec = self.srvInf['guilds'][ctx.guild.name]['channel_general']
-        aec = self.srvInf['guilds'][ctx.guild.name]['channel_amateur']
-        await ctx.channel.send(f'The currently set SC2 event channels are\nGeneral events channel: `{gec}`\nAmateur events channel: `{aec}`')
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            sql = f"SELECT * FROM guilds WHERE id = ?;"
+            cursor = await db.execute(sql, (ctx.guild.id,))
+            tmp_guild = await cursor.fetchone()
+            await cursor.close()
+        await ctx.channel.send(f'The currently set SC2 event channels are\nGeneral Events Channel: <#{tmp_guild[2]}>\nAmateur Events Channel: <#{tmp_guild[4]}>')
 
 
 def setup(bot):

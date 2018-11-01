@@ -1,6 +1,7 @@
 from datetime import datetime
 from discord.ext import commands
 import aiofiles
+import aiosqlite
 import discord
 import logging
 import os
@@ -41,31 +42,23 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
         self.START_TIME = datetime.now(tz=pytz.utc)
 
-
-        dbuser = self.CONFIG['db']['user']
-        dbpass = self.CONFIG['db']['pass']
-        dbname = self.CONFIG['db']['name']
-        dbhost = self.CONFIG['db']['host']
-        dbcred = {"user": dbuser, "password": dbpass, "database": dbname, "host": dbhost}
-
-        async def _init_db():
-            self.db = await asyncpg.create_pool(**dbcred)
-            await self.db.execute("CREATE TABLE IF NOT EXISTS guilds (id bigint primary key, name text, general bigint, amateur bigint, team bigint, osc bigint, feeds bigint, feedList text[], feedIds text[][], timeFormat boolean, );")
-
-        # self.loop.create_task(_init_db())
-
+        async def _init_aiosqlite():
+            async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+                await db.execute("""CREATE TABLE IF NOT EXISTS guilds (id INTEGER PRIMARY KEY, name TEXT, gcid INTEGER, gcname TEXT, acid INTEGER, acname TEXT, fcid INTEGER, fcname TEXT, fids TEXT, events TEXT, tf BOOLEAN);""")
+                await db.commit()
+        self.loop.create_task(_init_aiosqlite())
 
         self.SC2DAT_PATH = './data/sc2oe/'
         self.EVTINF_FILE = 'evInf.toml'
-        self.SRVINF_FILE = 'srvInf.toml'
+        # self.SRVINF_FILE = 'srvInf.toml'
         
         if os.path.isdir(self.SC2DAT_PATH) is False:
             os.makedirs(self.SC2DAT_PATH)
-        if os.path.isfile(self.SC2DAT_PATH + self.SRVINF_FILE) is False:
-            open(self.SC2DAT_PATH+self.SRVINF_FILE, 'a').close()
+        # if os.path.isfile(self.SC2DAT_PATH + self.SRVINF_FILE) is False:
+            # open(self.SC2DAT_PATH+self.SRVINF_FILE, 'a').close()
         if os.path.isfile(self.SC2DAT_PATH + self.EVTINF_FILE) is False:
             open(self.SC2DAT_PATH+self.EVTINF_FILE, 'a').close()
-        self.srvInf = toml.load(self.SC2DAT_PATH + self.SRVINF_FILE)
+        # self.srvInf = toml.load(self.SC2DAT_PATH + self.SRVINF_FILE)
         self.evInf = toml.load(self.SC2DAT_PATH + self.EVTINF_FILE)
 
         self.remove_command('help')
@@ -87,6 +80,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
                     print(name + ' failed to load.')
                     self.log.error(f'Failed to load extension {name} - {exc}')
 
+
     async def on_ready(self):
         guilds = len(self.guilds)
         channels = len([key for key in self.get_all_channels()])
@@ -101,11 +95,26 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
         chan = self.get_channel(436581310379720705)
-        embed = discord.Embed(color=discord.Color.blue(), title="Adjutant ready!")#All shards ready!")
+        for guild in self.guilds:
+            if guild:
+                async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+                    sql = "SELECT * FROM guilds WHERE id = ?;"
+                    cursor = await db.execute(sql, (guild.id,))
+                    guilds = await cursor.fetchall()
+                    await cursor.close()
+                    if len(guilds) == 0:
+                        try:
+                            sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+                            await db.execute(sql, (guild.id, guild.name, -1, '', -1,'' , -1, '', '', '*', 0,))
+                        except:
+                            await db.rollback()
+                        finally:
+                            await db.commit()
         try:
-            await chan.send(embed=embed)
+            await chan.send("Adjutant set and ready to go!")
         except:
             pass
+
 
     # async def on_shard_ready(self, id):
     #     chan = self.get_channel(477110208225738752)
@@ -115,9 +124,11 @@ class Adjutant(commands.Bot):#AutoShardedBot):
     #     except:
     #         pass
 
+
     async def on_message(self, msg):
         if not msg.author.bot:
             await self.process_commands(msg)
+
 
     async def on_command(self, ctx):
         message = ctx.message
@@ -129,6 +140,15 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'{message.created_at}: {message.author.name} in {destination}: {message.content}')
 
     async def on_guild_join(self, guild):
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+                await db.execute(sql, (guild.id, guild.name, -1, '', -1,'' , -1, '', '', '', 0,))
+            except:
+                await db.rollback()
+                self.log.error("on_guild_join: Couldn't save server info.")
+            finally:
+                await db.commit()
         chan = self.get_channel(477110208225738752)
         embed = discord.Embed(color=discord.Color.green(), title="Established new connection.", description=f"Now connected to {len(self.guilds)} guilds!")
         embed.set_thumbnail(url=guild.icon_url)
@@ -143,19 +163,17 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
         self.log.info(f"Joined the {guild.name} guild")
 
-        # INSERT DATABASE CONTENT HERE
-        try:
-            self.srvInf['guilds'][guild.name] = {'name': guild.name, 'id': guild.id, 'channel_general': "", 'channel_amateur': "", 'channel_team': "", 'timeformat': 12}
-            tomlStr = toml.dumps(self.srvInf)
-            async with aiofiles.open(self.SC2DAT_PATH+self.SRVINF_FILE, mode='w') as f:
-                await f.write(tomlStr)
-            await msg.add_reaction('☑')
-        except Exception:
-            self.log.error("on_guild_join: Couldn't save server info file.")
-            traceback.print_exc()
-
 
     async def on_guild_remove(self, guild):
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                sql = f"DELETE FROM guilds WHERE id = ?;"
+                await db.execute(sql, (guild.id,))
+            except:
+                await db.rollback()
+                self.log.error("on_guild_remove: Couldn't save server info.")
+            finally:
+                await db.commit()
         chan = self.get_channel(477110208225738752)
         embed = discord.Embed(color=discord.Color.red(), title="Lost contact to a guild...", description=f"{len(self.guilds)} guild relays remaining.")
         embed.set_thumbnail(url=guild.icon_url)
@@ -170,17 +188,6 @@ class Adjutant(commands.Bot):#AutoShardedBot):
 
         self.log.info(f"Left the {guild.name} guild")
 
-        # INSERT DATABASE CONTENT HERE
-        try:
-            self.srvInf['guilds'].pop(guild.name, None)
-            async with aiofiles.open(self.SC2DAT_PATH+self.SRVINF_FILE, mode='w') as f:
-                tomlStr = toml.dumps(self.srvInf)
-                await f.write(tomlStr)
-            await msg.add_reaction('☑')
-        except Exception:
-            self.log.error("on_guild_join: Couldn't save server info file.")
-            traceback.print_exc()
-            pass
 
 bot = Adjutant()
 CONF_PATH = './data/bot/'

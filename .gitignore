@@ -102,3 +102,4 @@ ENV/
 
 # my misc files
 data/**/*.toml
+data/db/*.sqlite3

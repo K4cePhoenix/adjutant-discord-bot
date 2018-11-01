@@ -33,7 +33,7 @@ class General():
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.set_footer(icon_url=ctx.message.author.avatar_url, text="")
         embed.add_field(name="Commands", value="See a list of all commands Soon™.", inline=False)#[here](https://github.com/K4cePhoenix/Adjutant-DiscordBot/wiki).", inline=False)
-        embed.add_field(name="Invite", value=f"Invite Adjutant to your server follow [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot).", inline=False)
+        embed.add_field(name="Invite", value=f"Invite Adjutant to your server [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot).", inline=False)
         embed.add_field(name="Server", value="Join Adjutants support server [here](https://discordapp.com/invite/nfa9jnu).", inline=False)
         embed.add_field(name="More Information", value="You can find more information using the `info` command.", inline=False)
         await ctx.send(embed=embed)
@@ -46,11 +46,11 @@ class General():
         embed.set_footer(text="By Phoenix#2694")
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         try:
-            embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nShards: **{len(self.bot.shards)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.startTime).split('.')[0]}**")
+            embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nShards: **{len(self.bot.shards)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
         except:
-            embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.startTime).split('.')[0]}**")
+            embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
         embed.add_field(name="Version: ", value=f"Adjutant: **{self.bot.VERSION}**\ndiscord.py: **{discord.__version__}**\nPython: **{platform.python_version()}**")
-        embed.add_field(name="Other: ", value="Website: Coming soon™")#https://k4cephoenix.github.io/adjutant-discordbot\nDiscord: https://discord.gg/nfa9jnu")
+        embed.add_field(name="Other: ", value="Website: Coming soon™\nDiscord: https://discord.gg/nfa9jnu")#https://k4cephoenix.github.io/adjutant-discordbot")
         await ctx.send(embed=embed)
 
     @commands.command(name='user')
@@ -105,37 +105,37 @@ class General():
         embed = discord.Embed(title="Invite me!", description=f"You can invite me [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).")
         await ctx.send(embed=embed)
 
-    @commands.command(name='suggest')
-    async def _suggest(self, ctx, *, suggestion: str):
-        """ Sends a feature suggestion. """
-        channel = self.bot.get_channel(446965463776231425)
-        color = discord.Colour.blue()
-        embed = discord.Embed(color=color, title="New suggestion!", description="I'm so excited to read it!")
-        embed.set_thumbnail(url=ctx.message.author.avatar_url)
-        embed.add_field(name="Suggestion", value="{} sent this suggestion: ``{}``".format(ctx.message.author, suggestion))
-        try:
-            await channel.send(embed=embed)
-        except Exception:
-            self.bot.rclient.captureException()
-            await ctx.send("There was an error... But don't worry! You can post your suggestion in my server. To receive an invitation, just say `a>server`!")
-            traceback.print_exc()
-        await ctx.send("I sent your suggestion, <@{}>".format(ctx.message.author.id))
+    # @commands.command(name='suggest')
+    # async def _suggest(self, ctx, *, suggestion: str):
+    #     """ Sends a feature suggestion. """
+    #     channel = self.bot.get_channel(446965463776231425)
+    #     color = discord.Colour.blue()
+    #     embed = discord.Embed(color=color, title="New suggestion!", description="I'm so excited to read it!")
+    #     embed.set_thumbnail(url=ctx.message.author.avatar_url)
+    #     embed.add_field(name="Suggestion", value="{} sent this suggestion: ``{}``".format(ctx.message.author, suggestion))
+    #     try:
+    #         await channel.send(embed=embed)
+    #     except Exception:
+    #         self.bot.rclient.captureException()
+    #         await ctx.send("There was an error... But don't worry! You can post your suggestion in my server. To receive an invitation, just say `a>server`!")
+    #         traceback.print_exc()
+    #     await ctx.send(f"I sent your suggestion, <@{ctx.message.author.id}>")
 
-    @commands.command(name='report')
-    async def _report(self, ctx, *, report: str):
-        """ Sends a bug report. """
-        channel = self.bot.get_channel(443497493766864906)
-        color = discord.Colour.red()
-        embed = discord.Embed(color=color, title="New report!", description="Hopefully, you guys can fix it..")
-        embed.set_thumbnail(url=ctx.message.author.avatar_url)
-        embed.add_field(name="Report", value="{} sent this report: ``{}``".format(ctx.message.author, report))
-        try:
-            await channel.send(embed=embed)
-        except Exception:
-            self.bot.rclient.captureException()
-            await ctx.send("There was an error... Don't worry! You can contact my developers in my server. To enter my server, just say ``$!server``!")
-            traceback.print_exc()
-        await ctx.send("I sent your report, <@{}>".format(ctx.message.author.id))
+    # @commands.command(name='report')
+    # async def _report(self, ctx, *, report: str):
+    #     """ Sends a bug report. """
+    #     channel = self.bot.get_channel(443497493766864906)
+    #     color = discord.Colour.red()
+    #     embed = discord.Embed(color=color, title="New report!", description="Hopefully, you guys can fix it..")
+    #     embed.set_thumbnail(url=ctx.message.author.avatar_url)
+    #     embed.add_field(name="Report", value="{} sent this report: ``{}``".format(ctx.message.author, report))
+    #     try:
+    #         await channel.send(embed=embed)
+    #     except Exception:
+    #         self.bot.rclient.captureException()
+    #         await ctx.send("There was an error... Don't worry! You can contact my developers in my server. To enter my server, just say ``$!server``!")
+    #         traceback.print_exc()
+    #     await ctx.send(f"I sent your report, <@{ctx.message.author.id}>")
 
 
 def setup(bot):
