@@ -46,7 +46,6 @@ class Challonge():
         soup = BeautifulSoup(desc, 'html.parser')
         links = desc.split('href="')
         if "matcherino.com/tournaments/" in desc:
-            print(soup.prettify())
             for i in links:
                 if "matcherino.com/tournaments/" in i:
                     print(i.split('" ')[0])
