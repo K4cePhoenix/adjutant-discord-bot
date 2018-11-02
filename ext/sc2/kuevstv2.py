@@ -59,11 +59,52 @@ def times_to_string(data):
     return timeStr
 
 
+def times_to_string24(data):
+    """ Returns beautiful date data """
+    mmKR = data[0].strftime("%B")
+    ddKR = data[0].strftime("%#d").lstrip('0')
+    hhKR = data[0].strftime("%#H").lstrip('0')
+    if not hhKR:
+        hhKR = '0'
+    tzKR = data[0].strftime("%Z")
+    timeStr = f'{mmKR} {ddKR}, {hhKR}h {tzKR} '
+
+    if data[1].strftime("%d") == data[0].strftime("%d"):
+        hhEU = data[1].strftime("%#H").lstrip('0')
+        tzEU = data[1].strftime("%Z")
+        timeStr += f'( {hhEU}h {tzEU} '
+    else:
+        mmEU = data[1].strftime("%b")
+        ddEU = data[1].strftime("%#d").lstrip('0')
+        hhEU = data[1].strftime("%#H").lstrip('0')
+        tzEU = data[1].strftime("%Z")
+        timeStr += f'( {mmEU} {ddEU}, {hhEU}h {tzEU} '
+    if data[2].strftime("%d") == data[0].strftime("%d"):
+        hhAM = data[2].strftime("%#H").lstrip('0').lstrip('0')
+        tzAM = data[2].strftime("%Z")
+        timeStr += f'/ {hhAM}h {tzAM} )'
+    else:
+        mmAM = data[2].strftime("%b")
+        ddAM = data[2].strftime("%#d").lstrip('0')
+        hhAM = data[2].strftime("%#H").lstrip('0')
+        tzAM = data[2].strftime("%Z")
+        timeStr += f'/ {mmAM} {ddAM}, {hhAM}h {tzAM} )'
+    return timeStr
+
+
 def get_time(data):
     """ Returns the start date of the event """
     evTime = datetime.strptime(data, '%B %d, %Y - %H:%M {{Abbr/KST}}')
     allTimes = time_to_times(evTime)
     evTimeStr = times_to_string(allTimes)
+    return evTimeStr
+
+
+def get_time24(data):
+    """ Return the start date of the event in 24h format """
+    evTime = datetime.strptime(data, '%B %d, %Y - %H:%M {{Abbr/KST}}')
+    allTimes = time_to_times(evTime)
+    evTimeStr = times_to_string24(allTimes)
     return evTimeStr
 
 
@@ -143,6 +184,19 @@ def steal(dataset: dict):
                 except:
                     pass
             try:
+                date24 = get_time24(evLstItem['date'].strip())
+            except:
+                date24 = None
+            if not date24:
+                try:
+                    _tmpData = evLstItem['date'].strip()
+                    _tmpDate = datetime.strptime(_tmpData, '%B %d, %Y - %H:%M {{Abbr/KST}}')
+                    _tmpMm = _tmpDate[0].strftime("%B")
+                    _tmpDd = _tmpDate[0].strftime("%#d").lstrip('0')
+                    date24 = f'{_tmpMm} {_tmpDd}'
+                except:
+                    pass
+            try:
                 mode = evLstItem['mode'].strip()
             except:
                 mode = None
@@ -175,8 +229,18 @@ def steal(dataset: dict):
                                       evLstItem['brackets'].strip())
             except:
                 bracket = evLstItem['challonge'].strip()
-            events[ind].append([
-                name, date, region, league, server, prize,
-                matcherino, matcherinoCode, bracket, countdown, mode
-                ])
+            events[ind].append({
+                'name': name,
+                'date12': date,
+                'date24': date24,
+                'region': region,
+                'league': league,
+                'server': server,
+                'prize': prize,
+                'matLink': matcherino,
+                'matCode': matcherinoCode,
+                'grid': bracket,
+                'cd': countdown,
+                'mode': mode
+            })
     return events

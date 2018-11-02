@@ -49,14 +49,14 @@ class SC2OpenEvents():
 
         for eventXY in eventsX:
             try:
-                if eventXY[9] != None:
-                    countdown = (eventXY[9].days * 24) + (eventXY[9].seconds / (60 * 60))
+                if eventXY['cd'] != None:
+                    countdown = (eventXY['cd'].days * 24) + (eventXY['cd'].seconds / (60 * 60))
                 else:
                     countdown = -1.0
                 p = True
                 for MsgsEv in msgs:
                     if MsgsEv.embeds:
-                        if eventXY[0] == MsgsEv.embeds[0].title:
+                        if eventXY['name'] == MsgsEv.embeds[0].title:
                             p = False
                             aEvCount += 1
                             pEvCount += 1
@@ -64,25 +64,33 @@ class SC2OpenEvents():
                             break
                 if 0 < countdown < float(self.bot.CONFIG['sc2oe']['countdown']):
                     aEvCount += 1
-                    cd_hours = eventXY[9].seconds // (60 * 60)
-                    cd_minutes = (eventXY[9].seconds-(cd_hours * (60 * 60))) // 60
-                    evName = ''.join(eventXY[0].split(' ')[:len(eventXY[0].split(' '))-1]).lower()
+                    cd_hours = eventXY['cd'].seconds // (60 * 60)
+                    cd_minutes = (eventXY['cd'].seconds-(cd_hours * (60 * 60))) // 60
+                    evName = ''.join(eventXY['name'].split(' ')[:len(eventXY['name'].split(' '))-1]).lower()
+                    if guild[10] == 1:
+                        timeform = eventXY['date24']
+                    elif guild[10] == 0:
+                        timeform = eventXY['date12']
+                    else:
+                        timeform = None
+                    if not timeform:
+                        timeform = '???'
                     if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['colour']:
                         try:
-                            em = discord.Embed(title=eventXY[0],
+                            em = discord.Embed(title=eventXY['name'],
                                             colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
-                                            description=f"{eventXY[1]}")
+                                            description=f"{timeform}")
                         except:
-                            em = discord.Embed(title=eventXY[0],
+                            em = discord.Embed(title=eventXY['name'],
                                             colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
                                             description="-")
                     else:
                         try:
-                            em = discord.Embed(title=eventXY[0],
+                            em = discord.Embed(title=eventXY['name'],
                                             colour=discord.Colour(0x555555),
-                                            description=f"{eventXY[1]}")
+                                            description=f"{timeform}")
                         except:
-                            em = discord.Embed(title=eventXY[0],
+                            em = discord.Embed(title=eventXY['name'],
                                             colour=discord.Colour(0x555555),
                                             description="-")
 
@@ -90,17 +98,17 @@ class SC2OpenEvents():
                     if evType == 'General':
                         em.set_author(name=f"{evType} Event", icon_url=self.ICN_GRN)
                     elif evType == 'Amateur':
-                        if 'Master' in eventXY[3]:
+                        if 'Master' in eventXY['league']:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_MST)
-                        elif 'Diamond' in eventXY[3]:
+                        elif 'Diamond' in eventXY['league']:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_DIA)
-                        elif 'Platinum' in eventXY[3]:
+                        elif 'Platinum' in eventXY['league']:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_PLT)
-                        elif 'Gold' in eventXY[3]:
+                        elif 'Gold' in eventXY['league']:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_GLD)
-                        elif 'Silver' in eventXY[3]:
+                        elif 'Silver' in eventXY['league']:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_SLV)
-                        elif 'Bronze' in eventXY[3]:
+                        elif 'Bronze' in eventXY['league']:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_BRN)
                         else:
                             em.set_author(name=f"{evType} Event", icon_url=self.ICN_ALT)
@@ -112,24 +120,24 @@ class SC2OpenEvents():
                     else:
                         em.set_thumbnail(url=self.bot.evInf['other']['logo'])
 
-                    if (evType == 'General') and (eventXY[2] != None):
-                        em.add_field(name="Region", value=eventXY[2], inline=True)
-                    elif (evType == 'Amateur') and (eventXY[3] != None):
-                        em.add_field(name="League", value=eventXY[3], inline=True)
+                    if (evType == 'General') and (eventXY['region'] != None):
+                        em.add_field(name="Region", value=eventXY['region'], inline=True)
+                    elif (evType == 'Amateur') and (eventXY['league'] != None):
+                        em.add_field(name="League", value=eventXY['league'], inline=True)
 
-                    if eventXY[4]:
-                        em.add_field(name="Server", value=eventXY[4], inline=True)
-                    if eventXY[5]:
-                        em.add_field(name="Prizepool", value=eventXY[5], inline=False)
+                    if eventXY['server']:
+                        em.add_field(name="Server", value=eventXY['server'], inline=True)
+                    if eventXY['prize']:
+                        em.add_field(name="Prizepool", value=eventXY['prize'], inline=False)
 
                     cfVal = None
-                    if eventXY[6]:
-                        if (any(char.isdigit() for char in eventXY[7]) == False
-                                and eventXY[7] == ''
+                    if eventXY['matLink']:
+                        if (any(char.isdigit() for char in eventXY['matCode']) == False
+                                and eventXY['matCode'] == ''
                                 and evName in self.bot.evInf.keys()):
-                            codeNr = eventXY[0].split(' ')[-1].replace("#", "").replace(".", "")
-                            eventXY[7] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
-                        cfVal = f"[Matcherino]({eventXY[6]}) - free $1 code `{eventXY[7]}`"
+                            codeNr = eventXY['name'].split(' ')[-1].replace("#", "").replace(".", "")
+                            eventXY['matCode'] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
+                        cfVal = f"[Matcherino]({eventXY['matLink']}) - free $1 code `{eventXY['matCode']}`"
                     if evName in self.bot.evInf.keys():
                         if self.bot.evInf[evName]['patreon']:
                             if cfVal:
@@ -139,8 +147,8 @@ class SC2OpenEvents():
                     if cfVal:
                         em.add_field(name="Crowdfunding", value=cfVal, inline=False)
 
-                    if eventXY[8]:
-                        em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY[8]})', inline=False)
+                    if eventXY['grid']:
+                        em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY['grid']})', inline=False)
                     em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
                                 icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
@@ -152,7 +160,7 @@ class SC2OpenEvents():
                                 await self.send_event(msg, em, channel, evType)
                             elif len(data_list) > 1:
                                 for eventsItem in data_list[1:]:
-                                    if eventsItem in eventXY[0]:
+                                    if eventsItem in eventXY['name']:
                                         await self.send_event(msg, em, channel, evType)
                             else:
                                 pass
