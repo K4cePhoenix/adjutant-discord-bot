@@ -31,7 +31,6 @@ class RSS():
 
         self.SLEEP_DELAY = float(self.bot.CONFIG['sc2oe']['sleepDelay'])
         self.MAX_POSTS = int(self.bot.CONFIG['sc2oe']['maxPosts'])-1
-        print(type(self.MAX_POSTS), self.MAX_POSTS)
 
 
     async def fetch_feed(self, url):
