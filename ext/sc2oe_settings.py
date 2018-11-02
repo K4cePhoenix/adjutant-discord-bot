@@ -1,9 +1,6 @@
 from discord.ext import commands
-import aiofiles
 import aiosqlite
 import logging
-import os
-import toml
 
 from .utils import permissions as perms
 
@@ -23,7 +20,8 @@ class SC2OESettings():
                 data = await cursor.fetchone()
                 await cursor.close()
                 return data[0]
-            except:
+            except Exception as e:
+                log.debug(f'rss module _get_db_entry - {e}')
                 return None
 
 
@@ -92,7 +90,6 @@ class SC2OESettings():
     @_settings.command(name='timeformat', aliases=['time', 'tf'])
     async def _settings_timeformat(self, ctx, *, t: int):
         """ Set the timeformat (24h- or 12ham/pm-format) """
-        pass
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 if 12 == t:
@@ -100,7 +97,7 @@ class SC2OESettings():
                 elif 24 == t:
                     tmp = 1
                 sql = "UPDATE guilds SET tf = ? WHERE id = ?;"
-                await db.execute(sql, (tmp, ctx.guild.id,))            
+                await db.execute(sql, (tmp, ctx.guild.id,))
                 if tmp:
                     await ctx.channel.send('Changed the time format to 24h')
                 else:

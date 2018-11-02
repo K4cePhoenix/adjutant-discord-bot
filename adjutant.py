@@ -1,6 +1,5 @@
 from datetime import datetime
 from discord.ext import commands
-import aiofiles
 import aiosqlite
 import discord
 import logging
@@ -8,7 +7,6 @@ import os
 import platform
 import pytz
 import toml
-import traceback
 
 
 def _get_prefix(bot, message):
@@ -43,7 +41,7 @@ class Adjutant(commands.Bot):
         self.START_TIME = datetime.now(tz=pytz.utc)
         self.SC2DAT_PATH = './data/sc2oe/'
         self.EVTINF_FILE = 'evInf.toml'
-        
+
         if os.path.isdir(self.SC2DAT_PATH) is False:
             os.makedirs(self.SC2DAT_PATH)
         if os.path.isfile(self.SC2DAT_PATH + self.EVTINF_FILE) is False:
@@ -100,15 +98,13 @@ class Adjutant(commands.Bot):
                     if len(guilds) == 0:
                         try:
                             sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                            await db.execute(sql, (guild.id, guild.name, -1, '', -1,'' , -1, '', '', '*', 0,))
-                        except:
+                            await db.execute(sql, (guild.id, guild.name, -1, '', -1, '', -1, '', '', '*', 0, ))
+                        except Exception as e:
                             await db.rollback()
+                            await chan.send(f'```py\n{e.__class__.__name__}: {e}\n```')
                         finally:
                             await db.commit()
-        try:
-            await chan.send("Adjutant set and ready to go!")
-        except:
-            pass
+        await chan.send("Adjutant set and ready to go!")
 
 
     async def on_message(self, msg):
@@ -130,7 +126,7 @@ class Adjutant(commands.Bot):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                await db.execute(sql, (guild.id, guild.name, -1, '', -1,'' , -1, '', '', '', 0,))
+                await db.execute(sql, (guild.id, guild.name, -1, '', -1, '', -1, '', '', '*', 0, ))
             except:
                 await db.rollback()
                 self.log.error("on_guild_join: Couldn't save server info.")
@@ -143,10 +139,7 @@ class Adjutant(commands.Bot):
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Members", value=guild.member_count)
         embed.add_field(name="Creation date", value=guild.created_at.strftime('%Y/%m/%d'))
-        try:
-            msg = await chan.send(embed=embed)
-        except:
-            pass
+        msg = await chan.send(embed=embed)
         self.log.info(f"Joined the {guild.name} guild")
 
 
@@ -167,10 +160,7 @@ class Adjutant(commands.Bot):
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Members", value=guild.member_count)
         embed.add_field(name="Creation date", value=guild.created_at.strftime('%Y/%m/%d'))
-        try:
-            msg = await chan.send(embed=embed)
-        except:
-            pass
+        msg = await chan.send(embed=embed)
         self.log.info(f"Left the {guild.name} guild")
 
 

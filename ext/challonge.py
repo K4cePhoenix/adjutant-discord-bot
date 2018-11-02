@@ -1,8 +1,6 @@
 from discord.ext import commands
 from bs4 import BeautifulSoup
 import aiohttp
-import asyncio
-import discord
 
 class Challonge():
     def __init__(self, bot):
@@ -15,7 +13,8 @@ class Challonge():
 
         async with aiohttp.ClientSession() as session:
             async with session.get(f'{_URL}{tourId}.json') as response:
-                assert response.status == 200
+                if not response.status == 200:
+                    raise AssertionError()
                 json_body = await response.json()
 
         return json_body['tournament']
@@ -43,7 +42,7 @@ class Challonge():
             return
         tourInfo = await self.fetch_tour(tourId)
         desc = tourInfo['description']
-        soup = BeautifulSoup(desc, 'html.parser')
+        # soup = BeautifulSoup(desc, 'html.parser')
         links = desc.split('href="')
         if "matcherino.com/tournaments/" in desc:
             for i in links:

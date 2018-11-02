@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
-import aiofiles
 import aiohttp
 import aiosqlite
 import asyncio
@@ -12,7 +11,6 @@ import os
 import pytz
 import time
 import toml
-import traceback
 
 
 log = logging.getLogger('adjutant.rss')
@@ -87,8 +85,10 @@ class RSS():
                                     sql = "UPDATE guilds SET fids = ? WHERE id = ?;"
                                     try:
                                         await db.execute(sql, (json.dumps(feed_dict), fChan.guild.id,))
-                                    except:
+                                    except Exception as e:
                                         await db.rollback()
+                                        chan = self.get_channel(477110208225738752)
+                                        await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
                                     finally:
                                         await db.commit()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=self.SLEEP_DELAY)
@@ -100,4 +100,3 @@ def setup(bot):
     n = RSS(bot)
     bot.add_cog(n)
     bot.loop.create_task(n.read_feeds_in_background())
-    pass

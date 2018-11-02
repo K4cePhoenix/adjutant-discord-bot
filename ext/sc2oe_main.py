@@ -28,15 +28,15 @@ class SC2OpenEvents():
         try:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title} - {countdown}')
-        except:
-            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - event deletion')
+        except Exception as e:
+            log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - event deletion\n{e}')
 
     async def send_event_update(self, oldMsg, msg, em):
         try:
             await oldMsg.edit(content=msg, embed=em)
             log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
-        except:
-            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}')
+        except Exception as e:
+            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}\n{e}')
 
     async def send_event(self, msg, em, channel, evType):
         if channel.permissions_for(channel.guild.me).send_messages:
