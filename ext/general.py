@@ -81,10 +81,6 @@ class General():
         embed.add_field(name="ID", value=str(user.id), inline=False)
         if len(user.roles) > 1:
             embed.add_field(name="Roles", value=userRoles, inline=False)
-        try:
-            embed.add_field(name="Playing", value=user.game.name, inline=False)
-        except:
-            pass
         embed.add_field(name="Date of Account Creation", value=user.created_at.strftime('%Y/%m/%d'), inline=False)
         await ctx.send(embed=embed)
 

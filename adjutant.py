@@ -139,7 +139,7 @@ class Adjutant(commands.Bot):
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Members", value=guild.member_count)
         embed.add_field(name="Creation date", value=guild.created_at.strftime('%Y/%m/%d'))
-        msg = await chan.send(embed=embed)
+        await chan.send(embed=embed)
         self.log.info(f"Joined the {guild.name} guild")
 
 
@@ -160,7 +160,7 @@ class Adjutant(commands.Bot):
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Members", value=guild.member_count)
         embed.add_field(name="Creation date", value=guild.created_at.strftime('%Y/%m/%d'))
-        msg = await chan.send(embed=embed)
+        await chan.send(embed=embed)
         self.log.info(f"Left the {guild.name} guild")
 
 

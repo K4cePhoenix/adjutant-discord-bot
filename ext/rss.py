@@ -88,7 +88,7 @@ class RSS():
                                     except Exception as e:
                                         await db.rollback()
                                         chan = self.get_channel(477110208225738752)
-                                        await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
+                                        await chan.send(f'```py\n{e.__class__.__name__}: {e}\n```')
                                     finally:
                                         await db.commit()
             nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=self.SLEEP_DELAY)

@@ -1,5 +1,5 @@
 from discord.ext import commands
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import aiohttp
 
 class Challonge():
