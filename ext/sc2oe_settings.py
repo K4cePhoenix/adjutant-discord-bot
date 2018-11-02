@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 class SC2OESettings():
     def __init__(self, bot):
         self.bot = bot
-    
+
+
     async def _get_db_entry(self, sql, val):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
@@ -24,7 +25,8 @@ class SC2OESettings():
                 return data[0]
             except:
                 return None
-    
+
+
     async def _set_db_entry(self, sql, val):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
@@ -33,6 +35,7 @@ class SC2OESettings():
                 await db.rollback()
             finally:
                 await db.commit()
+
 
     @commands.group(name='set')
     async def _settings(self, ctx):
@@ -43,28 +46,73 @@ class SC2OESettings():
             await ctx.send('You have no permissions to execute this command.')
             raise PermissionError()
 
+
     @_settings.command(name='general')
     async def _settings_general(self, ctx, *, t: str):
         """ Set the channel name for general events """
         if t[:2] == "<#":
             temp_name = self.bot.get_channel(int(t[2:-1]))
-            sql = f"UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
+            sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
             await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
+        else:
+            for channel in ctx.guild.channels:
+                if channel.name == t:
+                    temp_name = self.bot.get_channel(channel.id)
+                    break
+            if temp_name:
+                sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
+                await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
+
 
     @_settings.command(name='amateur')
     async def _settings_amateur(self, ctx, *, t: str):
         """ Set the channel name for amateur events """
         if t[:2] == "<#":
             temp_name = self.bot.get_channel(int(t[2:-1]))
-            sql = f"UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
+            sql = "UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
             await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
+        else:
+            for channel in ctx.guild.channels:
+                if channel.name == t:
+                    temp_name = self.bot.get_channel(channel.id)
+                    break
+            if temp_name:
+                sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
+                await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
+            else:
+                await ctx.send(f"Can't find a channel named `{t}`")
+
 
     @_settings.command(name='team')
     async def _settings_team(self, ctx, *, t: str):
         """ Set the channel name for team events """
         pass
 
-    @_settings.command(name='events')
+
+    @_settings.command(name='timeformat', aliases=['time', 'tf'])
+    async def _settings_timeformat(self, ctx, *, t: int):
+        """ Set the timeformat (24h- or 12ham/pm-format) """
+        pass
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                if 12 == t:
+                    tmp = 0
+                elif 24 == t:
+                    tmp = 1
+                sql = "UPDATE guilds SET tf = ? WHERE id = ?;"
+                await db.execute(sql, (tmp, ctx.guild.id,))            
+                if tmp:
+                    await ctx.channel.send('Changed the time format to 24h')
+                else:
+                    await ctx.channel.send('Changed the time format to 12h am/pm')
+            except:
+                await db.rollback()
+                await ctx.channel.send('**ERROR**: Could not change time format. Can only set time format to `12` or `24`')
+            finally:
+                await db.commit()
+
+
+    @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
         if _type == "all":
             sql = "UPDATE guilds SET events = ? WHERE id = ?"
@@ -103,27 +151,6 @@ class SC2OESettings():
         else:
             ctx.send("**ERROR**: Couldn't execute your request ")
 
-    @_settings.command(name='timeformat', aliases=['time', 'tf'])
-    async def _settings_timeformat(self, ctx, *, t: int):
-        """ Set the timeformat (24h- or 12ham/pm-format) """
-        pass
-        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
-            try:
-                if 12 == t:
-                    tmp = 0
-                elif 24 == t:
-                    tmp = 1
-                sql = "UPDATE guilds SET tf = ? WHERE id = ?;"
-                await db.execute(sql, (tmp, ctx.guild.id,))            
-                if tmp:
-                    await ctx.channel.send('Changed the time format to 24h')
-                else:
-                    await ctx.channel.send('Changed the time format to 12h am/pm')
-            except:
-                await db.rollback()
-                await ctx.channel.send('**ERROR**: Could not change time format. Can only set time format to `12` or `24`')
-            finally:
-                await db.commit()
 
     @commands.command(name='list')
     async def _list_channels(self, ctx):

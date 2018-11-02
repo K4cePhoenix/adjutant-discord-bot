@@ -22,7 +22,8 @@ def _get_prefix(bot, message):
         return '!'
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
-class Adjutant(commands.Bot):#AutoShardedBot):
+
+class Adjutant(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=_get_prefix,
                          description="Adjutant 10-32 Discord Bot by Phoenix#2694",
@@ -39,27 +40,21 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.FULL_NAME = self.CONFIG['bot']['fname']
         self.GITHUB = self.CONFIG['bot']['github']
         self.VERSION = self.CONFIG['bot']['version']
-
         self.START_TIME = datetime.now(tz=pytz.utc)
+        self.SC2DAT_PATH = './data/sc2oe/'
+        self.EVTINF_FILE = 'evInf.toml'
+        
+        if os.path.isdir(self.SC2DAT_PATH) is False:
+            os.makedirs(self.SC2DAT_PATH)
+        if os.path.isfile(self.SC2DAT_PATH + self.EVTINF_FILE) is False:
+            open(self.SC2DAT_PATH+self.EVTINF_FILE, 'a').close()
+        self.evInf = toml.load(self.SC2DAT_PATH + self.EVTINF_FILE)
 
         async def _init_aiosqlite():
             async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
                 await db.execute("""CREATE TABLE IF NOT EXISTS guilds (id INTEGER PRIMARY KEY, name TEXT, gcid INTEGER, gcname TEXT, acid INTEGER, acname TEXT, fcid INTEGER, fcname TEXT, fids TEXT, events TEXT, tf BOOLEAN);""")
                 await db.commit()
         self.loop.create_task(_init_aiosqlite())
-
-        self.SC2DAT_PATH = './data/sc2oe/'
-        self.EVTINF_FILE = 'evInf.toml'
-        # self.SRVINF_FILE = 'srvInf.toml'
-        
-        if os.path.isdir(self.SC2DAT_PATH) is False:
-            os.makedirs(self.SC2DAT_PATH)
-        # if os.path.isfile(self.SC2DAT_PATH + self.SRVINF_FILE) is False:
-            # open(self.SC2DAT_PATH+self.SRVINF_FILE, 'a').close()
-        if os.path.isfile(self.SC2DAT_PATH + self.EVTINF_FILE) is False:
-            open(self.SC2DAT_PATH+self.EVTINF_FILE, 'a').close()
-        # self.srvInf = toml.load(self.SC2DAT_PATH + self.SRVINF_FILE)
-        self.evInf = toml.load(self.SC2DAT_PATH + self.EVTINF_FILE)
 
         self.remove_command('help')
 
@@ -90,7 +85,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         self.log.info(f'{guilds} guilds | {channels} channels | {users} users\n')
         self.log.info(f'Current Discord.py Version: {discord.__version__} | Current Python Version: {platform.python_version()}')
         self.log.info(f'\nUse this link to invite {self.user.name}:')
-        self.log.info(f'https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot')
+        self.log.info(f'https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=85056')
         self.log.info(f'\nYou are running {self.FULL_NAME}/v{self.VERSION} by Phoenix#2694')
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
@@ -116,15 +111,6 @@ class Adjutant(commands.Bot):#AutoShardedBot):
             pass
 
 
-    # async def on_shard_ready(self, id):
-    #     chan = self.get_channel(477110208225738752)
-    #     embed = discord.Embed(color=discord.Color.blue(), title=f"Shard {id} ready!")
-    #     try:
-    #         await chan.send(embed=embed)
-    #     except:
-    #         pass
-
-
     async def on_message(self, msg):
         if not msg.author.bot:
             await self.process_commands(msg)
@@ -138,6 +124,7 @@ class Adjutant(commands.Bot):#AutoShardedBot):
         else:
             destination = f'#{message.channel.name} ({message.guild.name})'
         self.log.info(f'{message.created_at}: {message.author.name} in {destination}: {message.content}')
+
 
     async def on_guild_join(self, guild):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
@@ -160,7 +147,6 @@ class Adjutant(commands.Bot):#AutoShardedBot):
             msg = await chan.send(embed=embed)
         except:
             pass
-
         self.log.info(f"Joined the {guild.name} guild")
 
 
@@ -185,7 +171,6 @@ class Adjutant(commands.Bot):#AutoShardedBot):
             msg = await chan.send(embed=embed)
         except:
             pass
-
         self.log.info(f"Left the {guild.name} guild")
 
 
