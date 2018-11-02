@@ -95,23 +95,24 @@ class SC2OpenEvents():
                                             description="-")
 
                     msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
+                    evTypeEmText = f"{evType} Event"
                     if evType == 'General':
-                        em.set_author(name=f"{evType} Event", icon_url=self.ICN_GRN)
+                        em.set_author(name=evTypeEmText, icon_url=self.ICN_GRN)
                     elif evType == 'Amateur':
                         if 'Master' in eventXY['league']:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_MST)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_MST)
                         elif 'Diamond' in eventXY['league']:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_DIA)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_DIA)
                         elif 'Platinum' in eventXY['league']:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_PLT)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_PLT)
                         elif 'Gold' in eventXY['league']:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_GLD)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_GLD)
                         elif 'Silver' in eventXY['league']:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_SLV)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_SLV)
                         elif 'Bronze' in eventXY['league']:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_BRN)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_BRN)
                         else:
-                            em.set_author(name=f"{evType} Event", icon_url=self.ICN_ALT)
+                            em.set_author(name=evTypeEmText, icon_url=self.ICN_ALT)
                     elif evType == 'Team':
                         pass
 
@@ -148,7 +149,7 @@ class SC2OpenEvents():
                         em.add_field(name="Crowdfunding", value=cfVal, inline=False)
 
                     if eventXY['grid']:
-                        em.add_field(name='▬▬▬▬▬▬▬', value=f'[**SIGN UP HERE**]({eventXY['grid']})', inline=False)
+                        em.add_field(name='▬▬▬▬▬▬▬', value=f"[**SIGN UP HERE**]({eventXY['grid']})", inline=False)
                     em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
                                 icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
