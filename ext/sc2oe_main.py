@@ -24,12 +24,61 @@ class SC2OpenEvents():
         self.ICN_BRN = "https://i.imgur.com/47tb6qR.png"
         self.ICN_ALT = "https://i.imgur.com/HlsskVP.png"
 
+
+    async def decrypt_evmessage(self, evMsg, evData, evType, emBool):
+        key_words = [
+            'name', 'region', 'server', 'league', 'prizepool',
+            'hours', 'minutes', 'bracket', 'countdown', 'type'
+        ]
+        key_words_short = [
+            'n', 'r', 's', 'l', 'pp',
+            'h', 'min', 'grid', 'cd', 't'
+        ]
+        key_words_special = [
+            'linebreak', 'newline', 'br'
+        ]
+        hours = evData['cd'].seconds // (60 * 60)
+        mins = (evData['cd'].seconds-(hours * (60 * 60))) // 60
+        cd = f"{hours}h {mins}min"
+
+        evDataList = [
+            evData['name'], evData['region'], evData['server'],
+            evData['league'], evData['prize'], str(hours),
+            str(mins), f"<{evData['bracket']}>", str(cd), evType
+        ]
+        evSpecialList = [
+            '\n', '\n', '\n'
+        ]
+
+        for key_word_ind, key_word in enumerate(key_words):
+            if f"${key_word}$" in evMsg:
+                evMsg = evMsg.replace(f"${key_word}$", evDataList[key_word_ind])
+            if not f"$" in evMsg:
+                break
+        for key_word_ind, key_word in enumerate(key_words_short):
+            if f"${key_word}$" in evMsg:
+                evMsg = evMsg.replace(f"${key_word}$", evDataList[key_word_ind])
+            if not f"$" in evMsg:
+                break
+        for key_word_ind, key_word in enumerate(key_words_special):
+            if f"${key_word}$" in evMsg:
+                evMsg = evMsg.replace(f"${key_word}$", evSpecialList[key_word_ind])
+            if not f"$" in evMsg:
+                break
+
+        if not emBool:
+            evMsg = f"{evMsg}\n\nInformation provided by Liquipedia, licensed under CC BY-SA 3.0 | <https://liquipedia.net/>"
+
+        return evMsg
+
+
     async def del_old_events(self, msg, countdown):
         try:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title} - {countdown}')
         except Exception as e:
             log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - event deletion\n{e}')
+
 
     async def send_event_update(self, oldMsg, msg, em):
         try:
@@ -38,9 +87,11 @@ class SC2OpenEvents():
         except Exception as e:
             log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}\n{e}')
 
+
     async def send_event(self, msg, em, channel, evType):
         if channel.permissions_for(channel.guild.me).send_messages:
             await channel.send(msg, embed=em)
+
 
     async def post_events(self, eventsX, msgs, guild, channel, evType):
         aEvCount = 0
@@ -49,7 +100,7 @@ class SC2OpenEvents():
 
         for eventXY in eventsX:
             try:
-                if eventXY['cd'] != None:
+                if eventXY['cd']:
                     countdown = (eventXY['cd'].days * 24) + (eventXY['cd'].seconds / (60 * 60))
                 else:
                     countdown = -1.0
@@ -62,6 +113,12 @@ class SC2OpenEvents():
                             pEvCount += 1
                             pMsg = MsgsEv
                             break
+                    if any([eventXY['name'] in MsgsEv.content, eventXY['bracket'] in MsgsEv.content]):
+                        p = False
+                        aEvCount += 1
+                        pEvCount += 1
+                        pMsg = MsgsEv
+                        break
                 if 0 < countdown < float(self.bot.CONFIG['sc2oe']['countdown']):
                     aEvCount += 1
                     cd_hours = eventXY['cd'].seconds // (60 * 60)
@@ -72,7 +129,7 @@ class SC2OpenEvents():
                     elif guild[10] == 0:
                         timeform = eventXY['date12']
                     else:
-                        timeform = None
+                        timeform = ''
                     if not timeform:
                         timeform = '???'
                     if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['colour']:
@@ -94,7 +151,7 @@ class SC2OpenEvents():
                                             colour=discord.Colour(0x555555),
                                             description="-")
 
-                    msg = f'{evType} event is happening in {cd_hours}h {cd_minutes}min'
+                    msg = await self.decrypt_evmessage(guild[11], eventXY, evType, channel.permissions_for(channel.guild.me).embed_links)
                     evTypeEmText = f"{evType} Event"
                     if evType == 'General':
                         em.set_author(name=evTypeEmText, icon_url=self.ICN_GRN)
@@ -121,9 +178,9 @@ class SC2OpenEvents():
                     else:
                         em.set_thumbnail(url=self.bot.evInf['other']['logo'])
 
-                    if (evType == 'General') and (eventXY['region'] != None):
+                    if evType == 'General' and eventXY['region']:
                         em.add_field(name="Region", value=eventXY['region'], inline=True)
-                    elif (evType == 'Amateur') and (eventXY['league'] != None):
+                    elif evType == 'Amateur' and eventXY['league']:
                         em.add_field(name="League", value=eventXY['league'], inline=True)
 
                     if eventXY['server']:
@@ -131,7 +188,7 @@ class SC2OpenEvents():
                     if eventXY['prize']:
                         em.add_field(name="Prizepool", value=eventXY['prize'], inline=False)
 
-                    cfVal = None
+                    cfVal = ''
                     if eventXY['matLink']:
                         if (any(char.isdigit() for char in eventXY['matCode']) == False
                                 and eventXY['matCode'] == ''
@@ -148,8 +205,8 @@ class SC2OpenEvents():
                     if cfVal:
                         em.add_field(name="Crowdfunding", value=cfVal, inline=False)
 
-                    if eventXY['grid']:
-                        em.add_field(name='▬▬▬▬▬▬▬', value=f"[**SIGN UP HERE**]({eventXY['grid']})", inline=False)
+                    if eventXY['bracket']:
+                        em.add_field(name='▬▬▬▬▬▬▬', value=f"[**SIGN UP HERE**]({eventXY['bracket']})", inline=False)
                     em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
                                 icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
@@ -183,6 +240,7 @@ class SC2OpenEvents():
 
         log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {channel.guild.name}')
 
+
     async def fetch_texts(self, eventTypes):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
         _URL = 'https://liquipedia.net/starcraft2/api.php'
@@ -205,6 +263,7 @@ class SC2OpenEvents():
                 for ind, evType in enumerate(eventTypes):
                     evText[evType] = json_body['query']['pages'][ind]['revisions'][0]['content']
         return evText
+
 
     async def check_all_events(self):
         eventTypes = ['General', 'Amateur', 'Team']
@@ -230,6 +289,7 @@ class SC2OpenEvents():
                     else:
                         return
                     await self.post_events(events[ind], msgs, guild, channel, evType)
+
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()

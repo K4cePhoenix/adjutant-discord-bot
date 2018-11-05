@@ -118,9 +118,9 @@ def get_prize(data):
     """ Returns any prizepool, if any """
     pr = data
     if pr == "":
-        pr = None
+        pr = ''
     elif pr == "-":
-        pr = None
+        pr = ''
     return pr
 
 def get_bracket(dataChallonge, dataBrackets):
@@ -130,7 +130,7 @@ def get_bracket(dataChallonge, dataBrackets):
     elif dataBrackets:
         return dataBrackets
     else:
-        return None
+        return ''
 
 
 def eradicate_comments(data, s=''):
@@ -169,11 +169,11 @@ def steal(dataset: dict):
             try:
                 countdown = get_cd(evLstItem['deadline'].strip())
             except:
-                countdown = None
+                countdown = ''
             try:
                 date = get_time(evLstItem['date'].strip())
             except:
-                date = None
+                date = ''
             if not date:
                 try:
                     _tmpData = evLstItem['date'].strip()
@@ -186,7 +186,7 @@ def steal(dataset: dict):
             try:
                 date24 = get_time24(evLstItem['date'].strip())
             except:
-                date24 = None
+                date24 = ''
             if not date24:
                 try:
                     _tmpData = evLstItem['date'].strip()
@@ -199,15 +199,17 @@ def steal(dataset: dict):
             try:
                 mode = evLstItem['mode'].strip()
             except:
-                mode = None
+                mode = ''
             try:
                 name = evLstItem['event'].strip()
             except:
-                name = None
+                name = ''
             try:
                 region = evLstItem['region'].strip()
                 server = evLstItem['server'].strip()
                 league = get_rsl(evLstItem['league'].strip())
+                if league == "Online":
+                    league = ''
             except:
                 region = evLstItem['region'].strip()
                 server = evLstItem['server'].strip()
@@ -215,11 +217,11 @@ def steal(dataset: dict):
             try:
                 prize = get_prize(evLstItem['prizepool'].strip())
             except:
-                prize = None
+                prize = ''
             try:
                 matcherino = evLstItem['matcherino'].strip()
             except:
-                matcherino = None
+                matcherino = ''
             try:
                 matcherinoCode = evLstItem['coupon'].strip()
             except:
@@ -239,7 +241,7 @@ def steal(dataset: dict):
                 'prize': prize,
                 'matLink': matcherino,
                 'matCode': matcherinoCode,
-                'grid': bracket,
+                'bracket': bracket,
                 'cd': countdown,
                 'mode': mode
             })
