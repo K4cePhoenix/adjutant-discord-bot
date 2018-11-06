@@ -109,6 +109,16 @@ class Settings():
                 await db.commit()
 
 
+    @_settings.command(name='message')
+    async def _settings_message(self, ctx, *, t: str):
+        """ Customise the message printed along tournament information """
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            if len(t.split('"')) == 3:
+                tmp = t.split('"')[1]
+                sql = "UPDATE guilds SET evmessage = ? WHERE id = ?;"
+                await self._set_db_entry(sql, (tmp, ctx.guild.id,))
+
+
     @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
         if _type == "all":
