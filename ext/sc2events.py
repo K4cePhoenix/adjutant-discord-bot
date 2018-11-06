@@ -44,15 +44,15 @@ class SC2OpenEvents():
                 if tmp_data[ind][8] != lUpdate:
                     pass
                 elif ind <= 4:
-                    gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n\n"
+                    gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n"
                 elif 5 <= ind <= 9:
-                    aVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n\n"
+                    aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n"
 
             em = discord.Embed(title="Upcoming Events",
                                colour=discord.Colour(int(random.randint(0, 16777215))),
-                               description='\u200b')
-            em.add_field(name="Open Events", value=gVal, inline=True)
-            em.add_field(name="Amateur Events", value=aVal, inline=True)
+                               description=f"Last Update at {lUpdate}")
+            em.add_field(name="Open Tournaments", value=gVal, inline=True)
+            em.add_field(name="Amateur Tournaments", value=aVal, inline=True)
             em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
                           icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
@@ -155,8 +155,6 @@ class SC2OpenEvents():
                         break
                 if 0 < countdown < float(self.bot.CONFIG['sc2oe']['countdown']):
                     aEvCount += 1
-                    cd_hours = eventXY['cd'].seconds // (60 * 60)
-                    cd_minutes = (eventXY['cd'].seconds-(cd_hours * (60 * 60))) // 60
                     evName = ''.join(eventXY['name'].split(' ')[:len(eventXY['name'].split(' '))-1]).lower()
                     if guild[10] == 1:
                         timeform = eventXY['date24']
