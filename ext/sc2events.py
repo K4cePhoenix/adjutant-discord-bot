@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
+from discord.ext import commands
 import aiohttp
 import aiosqlite
 import asyncio
 import discord
 import logging
 import pytz
+import random
 import toml
 
 from .sc2 import kuevstv2
@@ -23,6 +25,38 @@ class SC2OpenEvents():
         self.ICN_SLV = "https://i.imgur.com/CS3hGFX.png"
         self.ICN_BRN = "https://i.imgur.com/47tb6qR.png"
         self.ICN_ALT = "https://i.imgur.com/HlsskVP.png"
+
+
+    @commands.command(name='upcoming')
+    async def _upcoming(self, ctx):
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            try:
+                sql = "SELECT * FROM events;"
+                cursor = await db.execute(sql)
+                tmp_data = await cursor.fetchall()
+                await cursor.close()
+                lUpdate = tmp_data[0][8]
+            except Exception as e:
+                log.debug(f'sc2events module command "upcoming" - {e}')
+            gVal = ""
+            aVal = ""
+            for ind in range(10):
+                if tmp_data[ind][8] != lUpdate:
+                    pass
+                elif ind <= 4:
+                    gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n\n"
+                elif 5 <= ind <= 9:
+                    aVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n\n"
+
+            em = discord.Embed(title="Upcoming Events",
+                               colour=discord.Colour(int(random.randint(0, 16777215))),
+                               description='\u200b')
+            em.add_field(name="Open Events", value=gVal, inline=True)
+            em.add_field(name="Amateur Events", value=aVal, inline=True)
+            em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
+                          icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+
+            await ctx.send(embed=em)
 
 
     async def decrypt_evmessage(self, evMsg, evData, evType, emBool):
