@@ -40,13 +40,44 @@ class SC2OpenEvents():
                 log.debug(f'sc2events module command "upcoming" - {e}')
             gVal = ""
             aVal = ""
+            tmp_time = datetime.now(tz=pytz.utc) - datetime.strptime(lUpdate[:-3]+"00", "%Y-%m-%d %H:%M:%S.%f%z")
             for ind in range(10):
-                if tmp_data[ind][8] != lUpdate:
-                    pass
-                elif ind <= 4:
-                    gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n"
-                elif 5 <= ind <= 9:
-                    aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {tmp_data[ind][2]}\n"
+                if len(tmp_data[ind][2].split(' ')) == 4:
+                    tmp_t = int(tmp_data[ind][2].split(' ')[0]) * 24 * 60 * 60
+                    tmp_t += int(tmp_data[ind][2].split(' ')[2][:-1]) * 60 * 60
+                    tmp_t += int(tmp_data[ind][2].split(' ')[3][:-3]) * 60
+                elif len(tmp_data[ind][2].split(' ')) == 2:
+                    tmp_t = int(tmp_data[ind][2].split(' ')[0][:-1]) * 60 * 60
+                    tmp_t += int(tmp_data[ind][2].split(' ')[1][:-3]) * 60
+                elif len(tmp_data[ind][2].split(' ')) == 1:
+                    tmp_t = int(tmp_data[ind][2].split(' ')[0][:-3]) * 60
+                cur_t = tmp_t - tmp_time.total_seconds()
+
+                if cur_t > 0:
+                    d = int(cur_t // (60 * 60 * 24))
+                    h = int(cur_t // (60 * 60))
+                    m = int((cur_t-(h * (60 * 60))) // 60)
+                    if d:
+                        if tmp_data[ind][8] != lUpdate:
+                            pass
+                        elif ind <= 4:
+                            gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {d} days {h}h {m}min\n"
+                        elif 5 <= ind <= 9:
+                            aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {d} days {h}h {m}min\n"
+                    elif h:
+                        if tmp_data[ind][8] != lUpdate:
+                            pass
+                        elif ind <= 4:
+                            gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {h}h {m}min\n"
+                        elif 5 <= ind <= 9:
+                            aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {h}h {m}min\n"
+                    else:
+                        if tmp_data[ind][8] != lUpdate:
+                            pass
+                        elif ind <= 4:
+                            gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {m}min\n"
+                        elif 5 <= ind <= 9:
+                            aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {m}min\n"
 
             em = discord.Embed(title="Upcoming Events",
                                colour=discord.Colour(int(random.randint(0, 16777215))),
@@ -336,8 +367,10 @@ class SC2OpenEvents():
                     cd_m = (sorted_event['cd'].seconds-(cd_h * (60 * 60))) // 60
                     if sorted_event['cd'].days:
                         cd = f"{sorted_event['cd'].days} days {cd_h}h {cd_m}min"
-                    else:
+                    elif cd_h:
                         cd = f"{cd_h}h {cd_m}min"
+                    else:
+                        cd = f"{cd_m}min"
                     try:
                         sql = "UPDATE events SET name = ?, cd = ?, region = ?, server = ?, prizepool = ?, bracket = ?, type = ?, lastupdate = ? WHERE id = ?;"
                         await db.execute(sql, (sorted_event['name'], cd, sorted_event['region'], sorted_event['server'], sorted_event['prize'], sorted_event['bracket'], evType, lupd, ind*5+ind2,))
