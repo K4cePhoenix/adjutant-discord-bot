@@ -55,8 +55,8 @@ class SC2OpenEvents():
 
                 if cur_t > 0:
                     d = int(cur_t // (60 * 60 * 24))
-                    h = int(cur_t // (60 * 60))
-                    m = int((cur_t-(h * (60 * 60))) // 60)
+                    h = int((cur_t-(d * (60 * 60 * 24))) // (60 * 60))
+                    m = int((cur_t-(d * (60 * 60 * 24) + h * (60 * 60))) // 60)
                     if d:
                         if tmp_data[ind][8] != lUpdate:
                             pass
