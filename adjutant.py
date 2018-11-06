@@ -100,7 +100,7 @@ class Adjutant(commands.Bot):
                     if len(guilds) == 0:
                         try:
                             sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                            await db.execute(sql, (guild.id, guild.name, -1, '', -1, '', -1, '', '', '*', 0, '$evtype$ Event starting in $hours$ $minutes$', ))
+                            await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$evtype$ Event starting in $hours$h $minutes$min', ))
                         except Exception as e:
                             await db.rollback()
                             await chan.send(f'```py\n{e.__class__.__name__}: {e}\n```')
@@ -128,7 +128,7 @@ class Adjutant(commands.Bot):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                await db.execute(sql, (guild.id, guild.name, -1, '', -1, '', -1, '', '', '*', 0, '$evtype$ Event starting in $hours$ $minutes$', ))
+                await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$evtype$ Event starting in $hours$h $minutes$min', ))
             except:
                 await db.rollback()
                 self.log.error("on_guild_join: Couldn't save server info.")

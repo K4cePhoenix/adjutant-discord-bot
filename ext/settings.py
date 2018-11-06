@@ -29,10 +29,13 @@ class Settings():
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 await db.execute(sql, val)
+                ret = True
             except:
                 await db.rollback()
+                ret = False
             finally:
                 await db.commit()
+                return ret
 
 
     @commands.group(name='set')
@@ -48,10 +51,15 @@ class Settings():
     @_settings.command(name='general')
     async def _settings_general(self, ctx, *, t: str):
         """ Set the channel name for general events """
-        if t[:2] == "<#":
+        if t in ["delete", "reset"]:
+            temp_name = '-'
+            temp_id = -1
+            sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
+            ret = await self._set_db_entry(sql, (temp_id, temp_name, ctx.guild.id,))
+        elif t[:2] == "<#":
             temp_name = self.bot.get_channel(int(t[2:-1]))
             sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
-            await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
+            ret = await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
         else:
             for channel in ctx.guild.channels:
                 if channel.name == t:
@@ -59,27 +67,39 @@ class Settings():
                     break
             if temp_name:
                 sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
-                await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
+                ret = await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
+        if ret:
+            await ctx.message.add_reaction('☑')
+        else:
+            await ctx.message.add_reaction('❌')
 
 
     @_settings.command(name='amateur')
     async def _settings_amateur(self, ctx, *, t: str):
         """ Set the channel name for amateur events """
-        if t[:2] == "<#":
+        if t in ["delete", "reset"]:
+            temp_name = '-'
+            temp_id = -1
+            sql = "UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
+            ret = await self._set_db_entry(sql, (temp_id, temp_name, ctx.guild.id,))
+        elif t[:2] == "<#":
             temp_name = self.bot.get_channel(int(t[2:-1]))
             sql = "UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
-            await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
+            ret = await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
         else:
             for channel in ctx.guild.channels:
                 if channel.name == t:
                     temp_name = self.bot.get_channel(channel.id)
                     break
             if temp_name:
-                sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
-                await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
+                sql = "UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
+                ret = await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
             else:
                 await ctx.send(f"Can't find a channel named `{t}`")
-
+        if ret:
+            await ctx.message.add_reaction('☑')
+        else:
+            await ctx.message.add_reaction('❌')
 
     @_settings.command(name='team')
     async def _settings_team(self, ctx, *, t: str):
@@ -115,14 +135,17 @@ class Settings():
         if len(t.split('"')) == 3:
             tmp = t.split('"')[1]
             sql = "UPDATE guilds SET evmessage = ? WHERE id = ?;"
-            await self._set_db_entry(sql, (tmp, ctx.guild.id,))
-
+            ret = await self._set_db_entry(sql, (tmp, ctx.guild.id,))
+        if ret:
+            await ctx.message.add_reaction('☑')
+        else:
+            await ctx.message.add_reaction('❌')
 
     @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
         if _type == "all":
             sql = "UPDATE guilds SET events = ? WHERE id = ?"
-            await self._set_db_entry(sql, ("*", ctx.guild.id,))
+            ret = await self._set_db_entry(sql, ("*", ctx.guild.id,))
         elif _type == "add":
             sql = "SELECT events FROM guilds WHERE id = ?"
             data = await self._get_db_entry(sql, (ctx.guild.id,))
@@ -131,7 +154,7 @@ class Settings():
                     data_list = data.split('$')
                     data_list.append(t)
                     sql = "UPDATE guilds SET events = ? WHERE id = ?"
-                    await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
+                    ret = await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
         elif _type == "del":
             sql = "SELECT events FROM guilds WHERE id = ?"
             data = await self._get_db_entry(sql, (ctx.guild.id,))
@@ -143,7 +166,7 @@ class Settings():
                             data_list = data_list[:ind] + data_list[ind+1:]
                             break
                     sql = "UPDATE guilds SET events = ? WHERE id = ?"
-                    await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
+                    ret = await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
         elif _type == "show":
             sql = "SELECT events FROM guilds WHERE id = ?"
             data = await self._get_db_entry(sql, (ctx.guild.id,))
@@ -156,7 +179,10 @@ class Settings():
                     await ctx.send(f"Currently events including `{data_send}` will be posted.")
         else:
             ctx.send("**ERROR**: Couldn't execute your request ")
-
+        if ret:
+            await ctx.message.add_reaction('☑')
+        else:
+            await ctx.message.add_reaction('❌')
 
     @commands.command(name='list')
     async def _list_channels(self, ctx):
