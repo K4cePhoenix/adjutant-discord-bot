@@ -8,7 +8,7 @@ from .utils import permissions as perms
 log = logging.getLogger(__name__)
 
 
-class SC2OESettings():
+class Settings():
     def __init__(self, bot):
         self.bot = bot
 
@@ -160,5 +160,5 @@ class SC2OESettings():
 
 
 def setup(bot):
-    n = SC2OESettings(bot)
+    n = Settings(bot)
     bot.add_cog(n)

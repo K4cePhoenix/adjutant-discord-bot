@@ -52,6 +52,8 @@ class Adjutant(commands.Bot):
             async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
                 await db.execute("""CREATE TABLE IF NOT EXISTS guilds (id INTEGER PRIMARY KEY, name TEXT, gcid INTEGER, gcname TEXT, acid INTEGER, acname TEXT, fcid INTEGER, fcname TEXT, fids TEXT, events TEXT, tf BOOLEAN);""")
                 await db.commit()
+                await db.execute("""CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, name TEXT, cd TEXT, region TEXT, server TEXT, prizepool TEXT, bracket TEXT, type TEXT, lastupdate TEXT);""")
+                await db.commit()
         self.loop.create_task(_init_aiosqlite())
 
         self.remove_command('help')

@@ -290,6 +290,32 @@ class SC2OpenEvents():
                         return
                     await self.post_events(events[ind], msgs, guild, channel, evType)
 
+        lupd = f"{datetime.now(tz=pytz.utc)}"
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            for ind, evType in enumerate(eventTypes[:-1]):
+                sorted_events = sorted(events[ind], key=lambda k: k['cd'])
+                sorted_events_stripped = list()
+                for sorted_event in sorted_events:
+                    if int(sorted_event['cd'].days) >= 0:
+                        sorted_events_stripped.append(sorted_event)
+                eventNum = min(5, len(sorted_events_stripped))
+                for ind2, sorted_event in enumerate(sorted_events_stripped[:eventNum]):
+                    cd_h = sorted_event['cd'].seconds // (60 * 60)
+                    cd_m = (sorted_event['cd'].seconds-(cd_h * (60 * 60))) // 60
+                    if sorted_event['cd'].days:
+                        cd = f"{sorted_event['cd'].days} days {cd_h}h {cd_m}min"
+                    else:
+                        cd = f"{cd_h}h {cd_m}min"
+                    try:
+                        sql = "UPDATE events SET name = ?, cd = ?, region = ?, server = ?, prizepool = ?, bracket = ?, type = ?, lastupdate = ? WHERE id = ?;"
+                        await db.execute(sql, (sorted_event['name'], cd, sorted_event['region'], sorted_event['server'], sorted_event['prize'], sorted_event['bracket'], evType, lupd, ind*5+ind2,))
+                    except:
+                        await db.rollback()
+                    finally:
+                        await db.commit()
+
+
+
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
