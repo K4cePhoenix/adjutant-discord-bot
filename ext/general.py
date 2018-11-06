@@ -29,10 +29,10 @@ class General():
     @commands.command(name="help")
     async def _help(self, ctx):
         """ Displays a list of Adjutants commands. """
-        embed = discord.Embed(color=discord.Colour.blue(), title="Adjutant DiscordBot", description="My prefix is `a>`.")
+        embed = discord.Embed(color=discord.Colour.blue(), title="Adjutant DiscordBot", description="My prefices are `a>` and `a!`.")
         embed.set_thumbnail(url=self.bot.user.avatar_url)
-        embed.set_footer(icon_url=ctx.message.author.avatar_url, text="")
-        embed.add_field(name="Commands", value="See a list of all commands Soon™.", inline=False)#[here](https://k4cephoenix.github.io/adjutant-discordbot).", inline=False)
+        embed.set_footer(text="By Phoenix#2694", icon_url="https://avatars2.githubusercontent.com/u/36424912?s=60&v=4")
+        embed.add_field(name="Commands", value="See a list of all commands [here](https://k4cephoenix.github.io/#commands).", inline=False)
         embed.add_field(name="Invite", value=f"Invite Adjutant to your server [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).", inline=False)
         embed.add_field(name="Server", value="Join Adjutants support server [here](https://discordapp.com/invite/nfa9jnu).", inline=False)
         embed.add_field(name="More Information", value="You can find more information using the `info` command.", inline=False)
@@ -43,14 +43,14 @@ class General():
         """ Display information about Adjutant. """
         users = sum(1 for _ in self.bot.get_all_members())
         embed = discord.Embed(color=discord.Colour.blue(), title="Adjutant Information", description="")
-        embed.set_footer(text="By Phoenix#2694")
+        embed.set_footer(text="By Phoenix#2694", icon_url="https://avatars2.githubusercontent.com/u/36424912?s=60&v=4")
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         try:
             embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nShards: **{len(self.bot.shards)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
         except:
             embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
         embed.add_field(name="Version: ", value=f"Adjutant: **{self.bot.VERSION}**\ndiscord.py: **{discord.__version__}**\nPython: **{platform.python_version()}**")
-        embed.add_field(name="Other: ", value="Website: Coming soon™\nDiscord: https://discord.gg/nfa9jnu")
+        embed.add_field(name="Other: ", value="Website: https://k4cephoenix.github.io/\nDiscord: https://discord.gg/nfa9jnu")
         await ctx.send(embed=embed)
 
     @commands.command(name='user')
