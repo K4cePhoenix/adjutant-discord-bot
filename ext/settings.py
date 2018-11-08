@@ -129,7 +129,7 @@ class Settings():
                 await db.commit()
 
 
-    @_settings.command(name='message')
+    @_settings.command(name='message', aliases=['msg',])
     async def _settings_message(self, ctx, *, t: str):
         """ Customise the message printed along tournament information """
         if len(t.split('"')) == 3:
@@ -143,55 +143,57 @@ class Settings():
 
     @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
-        if _type == "all":
-            sql = "UPDATE guilds SET events = ? WHERE id = ?"
-            ret = await self._set_db_entry(sql, ("*", ctx.guild.id,))
-        elif _type == "add":
-            sql = "SELECT events FROM guilds WHERE id = ?"
-            data = await self._get_db_entry(sql, (ctx.guild.id,))
-            if data and t:
-                if not "$" in t:
+        if perms._check(ctx, 3):
+            if _type == "all":
+                sql = "UPDATE guilds SET events = ? WHERE id = ?"
+                ret = await self._set_db_entry(sql, ("*", ctx.guild.id,))
+            elif _type == "add":
+                sql = "SELECT events FROM guilds WHERE id = ?"
+                data = await self._get_db_entry(sql, (ctx.guild.id,))
+                if data and t:
+                    if not "$" in t:
+                        data_list = data.split('$')
+                        data_list.append(t)
+                        sql = "UPDATE guilds SET events = ? WHERE id = ?"
+                        ret = await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
+            elif _type == "del":
+                sql = "SELECT events FROM guilds WHERE id = ?"
+                data = await self._get_db_entry(sql, (ctx.guild.id,))
+                if data and t:
+                    if not "$" in t:
+                        data_list = data.split('$')
+                        for ind, item in enumerate(data_list):
+                            if item == t:
+                                data_list = data_list[:ind] + data_list[ind+1:]
+                                break
+                        sql = "UPDATE guilds SET events = ? WHERE id = ?"
+                        ret = await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
+            elif _type == "show":
+                sql = "SELECT events FROM guilds WHERE id = ?"
+                data = await self._get_db_entry(sql, (ctx.guild.id,))
+                if data:
                     data_list = data.split('$')
-                    data_list.append(t)
-                    sql = "UPDATE guilds SET events = ? WHERE id = ?"
-                    ret = await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
-        elif _type == "del":
-            sql = "SELECT events FROM guilds WHERE id = ?"
-            data = await self._get_db_entry(sql, (ctx.guild.id,))
-            if data and t:
-                if not "$" in t:
-                    data_list = data.split('$')
-                    for ind, item in enumerate(data_list):
-                        if item == t:
-                            data_list = data_list[:ind] + data_list[ind+1:]
-                            break
-                    sql = "UPDATE guilds SET events = ? WHERE id = ?"
-                    ret = await self._set_db_entry(sql, ('$'.join(data_list), ctx.guild.id,))
-        elif _type == "show":
-            sql = "SELECT events FROM guilds WHERE id = ?"
-            data = await self._get_db_entry(sql, (ctx.guild.id,))
-            if data:
-                data_list = data.split('$')
-                data_send = ', '.join(data_list)
-                if data_send == '*':
-                    await ctx.send("All events will be posted!")
-                else:
-                    await ctx.send(f"Currently events including `{data_send}` will be posted.")
-        else:
-            ctx.send("**ERROR**: Couldn't execute your request ")
-        if ret:
-            await ctx.message.add_reaction('☑')
-        else:
-            await ctx.message.add_reaction('❌')
+                    data_send = ', '.join(data_list)
+                    if data_send == '*':
+                        await ctx.send("All events will be posted!")
+                    else:
+                        await ctx.send(f"Currently events including `{data_send}` will be posted.")
+            else:
+                ctx.send("**ERROR**: Couldn't execute your request ")
+            if ret:
+                await ctx.message.add_reaction('☑')
+            else:
+                await ctx.message.add_reaction('❌')
 
-    @commands.command(name='list')
+    @commands.command(name='listchannels', aliases=['list', 'lc'])
     async def _list_channels(self, ctx):
-        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
-            sql = f"SELECT * FROM guilds WHERE id = ?;"
-            cursor = await db.execute(sql, (ctx.guild.id,))
-            tmp_guild = await cursor.fetchone()
-            await cursor.close()
-        await ctx.channel.send(f'The currently set SC2 event channels are\nGeneral Events Channel: <#{tmp_guild[2]}>\nAmateur Events Channel: <#{tmp_guild[4]}>')
+        if perms._check(ctx, 2):
+            async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+                sql = f"SELECT * FROM guilds WHERE id = ?;"
+                cursor = await db.execute(sql, (ctx.guild.id,))
+                tmp_guild = await cursor.fetchone()
+                await cursor.close()
+            await ctx.channel.send(f'The currently set SC2 event channels are\nGeneral Events Channel: <#{tmp_guild[2]}>\nAmateur Events Channel: <#{tmp_guild[4]}>')
 
 
 def setup(bot):

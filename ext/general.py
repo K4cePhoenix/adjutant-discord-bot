@@ -35,10 +35,10 @@ class General():
         embed.add_field(name="Commands", value="See a list of all commands [here](https://k4cephoenix.github.io/#commands).", inline=False)
         embed.add_field(name="Invite", value=f"Invite Adjutant to your server [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).", inline=False)
         embed.add_field(name="Server", value="Join Adjutants support server [here](https://discordapp.com/invite/nfa9jnu).", inline=False)
-        embed.add_field(name="More Information", value="You can find more information using the `info` command.", inline=False)
+        embed.add_field(name="More Information", value="Find more information using the `info` command.", inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(name='info')
+    @commands.command(name='information', aliases=['info'])
     async def _info(self, ctx):
         """ Display information about Adjutant. """
         users = sum(1 for _ in self.bot.get_all_members())
@@ -65,23 +65,30 @@ class General():
         embed = discord.Embed(color=user.color, description=f"Here's some information about {user.name}!")
         if perms._check(ctx, 5):
             embed.title = f"{user} 🐦"
+            tmp_lvl = f"Level 5"
         elif perms._check(ctx, 4):
             embed.title = f"{user} 🦆"
+            tmp_lvl = f"Level 4"
         elif perms._check(ctx, 3):
             embed.title = f"{user} 🐧"
+            tmp_lvl = f"Level 3"
         elif perms._check(ctx, 2):
             embed.title = f"{user} 🐔"
+            tmp_lvl = f"Level 2"
         elif perms._check(ctx, 1):
             embed.title = f"{user} 🐣"
+            tmp_lvl = f"Level 1"
         else:
             embed.title = f"{user}"
+            tmp_lvl = f"Level 0"
         embed.set_thumbnail(url=user.avatar_url)
-        embed.add_field(name="Username", value=user.name, inline=False)
-        embed.add_field(name="Discriminator", value=user.discriminator, inline=False)
-        embed.add_field(name="ID", value=str(user.id), inline=False)
+        embed.add_field(name="Username", value=user.name, inline=True)
+        embed.add_field(name="Discriminator", value=user.discriminator, inline=True)
+        embed.add_field(name="ID", value=str(user.id), inline=True)
+        embed.add_field(name="Permissions", value=tmp_lvl, inline=True)
         if len(user.roles) > 1:
-            embed.add_field(name="Roles", value=userRoles, inline=False)
-        embed.add_field(name="Date of Account Creation", value=user.created_at.strftime('%Y/%m/%d'), inline=False)
+            embed.add_field(name="Roles", value=userRoles, inline=True)
+        embed.add_field(name="Date of Account Creation", value=user.created_at.strftime('%Y/%m/%d'), inline=True)
         await ctx.send(embed=embed)
 
     @commands.command(name='server')

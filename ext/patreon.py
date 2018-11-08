@@ -12,10 +12,10 @@ class Patreon():
         self.PATREON_FILE_PATH = './data/patreon/patreon.toml'
         self.sc2patreons = toml.load(self.PATREON_FILE_PATH)
 
-    @commands.command(name='patreons')
+    @commands.command(name='patreons', aliases=['patreon'])
     async def _patreons(self, ctx):
         """ Sends a link to the SC2 Patreons spreadsheet. """
-        await ctx.send("You can find a list of Patreons related to SC2 projects & persona, thanks to @TrangLe92 and contributors.\nhttps://docs.google.com/spreadsheets/d/1qJFAw-uOquuwW9_JYbIDFZlL3RrVifIAn8tOgW3H0gA")
+        await ctx.send("You can find a list of Patreons related to StarCraft projects & persona, thanks to @TrangLe92 and contributors.\nhttps://docs.google.com/spreadsheets/d/1qJFAw-uOquuwW9_JYbIDFZlL3RrVifIAn8tOgW3H0gA")
 
 
 def setup(bot):

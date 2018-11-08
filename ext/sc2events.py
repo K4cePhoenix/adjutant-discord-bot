@@ -27,7 +27,7 @@ class SC2OpenEvents():
         self.ICN_ALT = "https://i.imgur.com/HlsskVP.png"
 
 
-    @commands.command(name='upcoming')
+    @commands.command(name='upcoming', aliases=['next'])
     async def _upcoming(self, ctx):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
