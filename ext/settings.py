@@ -129,7 +129,7 @@ class Settings():
                 await db.commit()
 
 
-    @_settings.command(name='message', aliases=['msg',])
+    @_settings.command(name='message', aliases=['msg'])
     async def _settings_message(self, ctx, *, t: str):
         """ Customise the message printed along tournament information """
         if len(t.split('"')) == 3:
