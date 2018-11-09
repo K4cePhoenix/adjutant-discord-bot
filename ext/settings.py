@@ -48,7 +48,7 @@ class Settings():
             raise PermissionError()
 
 
-    @_settings.command(name='general')
+    @_settings.command(name='general', aliases=['open'])
     async def _settings_general(self, ctx, *, t: str):
         """ Set the channel name for general events """
         if t in ["delete", "reset"]:
