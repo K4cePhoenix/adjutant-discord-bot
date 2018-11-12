@@ -132,11 +132,9 @@ class Settings():
     @_settings.command(name='message', aliases=['msg'])
     async def _settings_message(self, ctx, *, t: str):
         """ Customise the message printed along tournament information """
-        # if len(t.split('"')) == 3:
-        #     tmp = t.split('"')[1]
-            tmp = t
-            sql = "UPDATE guilds SET evmessage = ? WHERE id = ?;"
-            ret = await self._set_db_entry(sql, (tmp, ctx.guild.id,))
+        tmp = t
+        sql = "UPDATE guilds SET evmessage = ? WHERE id = ?;"
+        ret = await self._set_db_entry(sql, (tmp, ctx.guild.id,))
         if ret:
             await ctx.message.add_reaction('☑')
         else:
