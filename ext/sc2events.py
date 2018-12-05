@@ -9,7 +9,7 @@ import pytz
 import random
 import toml
 
-from .sc2 import kuevstv2
+from .utils import kuevstv2
 
 log = logging.getLogger('adjutant.sc2oe')
 
@@ -251,14 +251,15 @@ class SC2OpenEvents():
                     if eventXY['prize']:
                         em.add_field(name="Prizepool", value=eventXY['prize'], inline=False)
 
-                    cfVal = ''
                     if eventXY['matLink']:
+                        cfVal = f"[Matcherino]({eventXY['matLink']})"
                         if (any(char.isdigit() for char in eventXY['matCode']) == False
                                 and eventXY['matCode'] == ''
                                 and evName in self.bot.evInf.keys()):
                             codeNr = eventXY['name'].split(' ')[-1].replace("#", "").replace(".", "")
                             eventXY['matCode'] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
-                        cfVal = f"[Matcherino]({eventXY['matLink']}) - free $1 code `{eventXY['matCode']}`"
+                        if eventXY['matCode']:
+                            cfVal += f" - free $1 code `{eventXY['matCode']}`"
                     if evName in self.bot.evInf.keys():
                         if self.bot.evInf[evName]['patreon']:
                             if cfVal:
@@ -378,8 +379,6 @@ class SC2OpenEvents():
                         await db.rollback()
                     finally:
                         await db.commit()
-
-
 
 
     async def check_events_in_background(self):

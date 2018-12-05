@@ -143,7 +143,7 @@ class Settings():
     @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
         if perms._check(ctx, 3):
-            if _type == "all":
+            if _type == "reset":
                 sql = "UPDATE guilds SET events = ? WHERE id = ?"
                 ret = await self._set_db_entry(sql, ("*", ctx.guild.id,))
             elif _type == "add":
