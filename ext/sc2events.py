@@ -251,6 +251,7 @@ class SC2OpenEvents():
                     if eventXY['prize']:
                         em.add_field(name="Prizepool", value=eventXY['prize'], inline=False)
 
+                    cfVal = ''
                     if eventXY['matLink']:
                         cfVal = f"[Matcherino]({eventXY['matLink']})"
                         if (any(char.isdigit() for char in eventXY['matCode']) == False

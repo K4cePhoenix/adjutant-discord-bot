@@ -131,6 +131,7 @@ class Administration:
             except Exception as e:
                 await ctx.send(f'```py\n{e.__class__.__name__}:\n{traceback.format_exc()}\n```')
 
+
 def setup(bot):
     n = Administration(bot)
     bot.add_cog(n)
