@@ -16,7 +16,7 @@ class Administration:
     @commands.command(name='load')
     async def _load(self, ctx, *, module):
         """Loads a module."""
-        if perms._check(ctx, 4):
+        if perms.check(ctx, 4):
             try:
                 self.bot.load_extension('ext.'+module)
             except Exception as e:
@@ -35,7 +35,7 @@ class Administration:
     @commands.command(name='unload')
     async def _unload(self, ctx, *, module):
         """Unloads a module."""
-        if perms._check(ctx, 4):
+        if perms.check(ctx, 4):
             try:
                 self.bot.unload_extension('ext.'+module)
             except Exception as e:
@@ -54,7 +54,7 @@ class Administration:
     @commands.command(name='reload')
     async def _reload(self, ctx, *, module):
         """Reloads a module."""
-        if perms._check(ctx, 4):
+        if perms.check(ctx, 4):
             try:
                 self.bot.unload_extension('ext.'+module)
                 self.bot.load_extension('ext.'+module)
@@ -75,4 +75,3 @@ class Administration:
 def setup(bot):
     n = Administration(bot)
     bot.add_cog(n)
-    

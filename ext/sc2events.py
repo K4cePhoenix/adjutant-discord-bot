@@ -11,10 +11,11 @@ import toml
 
 from .utils import kuevstv2
 
+
 log = logging.getLogger('adjutant.sc2oe')
 
 
-class SC2OpenEvents():
+class SC2OpenEvents:
     def __init__(self, bot):
         self.bot = bot
         self.ICN_GRN = "https://i.imgur.com/lTur4HM.png"
@@ -26,71 +27,72 @@ class SC2OpenEvents():
         self.ICN_BRN = "https://i.imgur.com/47tb6qR.png"
         self.ICN_ALT = "https://i.imgur.com/HlsskVP.png"
 
-
     @commands.command(name='upcoming', aliases=['next'])
     async def _upcoming(self, ctx):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 sql = "SELECT * FROM events;"
                 cursor = await db.execute(sql)
-                tmp_data = await cursor.fetchall()
+                all_rows = await cursor.fetchall()
                 await cursor.close()
-                lUpdate = tmp_data[0][8]
+                last_update = all_rows[0][8]
+                general_tournament_info_str = ""
+                amateur_tournament_info_str = ""
+                time_since_last_update = datetime.now(tz=pytz.utc) - datetime.strptime(last_update[:-3]+"00", "%Y-%m-%d %H:%M:%S.%f%z")
+                for ind, tmp_data in enumerate(all_rows):
+                    if len(tmp_data[2].split(' ')) == 4:
+                        saved_cd_time = int(tmp_data[2].split(' ')[0]) * 24 * 60 * 60
+                        saved_cd_time += int(tmp_data[2].split(' ')[2][:-1]) * 60 * 60
+                        saved_cd_time += int(tmp_data[2].split(' ')[3][:-3]) * 60
+                    elif len(tmp_data[2].split(' ')) == 2:
+                        saved_cd_time = int(tmp_data[2].split(' ')[0][:-1]) * 60 * 60
+                        saved_cd_time += int(tmp_data[2].split(' ')[1][:-3]) * 60
+                    elif len(tmp_data[2].split(' ')) == 1:
+                        saved_cd_time = int(tmp_data[2].split(' ')[0][:-3]) * 60
+                    else:
+                        saved_cd_time = 0
+                    cur_t = saved_cd_time - time_since_last_update.total_seconds()
+
+                    if cur_t > 0:
+                        d = int(cur_t // (60 * 60 * 24))
+                        h = int((cur_t-(d * (60 * 60 * 24))) // (60 * 60))
+                        m = int((cur_t-(d * (60 * 60 * 24) + h * (60 * 60))) // 60)
+                        if d:
+                            if tmp_data[8] != last_update:
+                                pass
+                            elif ind <= 4:
+                                general_tournament_info_str += f"{ind+1}. [**{tmp_data[1]}**]({tmp_data[6]}) in {d} days {h}h {m}min\n"
+                            elif 5 <= ind <= 9:
+                                amateur_tournament_info_str += f"{ind-4}. [**{tmp_data[1]}**]({tmp_data[6]}) in {d} days {h}h {m}min\n"
+                        elif h:
+                            if tmp_data[8] != last_update:
+                                pass
+                            elif ind <= 4:
+                                general_tournament_info_str += f"{ind+1}. [**{tmp_data[1]}**]({tmp_data[6]}) in {h}h {m}min\n"
+                            elif 5 <= ind <= 9:
+                                amateur_tournament_info_str += f"{ind-4}. [**{tmp_data[1]}**]({tmp_data[6]}) in {h}h {m}min\n"
+                        else:
+                            if tmp_data[8] != last_update:
+                                pass
+                            elif ind <= 4:
+                                general_tournament_info_str += f"{ind+1}. [**{tmp_data[1]}**]({tmp_data[6]}) in {m}min\n"
+                            elif 5 <= ind <= 9:
+                                amateur_tournament_info_str += f"{ind-4}. [**{tmp_data[1]}**]({tmp_data[6]}) in {m}min\n"
+
+                em = discord.Embed(title="Upcoming Events",
+                                   colour=discord.Colour(int(random.randint(0, 16777215))),
+                                   description=f"Last Update at {last_update}")
+                em.add_field(name="Open Tournaments", value=general_tournament_info_str, inline=True)
+                em.add_field(name="Amateur Tournaments", value=amateur_tournament_info_str, inline=True)
+                em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
+                              icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+
+                await ctx.send(embed=em)
             except Exception as e:
                 log.debug(f'sc2events module command "upcoming" - {e}')
-            gVal = ""
-            aVal = ""
-            tmp_time = datetime.now(tz=pytz.utc) - datetime.strptime(lUpdate[:-3]+"00", "%Y-%m-%d %H:%M:%S.%f%z")
-            for ind in range(10):
-                if len(tmp_data[ind][2].split(' ')) == 4:
-                    tmp_t = int(tmp_data[ind][2].split(' ')[0]) * 24 * 60 * 60
-                    tmp_t += int(tmp_data[ind][2].split(' ')[2][:-1]) * 60 * 60
-                    tmp_t += int(tmp_data[ind][2].split(' ')[3][:-3]) * 60
-                elif len(tmp_data[ind][2].split(' ')) == 2:
-                    tmp_t = int(tmp_data[ind][2].split(' ')[0][:-1]) * 60 * 60
-                    tmp_t += int(tmp_data[ind][2].split(' ')[1][:-3]) * 60
-                elif len(tmp_data[ind][2].split(' ')) == 1:
-                    tmp_t = int(tmp_data[ind][2].split(' ')[0][:-3]) * 60
-                cur_t = tmp_t - tmp_time.total_seconds()
 
-                if cur_t > 0:
-                    d = int(cur_t // (60 * 60 * 24))
-                    h = int((cur_t-(d * (60 * 60 * 24))) // (60 * 60))
-                    m = int((cur_t-(d * (60 * 60 * 24) + h * (60 * 60))) // 60)
-                    if d:
-                        if tmp_data[ind][8] != lUpdate:
-                            pass
-                        elif ind <= 4:
-                            gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {d} days {h}h {m}min\n"
-                        elif 5 <= ind <= 9:
-                            aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {d} days {h}h {m}min\n"
-                    elif h:
-                        if tmp_data[ind][8] != lUpdate:
-                            pass
-                        elif ind <= 4:
-                            gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {h}h {m}min\n"
-                        elif 5 <= ind <= 9:
-                            aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {h}h {m}min\n"
-                    else:
-                        if tmp_data[ind][8] != lUpdate:
-                            pass
-                        elif ind <= 4:
-                            gVal += f"{ind+1}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {m}min\n"
-                        elif 5 <= ind <= 9:
-                            aVal += f"{ind-4}. [**{tmp_data[ind][1]}**]({tmp_data[ind][6]}) in {m}min\n"
-
-            em = discord.Embed(title="Upcoming Events",
-                               colour=discord.Colour(int(random.randint(0, 16777215))),
-                               description=f"Last Update at {lUpdate}")
-            em.add_field(name="Open Tournaments", value=gVal, inline=True)
-            em.add_field(name="Amateur Tournaments", value=aVal, inline=True)
-            em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
-                          icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
-
-            await ctx.send(embed=em)
-
-
-    async def decrypt_evmessage(self, evMsg, evData, evType, emBool):
+    @staticmethod
+    async def decrypt_event_message(event_msg, event_data, event_type, is_embed):
         key_words = [
             'name', 'region', 'server', 'league', 'prizepool',
             'hours', 'minutes', 'bracket', 'countdown', 'type'
@@ -102,211 +104,206 @@ class SC2OpenEvents():
         key_words_special = [
             'linebreak', 'newline', 'br'
         ]
-        hours = evData['cd'].seconds // (60 * 60)
-        mins = (evData['cd'].seconds-(hours * (60 * 60))) // 60
+        hours = event_data['cd'].seconds // (60 * 60)
+        mins = (event_data['cd'].seconds-(hours * (60 * 60))) // 60
         cd = f"{hours}h {mins}min"
 
-        evDataList = [
-            evData['name'], evData['region'], evData['server'],
-            evData['league'], evData['prize'], str(hours),
-            str(mins), f"<{evData['bracket']}>", str(cd), evType
+        event_data_list = [
+            event_data['name'], event_data['region'], event_data['server'],
+            event_data['league'], event_data['prize'], str(hours),
+            str(mins), f"<{event_data['bracket']}>", str(cd), event_type
         ]
-        evSpecialList = [
+        event_special_list = [
             '\n', '\n', '\n'
         ]
 
         for key_word_ind, key_word in enumerate(key_words):
-            if f"${key_word}$" in evMsg:
-                evMsg = evMsg.replace(f"${key_word}$", evDataList[key_word_ind])
-            if not f"$" in evMsg:
+            if f"${key_word}$" in event_msg:
+                event_msg = event_msg.replace(f"${key_word}$", event_data_list[key_word_ind])
+            if f"$" not in event_msg:
                 break
         for key_word_ind, key_word in enumerate(key_words_short):
-            if f"${key_word}$" in evMsg:
-                evMsg = evMsg.replace(f"${key_word}$", evDataList[key_word_ind])
-            if not f"$" in evMsg:
+            if f"${key_word}$" in event_msg:
+                event_msg = event_msg.replace(f"${key_word}$", event_data_list[key_word_ind])
+            if f"$" not in event_msg:
                 break
         for key_word_ind, key_word in enumerate(key_words_special):
-            if f"${key_word}$" in evMsg:
-                evMsg = evMsg.replace(f"${key_word}$", evSpecialList[key_word_ind])
-            if not f"$" in evMsg:
+            if f"${key_word}$" in event_msg:
+                event_msg = event_msg.replace(f"${key_word}$", event_special_list[key_word_ind])
+            if f"$" not in event_msg:
                 break
 
-        if not emBool:
-            evMsg = f"{evMsg}\n\nInformation provided by Liquipedia, licensed under CC BY-SA 3.0 | <https://liquipedia.net/>"
+        if not is_embed:
+            event_msg = f"{event_msg}\n\nInformation provided by Liquipedia, licensed under CC BY-SA 3.0 | <https://liquipedia.net/>"
 
-        return evMsg
+        return event_msg
 
-
-    async def del_old_events(self, msg, countdown):
+    @staticmethod
+    async def del_old_events(msg, countdown):
         try:
             await msg.delete()
             log.info(f'{msg.guild}, {msg.channel} - deleted {msg.embeds[0].title} - {countdown}')
         except Exception as e:
             log.error(f'{msg.guild}, {msg.channel} - MISSING PERMISSION - event deletion\n{e}')
 
-
-    async def send_event_update(self, oldMsg, msg, em):
+    @staticmethod
+    async def send_event_update(old_msg, msg, em):
         try:
-            await oldMsg.edit(content=msg, embed=em)
-            log.info(f'{oldMsg.guild}, {oldMsg.channel} - updated {em.title}')
+            await old_msg.edit(content=msg, embed=em)
+            log.info(f'{old_msg.guild}, {old_msg.channel} - updated {em.title}')
         except Exception as e:
-            log.error(f'{oldMsg.guild}, {oldMsg.channel} - MISSING PERMISSION - can not update {em.title}\n{e}')
+            log.error(f'{old_msg.guild}, {old_msg.channel} - MISSING PERMISSION - can not update {em.title}\n{e}')
 
-
-    async def send_event(self, msg, em, channel, evType):
+    @staticmethod
+    async def send_event(msg, em, channel):
         if channel.permissions_for(channel.guild.me).send_messages:
             await channel.send(msg, embed=em)
 
+    async def post_events(self, events_x, msgs, guild, channel, event_type):
+        all_event_counter = 0
+        posted_event_counter = 0
+        deleted_event_counter = 0
 
-    async def post_events(self, eventsX, msgs, guild, channel, evType):
-        aEvCount = 0
-        pEvCount = 0
-        dEvCount = 0
-
-        for eventXY in eventsX:
+        for event_xy in events_x:
             try:
-                if eventXY['cd']:
-                    countdown = (eventXY['cd'].days * 24) + (eventXY['cd'].seconds / (60 * 60))
+                if event_xy['cd']:
+                    countdown = (event_xy['cd'].days * 24) + (event_xy['cd'].seconds / (60 * 60))
                 else:
                     countdown = -1.0
                 p = True
                 for MsgsEv in msgs:
                     if MsgsEv.embeds:
-                        if eventXY['name'] == MsgsEv.embeds[0].title:
+                        if event_xy['name'] == MsgsEv.embeds[0].title:
                             p = False
-                            aEvCount += 1
-                            pEvCount += 1
-                            pMsg = MsgsEv
+                            all_event_counter += 1
+                            posted_event_counter += 1
+                            posted_msg = MsgsEv
                             break
-                    if any([eventXY['name'] in MsgsEv.content, eventXY['bracket'] in MsgsEv.content]):
+                    if any([event_xy['name'] in MsgsEv.content, event_xy['bracket'] in MsgsEv.content]):
                         p = False
-                        aEvCount += 1
-                        pEvCount += 1
-                        pMsg = MsgsEv
+                        all_event_counter += 1
+                        posted_event_counter += 1
+                        posted_msg = MsgsEv
                         break
                 if 0 < countdown < float(self.bot.CONFIG['sc2oe']['countdown']):
-                    aEvCount += 1
-                    evName = ''.join(eventXY['name'].split(' ')[:len(eventXY['name'].split(' '))-1]).lower()
+                    all_event_counter += 1
+                    event_name = ''.join(event_xy['name'].split(' ')[:len(event_xy['name'].split(' '))-1]).lower()
                     if guild[10] == 1:
-                        timeform = eventXY['date24']
+                        time_format = event_xy['date24']
                     elif guild[10] == 0:
-                        timeform = eventXY['date12']
+                        time_format = event_xy['date12']
                     else:
-                        timeform = ''
-                    if not timeform:
-                        timeform = '???'
-                    if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['colour']:
-                        try:
-                            em = discord.Embed(title=eventXY['name'],
-                                            colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
-                                            description=f"{timeform}")
-                        except:
-                            em = discord.Embed(title=eventXY['name'],
-                                            colour=discord.Colour(int(self.bot.evInf[evName]['colour'], 16)),
-                                            description="-")
-                    else:
-                        try:
-                            em = discord.Embed(title=eventXY['name'],
-                                            colour=discord.Colour(0x555555),
-                                            description=f"{timeform}")
-                        except:
-                            em = discord.Embed(title=eventXY['name'],
-                                            colour=discord.Colour(0x555555),
-                                            description="-")
-
-                    msg = await self.decrypt_evmessage(guild[11], eventXY, evType, channel.permissions_for(channel.guild.me).embed_links)
-                    evTypeEmText = f"{evType} Event"
-                    if evType == 'General':
-                        em.set_author(name=evTypeEmText, icon_url=self.ICN_GRN)
-                    elif evType == 'Amateur':
-                        if 'Master' in eventXY['league']:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_MST)
-                        elif 'Diamond' in eventXY['league']:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_DIA)
-                        elif 'Platinum' in eventXY['league']:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_PLT)
-                        elif 'Gold' in eventXY['league']:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_GLD)
-                        elif 'Silver' in eventXY['league']:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_SLV)
-                        elif 'Bronze' in eventXY['league']:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_BRN)
+                        time_format = ''
+                    if event_name in self.bot.ev_inf.keys() and self.bot.ev_inf[event_name]['colour']:
+                        if time_format:
+                            em = discord.Embed(title=event_xy['name'],
+                                               colour=discord.Colour(int(self.bot.ev_inf[event_name]['colour'], 16)),
+                                               description=f"{time_format}")
                         else:
-                            em.set_author(name=evTypeEmText, icon_url=self.ICN_ALT)
-                    elif evType == 'Team':
+                            em = discord.Embed(title=event_xy['name'],
+                                               colour=discord.Colour(int(self.bot.ev_inf[event_name]['colour'], 16)),
+                                               description="-")
+                    else:
+                        if time_format:
+                            em = discord.Embed(title=event_xy['name'],
+                                               colour=discord.Colour(0x555555),
+                                               description=f"{time_format}")
+                        else:
+                            em = discord.Embed(title=event_xy['name'],
+                                               colour=discord.Colour(0x555555),
+                                               description="-")
+
+                    msg = await self.decrypt_event_message(guild[11], event_xy, event_type, channel.permissions_for(channel.guild.me).embed_links)
+                    event_type_embed_txt = f"{event_type} Event"
+                    if event_type == 'General':
+                        em.set_author(name=event_type_embed_txt, icon_url=self.ICN_GRN)
+                    elif event_type == 'Amateur':
+                        if 'Master' in event_xy['league']:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_MST)
+                        elif 'Diamond' in event_xy['league']:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_DIA)
+                        elif 'Platinum' in event_xy['league']:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_PLT)
+                        elif 'Gold' in event_xy['league']:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_GLD)
+                        elif 'Silver' in event_xy['league']:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_SLV)
+                        elif 'Bronze' in event_xy['league']:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_BRN)
+                        else:
+                            em.set_author(name=event_type_embed_txt, icon_url=self.ICN_ALT)
+                    elif event_type == 'Team':
                         pass
 
-                    if evName in self.bot.evInf.keys() and self.bot.evInf[evName]['logo']:
-                        em.set_thumbnail(url=self.bot.evInf[evName]['logo'])
+                    if event_name in self.bot.ev_inf.keys() and self.bot.ev_inf[event_name]['logo']:
+                        em.set_thumbnail(url=self.bot.ev_inf[event_name]['logo'])
                     else:
-                        em.set_thumbnail(url=self.bot.evInf['other']['logo'])
+                        em.set_thumbnail(url=self.bot.ev_inf['other']['logo'])
 
-                    if evType == 'General' and eventXY['region']:
-                        em.add_field(name="Region", value=eventXY['region'], inline=True)
-                    elif evType == 'Amateur' and eventXY['league']:
-                        em.add_field(name="League", value=eventXY['league'], inline=True)
+                    if event_type == 'General' and event_xy['region']:
+                        em.add_field(name="Region", value=event_xy['region'], inline=True)
+                    elif event_type == 'Amateur' and event_xy['league']:
+                        em.add_field(name="League", value=event_xy['league'], inline=True)
 
-                    if eventXY['server']:
-                        em.add_field(name="Server", value=eventXY['server'], inline=True)
-                    if eventXY['prize']:
-                        em.add_field(name="Prizepool", value=eventXY['prize'], inline=False)
+                    if event_xy['server']:
+                        em.add_field(name="Server", value=event_xy['server'], inline=True)
+                    if event_xy['prize']:
+                        em.add_field(name="Prizepool", value=event_xy['prize'], inline=False)
 
-                    cfVal = ''
-                    if eventXY['matLink']:
-                        cfVal = f"[Matcherino]({eventXY['matLink']})"
-                        if (any(char.isdigit() for char in eventXY['matCode']) == False
-                                and eventXY['matCode'] == ''
-                                and evName in self.bot.evInf.keys()):
-                            codeNr = eventXY['name'].split(' ')[-1].replace("#", "").replace(".", "")
-                            eventXY['matCode'] = self.bot.evInf[evName]['code'].replace("$", str(codeNr))
-                        if eventXY['matCode']:
-                            cfVal += f" - free $1 code `{eventXY['matCode']}`"
-                    if evName in self.bot.evInf.keys():
-                        if self.bot.evInf[evName]['patreon']:
-                            if cfVal:
-                                cfVal += f"\n[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
+                    crowdfunding_str = ''
+                    if event_xy['matLink']:
+                        crowdfunding_str = f"[Matcherino]({event_xy['matLink']})"
+                        if (any(char.isdigit() for char in event_xy['matCode']) is False
+                                and event_xy['matCode'] == ''
+                                and event_name in self.bot.ev_inf.keys()):
+                            code_num = event_xy['name'].split(' ')[-1].replace("#", "").replace(".", "")
+                            event_xy['matCode'] = self.bot.ev_inf[event_name]['code'].replace("$", str(code_num))
+                        if event_xy['matCode']:
+                            crowdfunding_str += f" - free $1 code `{event_xy['matCode']}`"
+                    if event_name in self.bot.ev_inf.keys():
+                        if self.bot.ev_inf[event_name]['patreon']:
+                            if crowdfunding_str:
+                                crowdfunding_str += f"\n[Patreon]({self.bot.ev_inf[event_name]['patreon']}) - contribute to increase the prize pool"
                             else:
-                                cfVal = f"[Patreon]({self.bot.evInf[evName]['patreon']}) - contribute to increase the prize pool"
-                    if cfVal:
-                        em.add_field(name="Crowdfunding", value=cfVal, inline=False)
+                                crowdfunding_str = f"[Patreon]({self.bot.ev_inf[event_name]['patreon']}) - contribute to increase the prize pool"
+                    if crowdfunding_str:
+                        em.add_field(name="Crowdfunding", value=crowdfunding_str, inline=False)
 
-                    if eventXY['bracket']:
-                        em.add_field(name='▬▬▬▬▬▬▬', value=f"[**SIGN UP HERE**]({eventXY['bracket']})", inline=False)
+                    if event_xy['bracket']:
+                        em.add_field(name='▬▬▬▬▬▬▬', value=f"[**SIGN UP HERE**]({event_xy['bracket']})", inline=False)
                     em.set_footer(text="Information provided by Liquipedia, licensed under CC BY-SA 3.0 | https://liquipedia.net/",
-                                icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
+                                  icon_url='https://avatars2.githubusercontent.com/u/36424912?s=60&v=4')
 
                     if p:
                         data = guild[9]
                         if data:
                             data_list = data.split('$')
                             if len(data_list) == 1 and data_list[0] == '*':
-                                await self.send_event(msg, em, channel, evType)
+                                await self.send_event(msg, em, channel)
                             elif len(data_list) > 1:
                                 for eventsItem in data_list[1:]:
-                                    if eventsItem in eventXY['name']:
-                                        await self.send_event(msg, em, channel, evType)
+                                    if eventsItem in event_xy['name']:
+                                        await self.send_event(msg, em, channel)
                             else:
                                 pass
                     elif not p:
-                        await self.send_event_update(pMsg, msg, em)
+                        await self.send_event_update(posted_msg, msg, em)
 
                 elif (-float(self.bot.CONFIG['sc2oe']['deleteDelay']) <= countdown <= 0) and not p:
-                    msg = f'{evType} event has started.'
-                    await self.send_event_update(pMsg, msg, pMsg.embeds[0])
+                    msg = f'{event_type} event has started.'
+                    await self.send_event_update(posted_msg, msg, posted_msg.embeds[0])
 
                 elif (countdown < -float(self.bot.CONFIG['sc2oe']['deleteDelay'])) and not p:
-                    dEvCount += 1
-                    await self.del_old_events(pMsg, countdown)
+                    deleted_event_counter += 1
+                    await self.del_old_events(posted_msg, countdown)
 
             except Exception as e:
-                    exc = f'{type(e).__name__}: {e}'
-                    print(evType + ' failed to update.')
-                    log.error(f'Failed to update {evType} - {exc}')
+                    exc = f"{type(e).__name__}: {e}"
+                    print(event_type + ' failed to update.')
+                    log.error(f'Failed to update {event_type} - {exc}')
+        log.info(f"{posted_event_counter} / {all_event_counter}  {event_type} events already posted and {deleted_event_counter} got deleted in {channel.guild.name}")
 
-        log.info(f'{pEvCount} / {aEvCount}  {evType} events already posted and {dEvCount} got deleted in {channel.guild.name}')
-
-
-    async def fetch_texts(self, eventTypes):
+    async def fetch_texts(self, event_types):
         # Use a custom HTTP "User-Agent" header in your requests that identifies your project / use of the API, and includes contact information.
         _URL = 'https://liquipedia.net/starcraft2/api.php'
         headers = {'User-Agent': f'{self.bot.FULL_NAME}/v{self.bot.VERSION} ({self.bot.GITHUB}; {self.bot.MAIL})',
@@ -320,19 +317,17 @@ class SC2OpenEvents():
             'prop': 'revisions',
             'rvprop': 'content',
         }
-
-        evText = dict()
+        event_text = dict()
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(_URL, params=params) as response:
                 json_body = await response.json()
-                for ind, evType in enumerate(eventTypes):
-                    evText[evType] = json_body['query']['pages'][ind]['revisions'][0]['content']
-        return evText
-
+                for ind, event_type in enumerate(event_types):
+                    event_text[event_type] = json_body['query']['pages'][ind]['revisions'][0]['content']
+        return event_text
 
     async def check_all_events(self):
-        eventTypes = ['General', 'Amateur', 'Team']
-        txts = await self.fetch_texts(eventTypes)
+        event_types = ['General', 'Amateur', 'Team']
+        txts = await self.fetch_texts(event_types)
         events = kuevstv2.steal(txts)
         log.info(f'Fetched {len(events[0])} general, {len(events[1])} amateur and {len(events[2])} team events')
 
@@ -343,8 +338,8 @@ class SC2OpenEvents():
             await cursor.close()
         for guild in guilds:
             msgs = []
-            for ind, evType in enumerate(eventTypes[:-1]):
-                log.info(f'Processing {evType} Events in {guild[1]}')
+            for ind, event_type in enumerate(event_types[:-1]):
+                log.info(f'Processing {event_type} Events in {guild[1]}')
                 if guild[2*ind+2] != -1:
                     channel = self.bot.get_channel(guild[2*ind+2])
                     if channel.permissions_for(channel.guild.me).read_messages:
@@ -353,42 +348,42 @@ class SC2OpenEvents():
                                 msgs.append(message)
                     else:
                         return
-                    await self.post_events(events[ind], msgs, guild, channel, evType)
+                    await self.post_events(events[ind], msgs, guild, channel, event_type)
 
-        lupd = f"{datetime.now(tz=pytz.utc)}"
+        updated_at = f"{datetime.now(tz=pytz.utc)}"
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
-            for ind, evType in enumerate(eventTypes[:-1]):
+            for ind, event_type in enumerate(event_types[:-1]):
                 sorted_events = sorted(events[ind], key=lambda k: k['cd'])
-                sorted_events_stripped = list()
-                for sorted_event in sorted_events:
-                    if int(sorted_event['cd'].days) >= 0:
-                        sorted_events_stripped.append(sorted_event)
-                eventNum = min(5, len(sorted_events_stripped))
-                for ind2, sorted_event in enumerate(sorted_events_stripped[:eventNum]):
-                    cd_h = sorted_event['cd'].seconds // (60 * 60)
-                    cd_m = (sorted_event['cd'].seconds-(cd_h * (60 * 60))) // 60
-                    if sorted_event['cd'].days:
-                        cd = f"{sorted_event['cd'].days} days {cd_h}h {cd_m}min"
-                    elif cd_h:
-                        cd = f"{cd_h}h {cd_m}min"
+                events_stripped = list()
+                for event in sorted_events:
+                    if int(event['cd'].days) >= 0:
+                        events_stripped.append(event)
+                event_num = min(5, len(events_stripped))
+                for ind2, event in enumerate(events_stripped[:event_num]):
+                    countdown_hours = event['cd'].seconds // (60 * 60)
+                    countdown_mins = (event['cd'].seconds-(countdown_hours * (60 * 60))) // 60
+                    if event['cd'].days:
+                        cd = f"{event['cd'].days} days {countdown_hours}h {countdown_mins}min"
+                    elif countdown_hours:
+                        cd = f"{countdown_hours}h {countdown_mins}min"
                     else:
-                        cd = f"{cd_m}min"
+                        cd = f"{countdown_mins}min"
                     try:
                         sql = "UPDATE events SET name = ?, cd = ?, region = ?, server = ?, prizepool = ?, bracket = ?, type = ?, lastupdate = ? WHERE id = ?;"
-                        await db.execute(sql, (sorted_event['name'], cd, sorted_event['region'], sorted_event['server'], sorted_event['prize'], sorted_event['bracket'], evType, lupd, ind*5+ind2,))
-                    except:
+                        await db.execute(sql, (event['name'], cd, event['region'], event['server'], event['prize'], event['bracket'], event_type, updated_at, ind*5+ind2,))
+                    except Exception as e:
                         await db.rollback()
+                        log.error(f"{type(e).__name__}: {e}")
                     finally:
                         await db.commit()
 
-
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
-        self.bot.evInf = toml.load(self.bot.SC2DAT_PATH + self.bot.EVTINF_FILE)
+        self.bot.ev_inf = toml.load(self.bot.SC2DAT_PATH + self.bot.EVT_INF_FILE)
         while True:
             await self.check_all_events()
-            nextUpdateTime = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.bot.CONFIG['sc2oe']['sleepDelay']))
-            log.info(f'Next event check at {nextUpdateTime:%b %d, %H:%M (%Z)}')
+            next_update_time = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.bot.CONFIG['sc2oe']['sleepDelay']))
+            log.info(f"Next event check at {next_update_time:%b %d, %H:%M (%Z)}")
             await asyncio.sleep(float(self.bot.CONFIG['sc2oe']['sleepDelay']) * 60)
 
 

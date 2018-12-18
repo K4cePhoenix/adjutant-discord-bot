@@ -28,11 +28,10 @@ class Adjutant(commands.Bot):
                          pm_help=None,
                          status=discord.Status.dnd,
                          activity=discord.Game(name="Restarting..."),
-                         case_insensitive=True)
+                         case_insensitive=True
+                         )
 
-        CONF_PATH = './data/bot/'
-        CONF_NAME = 'conf.toml'
-        self.CONFIG = toml.load(CONF_PATH+CONF_NAME)
+        self.CONFIG = toml.load("./data/bot/conf.toml")
 
         self.MAIL = self.CONFIG['owner']['mail']
         self.FULL_NAME = self.CONFIG['bot']['fname']
@@ -40,13 +39,12 @@ class Adjutant(commands.Bot):
         self.VERSION = self.CONFIG['bot']['version']
         self.START_TIME = datetime.now(tz=pytz.utc)
         self.SC2DAT_PATH = './data/sc2oe/'
-        self.EVTINF_FILE = 'evInf.toml'
+        self.EVT_INF_FILE = 'ev_inf.toml'
 
         if os.path.isdir(self.SC2DAT_PATH) is False:
             os.makedirs(self.SC2DAT_PATH)
-        if os.path.isfile(self.SC2DAT_PATH + self.EVTINF_FILE) is False:
-            open(self.SC2DAT_PATH+self.EVTINF_FILE, 'a').close()
-        self.evInf = toml.load(self.SC2DAT_PATH + self.EVTINF_FILE)
+        if os.path.isfile(self.SC2DAT_PATH + self.EVT_INF_FILE) is False:
+            open(self.SC2DAT_PATH + self.EVT_INF_FILE, 'a').close()
 
         async def _init_aiosqlite():
             async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
@@ -74,7 +72,6 @@ class Adjutant(commands.Bot):
                     exc = f'{type(e).__name__}: {e}'
                     print(name + ' failed to load.')
                     self.log.error(f'Failed to load extension {name} - {exc}')
-
 
     async def on_ready(self):
         guilds = len(self.guilds)
@@ -108,30 +105,26 @@ class Adjutant(commands.Bot):
                             await db.commit()
         await chan.send("Adjutant set and ready to go!")
 
-
     async def on_message(self, msg):
         if not msg.author.bot:
             await self.process_commands(msg)
 
-
     async def on_command(self, ctx):
         message = ctx.message
-        destination = None
         if isinstance(ctx.channel, discord.abc.GuildChannel):
             destination = 'Private Message'
         else:
             destination = f'#{message.channel.name} ({message.guild.name})'
         self.log.info(f'{message.created_at}: {message.author.name} in {destination}: {message.content}')
 
-
     async def on_guild_join(self, guild):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
                 await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$evtype$ Event starting in $hours$h $minutes$min', ))
-            except:
+            except Exception as e:
                 await db.rollback()
-                self.log.error("on_guild_join: Couldn't save server info.")
+                self.log.error(f"{type(e).__name__}: {e}")
             finally:
                 await db.commit()
         chan = self.get_channel(477110208225738752)
@@ -144,15 +137,14 @@ class Adjutant(commands.Bot):
         await chan.send(embed=embed)
         self.log.info(f"Joined the {guild.name} guild")
 
-
     async def on_guild_remove(self, guild):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 sql = f"DELETE FROM guilds WHERE id = ?;"
                 await db.execute(sql, (guild.id,))
-            except:
+            except Exception as e:
                 await db.rollback()
-                self.log.error("on_guild_remove: Couldn't save server info.")
+                self.log.error(f"{type(e).__name__}: {e}")
             finally:
                 await db.commit()
         chan = self.get_channel(477110208225738752)
@@ -166,13 +158,6 @@ class Adjutant(commands.Bot):
         self.log.info(f"Left the {guild.name} guild")
 
 
-bot = Adjutant()
-CONF_PATH = './data/bot/'
-CONF_NAME = 'conf.toml'
-if os.path.isdir(CONF_PATH) is False:
-    print(f'Could not find folder {CONF_PATH}')
-elif os.path.isfile(CONF_PATH+CONF_NAME) is False:
-    print(f'Could not find config file in {CONF_PATH}')
-else:
-    config = toml.load(CONF_PATH+CONF_NAME)
-bot.run(config['bot']['token'])
+agent = Adjutant()
+config = toml.load('./data/bot/conf.toml')
+agent.run(config['bot']['token'])

@@ -8,12 +8,12 @@ from .utils import permissions as perms
 log = logging.getLogger(__name__)
 
 
-class Settings():
+class Settings:
     def __init__(self, bot):
         self.bot = bot
 
-
-    async def _get_db_entry(self, sql, val):
+    @staticmethod
+    async def _get_db_entry(sql, val):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 cursor = await db.execute(sql, val)
@@ -24,29 +24,28 @@ class Settings():
                 log.debug(f'rss module _get_db_entry - {e}')
                 return None
 
-
-    async def _set_db_entry(self, sql, val):
+    @staticmethod
+    async def _set_db_entry(sql, val):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
                 await db.execute(sql, val)
                 ret = True
-            except:
+            except Exception as e:
                 await db.rollback()
                 ret = False
+                log.error(f"{type(e).__name__}: {e}")
             finally:
                 await db.commit()
                 return ret
 
-
     @commands.group(name='set')
     async def _settings(self, ctx):
         """ Change a setting """
-        if perms._check(ctx, 3):
+        if perms.check(ctx, 3):
             pass
         else:
             await ctx.send('You have no permissions to execute this command.')
             raise PermissionError()
-
 
     @_settings.command(name='general', aliases=['open'])
     async def _settings_general(self, ctx, *, t: str):
@@ -72,7 +71,6 @@ class Settings():
             await ctx.message.add_reaction('☑')
         else:
             await ctx.message.add_reaction('❌')
-
 
     @_settings.command(name='amateur')
     async def _settings_amateur(self, ctx, *, t: str):
@@ -106,16 +104,15 @@ class Settings():
         """ Set the channel name for team events """
         pass
 
-
     @_settings.command(name='timeformat', aliases=['time', 'tf'])
     async def _settings_timeformat(self, ctx, *, t: int):
         """ Set the timeformat (24h- or 12ham/pm-format) """
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
-                if 12 == t:
-                    tmp = 0
-                elif 24 == t:
+                if t == 24:
                     tmp = 1
+                else:
+                    tmp = 0
                 sql = "UPDATE guilds SET tf = ? WHERE id = ?;"
                 await db.execute(sql, (tmp, ctx.guild.id,))
                 if tmp:
@@ -127,7 +124,6 @@ class Settings():
                 await ctx.channel.send('**ERROR**: Could not change time format. Can only set time format to `12` or `24`')
             finally:
                 await db.commit()
-
 
     @_settings.command(name='message', aliases=['msg'])
     async def _settings_message(self, ctx, *, t: str):
@@ -142,7 +138,7 @@ class Settings():
 
     @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
-        if perms._check(ctx, 3):
+        if perms.check(ctx, 3):
             if _type == "reset":
                 sql = "UPDATE guilds SET events = ? WHERE id = ?"
                 ret = await self._set_db_entry(sql, ("*", ctx.guild.id,))
@@ -150,7 +146,7 @@ class Settings():
                 sql = "SELECT events FROM guilds WHERE id = ?"
                 data = await self._get_db_entry(sql, (ctx.guild.id,))
                 if data and t:
-                    if not "$" in t:
+                    if "$" not in t:
                         data_list = data.split('$')
                         data_list.append(t)
                         sql = "UPDATE guilds SET events = ? WHERE id = ?"
@@ -159,7 +155,7 @@ class Settings():
                 sql = "SELECT events FROM guilds WHERE id = ?"
                 data = await self._get_db_entry(sql, (ctx.guild.id,))
                 if data and t:
-                    if not "$" in t:
+                    if "$" not in t:
                         data_list = data.split('$')
                         for ind, item in enumerate(data_list):
                             if item == t:
@@ -186,7 +182,7 @@ class Settings():
 
     @commands.command(name='listchannels', aliases=['list', 'lc'])
     async def _list_channels(self, ctx):
-        if perms._check(ctx, 2):
+        if perms.check(ctx, 2):
             async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
                 sql = f"SELECT * FROM guilds WHERE id = ?;"
                 cursor = await db.execute(sql, (ctx.guild.id,))

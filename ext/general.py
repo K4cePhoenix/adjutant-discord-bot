@@ -12,17 +12,17 @@ from .utils import permissions as perms
 log = logging.getLogger('adjutant.general')
 
 
-class General():
+class General:
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name='ping')
     async def _ping(self, ctx):
         """ Check the bot latency. """
-        pingtime = time.time()
+        time0 = time.time()
         embed = discord.Embed(title="Pinging...", colour=0xFF0000)
         msg = await ctx.send(embed=embed)
-        ping = time.time() - pingtime
+        ping = time.time() - time0
         em = discord.Embed(title='Pong!', description=f'Response latency: {1000.*ping:.2f}ms\nWebSocket latency: {1000.*self.bot.latency:.2f}ms', colour=0x00FF00)
         await msg.edit(embed=em)
 
@@ -33,7 +33,9 @@ class General():
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.set_footer(text="By Phoenix#2694", icon_url="https://avatars2.githubusercontent.com/u/36424912?s=60&v=4")
         embed.add_field(name="Commands", value="See a list of all commands [here](https://k4cephoenix.github.io/#commands).", inline=False)
-        embed.add_field(name="Invite", value=f"Invite Adjutant to your server [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).", inline=False)
+        embed.add_field(name="Invite",
+                        value=f"Invite Adjutant to your server [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).",
+                        inline=False)
         embed.add_field(name="Server", value="Join Adjutants support server [here](https://discordapp.com/invite/nfa9jnu).", inline=False)
         embed.add_field(name="More Information", value="Find more information using the `info` command.", inline=False)
         await ctx.send(embed=embed)
@@ -46,9 +48,12 @@ class General():
         embed.set_footer(text="By Phoenix#2694", icon_url="https://avatars2.githubusercontent.com/u/36424912?s=60&v=4")
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         try:
-            embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nShards: **{len(self.bot.shards)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
+            datetime_now = datetime.now(tz=pytz.utc)-self.bot.START_TIME
+            embed.add_field(name="Statistics: ",
+                            value=f"Servers: **{len(self.bot.guilds)}**\nShards: **{len(self.bot.shards)}**\nUsers: **{users}**\nUptime: **{str(datetime_now).split('.')[0]}**")
         except:
-            embed.add_field(name="Statistics: ", value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
+            embed.add_field(name="Statistics: ",
+                            value=f"Servers: **{len(self.bot.guilds)}**\nUsers: **{users}**\nUptime: **{str(datetime.now(tz=pytz.utc)-self.bot.START_TIME).split('.')[0]}**")
         embed.add_field(name="Version: ", value=f"Adjutant: **{self.bot.VERSION}**\ndiscord.py: **{discord.__version__}**\nPython: **{platform.python_version()}**")
         embed.add_field(name="Other: ", value="Website: https://k4cephoenix.github.io/\nDiscord: https://discord.gg/nfa9jnu")
         await ctx.send(embed=embed)
@@ -61,21 +66,21 @@ class General():
         for r in user.roles:
             if "everyone" not in r.name:
                 roles.append(r.name)
-        userRoles = "\n".join(roles)
+        user_roles = "\n".join(roles)
         embed = discord.Embed(color=user.color, description=f"Here's some information about {user.name}!")
-        if perms._check(ctx, 5):
+        if perms.check(ctx, 5):
             embed.title = f"{user} 🐦"
             tmp_lvl = f"Level 5"
-        elif perms._check(ctx, 4):
+        elif perms.check(ctx, 4):
             embed.title = f"{user} 🦆"
             tmp_lvl = f"Level 4"
-        elif perms._check(ctx, 3):
+        elif perms.check(ctx, 3):
             embed.title = f"{user} 🐧"
             tmp_lvl = f"Level 3"
-        elif perms._check(ctx, 2):
+        elif perms.check(ctx, 2):
             embed.title = f"{user} 🐔"
             tmp_lvl = f"Level 2"
-        elif perms._check(ctx, 1):
+        elif perms.check(ctx, 1):
             embed.title = f"{user} 🐣"
             tmp_lvl = f"Level 1"
         else:
@@ -87,7 +92,7 @@ class General():
         embed.add_field(name="ID", value=str(user.id), inline=True)
         embed.add_field(name="Permissions", value=tmp_lvl, inline=True)
         if len(user.roles) > 1:
-            embed.add_field(name="Roles", value=userRoles, inline=True)
+            embed.add_field(name="Roles", value=user_roles, inline=True)
         embed.add_field(name="Date of Account Creation", value=user.created_at.strftime('%Y/%m/%d'), inline=True)
         await ctx.send(embed=embed)
 
@@ -100,7 +105,8 @@ class General():
     @commands.command(name='invite')
     async def _invite(self, ctx):
         """ Link to add Adjutant to a guild. """
-        embed = discord.Embed(title="Invite me!", description=f"You can invite me [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).")
+        embed = discord.Embed(title="Invite me!",
+                              description=f"You can invite me [here](https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=85056).")
         await ctx.send(embed=embed)
 
 
