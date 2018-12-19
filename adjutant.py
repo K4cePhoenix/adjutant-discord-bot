@@ -38,13 +38,6 @@ class Adjutant(commands.Bot):
         self.GITHUB = self.CONFIG['bot']['github']
         self.VERSION = self.CONFIG['bot']['version']
         self.START_TIME = datetime.now(tz=pytz.utc)
-        self.SC2DAT_PATH = './data/sc2oe/'
-        self.EVT_INF_FILE = 'ev_inf.toml'
-
-        if os.path.isdir(self.SC2DAT_PATH) is False:
-            os.makedirs(self.SC2DAT_PATH)
-        if os.path.isfile(self.SC2DAT_PATH + self.EVT_INF_FILE) is False:
-            open(self.SC2DAT_PATH + self.EVT_INF_FILE, 'a').close()
 
         async def _init_aiosqlite():
             async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
@@ -94,7 +87,7 @@ class Adjutant(commands.Bot):
                     cursor = await db.execute(sql, (guild.id,))
                     guilds = await cursor.fetchall()
                     await cursor.close()
-                    if len(guilds) == 0:
+                    if not guilds:
                         try:
                             sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
                             await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$evtype$ Event starting in $hours$h $minutes$min', ))

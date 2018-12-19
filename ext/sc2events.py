@@ -7,7 +7,6 @@ import discord
 import logging
 import pytz
 import random
-import toml
 
 from .utils import kuevstv2
 
@@ -26,6 +25,7 @@ class SC2OpenEvents:
         self.ICN_SLV = "https://i.imgur.com/CS3hGFX.png"
         self.ICN_BRN = "https://i.imgur.com/47tb6qR.png"
         self.ICN_ALT = "https://i.imgur.com/HlsskVP.png"
+        self.LOGO_OTHER = "https://i.imgur.com/GJbwa0d.png"
 
     @commands.command(name='upcoming', aliases=['next'])
     async def _upcoming(self, ctx):
@@ -194,14 +194,14 @@ class SC2OpenEvents:
                         time_format = event_xy['date12']
                     else:
                         time_format = ''
-                    if event_name in self.bot.ev_inf.keys() and self.bot.ev_inf[event_name]['colour']:
+                    if event_name in self.event_info.keys() and self.event_info[event_name]['colour']:
                         if time_format:
                             em = discord.Embed(title=event_xy['name'],
-                                               colour=discord.Colour(int(self.bot.ev_inf[event_name]['colour'], 16)),
+                                               colour=discord.Colour(int(self.event_info[event_name]['colour'], 16)),
                                                description=f"{time_format}")
                         else:
                             em = discord.Embed(title=event_xy['name'],
-                                               colour=discord.Colour(int(self.bot.ev_inf[event_name]['colour'], 16)),
+                                               colour=discord.Colour(int(self.event_info[event_name]['colour'], 16)),
                                                description="-")
                     else:
                         if time_format:
@@ -235,10 +235,10 @@ class SC2OpenEvents:
                     elif event_type == 'Team':
                         pass
 
-                    if event_name in self.bot.ev_inf.keys() and self.bot.ev_inf[event_name]['logo']:
-                        em.set_thumbnail(url=self.bot.ev_inf[event_name]['logo'])
+                    if event_name in self.event_info.keys() and self.event_info[event_name]['logo']:
+                        em.set_thumbnail(url=self.event_info[event_name]['logo'])
                     else:
-                        em.set_thumbnail(url=self.bot.ev_inf['other']['logo'])
+                        em.set_thumbnail(url=self.LOGO_OTHER)
 
                     if event_type == 'General' and event_xy['region']:
                         em.add_field(name="Region", value=event_xy['region'], inline=True)
@@ -255,17 +255,17 @@ class SC2OpenEvents:
                         crowdfunding_str = f"[Matcherino]({event_xy['matLink']})"
                         if (any(char.isdigit() for char in event_xy['matCode']) is False
                                 and event_xy['matCode'] == ''
-                                and event_name in self.bot.ev_inf.keys()):
+                                and event_name in self.event_info.keys()):
                             code_num = event_xy['name'].split(' ')[-1].replace("#", "").replace(".", "")
-                            event_xy['matCode'] = self.bot.ev_inf[event_name]['code'].replace("$", str(code_num))
+                            event_xy['matCode'] = self.event_info[event_name]['code'].replace("$", str(code_num))
                         if event_xy['matCode']:
                             crowdfunding_str += f" - free $1 code `{event_xy['matCode']}`"
-                    if event_name in self.bot.ev_inf.keys():
-                        if self.bot.ev_inf[event_name]['patreon']:
+                    if event_name in self.event_info.keys():
+                        if self.event_info[event_name]['patreon']:
                             if crowdfunding_str:
-                                crowdfunding_str += f"\n[Patreon]({self.bot.ev_inf[event_name]['patreon']}) - contribute to increase the prize pool"
+                                crowdfunding_str += f"\n[Patreon]({self.event_info[event_name]['patreon']}) - contribute to increase the prize pool"
                             else:
-                                crowdfunding_str = f"[Patreon]({self.bot.ev_inf[event_name]['patreon']}) - contribute to increase the prize pool"
+                                crowdfunding_str = f"[Patreon]({self.event_info[event_name]['patreon']}) - contribute to increase the prize pool"
                     if crowdfunding_str:
                         em.add_field(name="Crowdfunding", value=crowdfunding_str, inline=False)
 
@@ -379,7 +379,23 @@ class SC2OpenEvents:
 
     async def check_events_in_background(self):
         await self.bot.wait_until_ready()
-        self.bot.ev_inf = toml.load(self.bot.SC2DAT_PATH + self.bot.EVT_INF_FILE)
+        async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            sql = "SELECT * FROM isocup_info"
+            cursor = await db.execute(sql)
+            isocup_info_list = await cursor.fetchall()
+            await cursor.close()
+        self.event_info = dict()
+        for isocup in isocup_info_list:
+            tmp_dict = {
+                'name': isocup[1],
+                'code': isocup[2],
+                'org': isocup[3],
+                'logo': isocup[4],
+                'patreon': isocup[5],
+                'colour': isocup[6]
+            }
+            ev_inf_name = ''.join(isocup[1].split(' ')).lower()
+            self.event_info[ev_inf_name] = tmp_dict
         while True:
             await self.check_all_events()
             next_update_time = datetime.now(tz=pytz.utc) + timedelta(minutes=float(self.bot.CONFIG['sc2oe']['sleepDelay']))
