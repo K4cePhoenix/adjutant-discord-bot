@@ -165,6 +165,7 @@ class SC2OpenEvents:
         deleted_event_counter = 0
 
         for event_xy in events_x:
+            posted_msg = None
             try:
                 if event_xy['cd']:
                     countdown = (event_xy['cd'].days * 24) + (event_xy['cd'].seconds / (60 * 60))

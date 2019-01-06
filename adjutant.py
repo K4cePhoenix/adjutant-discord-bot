@@ -79,7 +79,7 @@ class Adjutant(commands.Bot):
         self.log.info(f'\nYou are running {self.FULL_NAME}/v{self.VERSION} by Phoenix#2694')
         self.log.info(f'Ready at {datetime.now(tz=pytz.utc):%b %d, %H:%M (%Z)}')
         await self.change_presence(activity=discord.Activity(name='a> | b', type=discord.ActivityType.watching))
-        chan = self.get_channel(436581310379720705)
+        chan = self.get_channel(477110208225738752)
         for guild in self.guilds:
             if guild:
                 async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
@@ -89,8 +89,8 @@ class Adjutant(commands.Bot):
                     await cursor.close()
                     if not guilds:
                         try:
-                            sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                            await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$evtype$ Event starting in $hours$h $minutes$min', ))
+                            sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmsg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+                            await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$type$ Event starting in $hours$h $minutes$min', ))
                         except Exception as e:
                             await db.rollback()
                             await chan.send(f'```py\n{e.__class__.__name__}: {e}\n```')
@@ -113,8 +113,8 @@ class Adjutant(commands.Bot):
     async def on_guild_join(self, guild):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
-                sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$evtype$ Event starting in $hours$h $minutes$min', ))
+                sql = f"INSERT INTO guilds (id, name, gcid, gcname, acid, acname, fcid, fcname, fids, events, tf, evmsg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+                await db.execute(sql, (guild.id, guild.name, -1, '-', -1, '-', -1, '-', '', '*', 0, '$type$ Event starting in $hours$h $minutes$min', ))
             except Exception as e:
                 await db.rollback()
                 self.log.error(f"{type(e).__name__}: {e}")

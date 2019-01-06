@@ -27,12 +27,13 @@ class Settings:
     @staticmethod
     async def _set_db_entry(sql, val):
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
+            ret = False
             try:
-                await db.execute(sql, val)
                 ret = True
+                await db.execute(sql, val)
             except Exception as e:
-                await db.rollback()
                 ret = False
+                await db.rollback()
                 log.error(f"{type(e).__name__}: {e}")
             finally:
                 await db.commit()
@@ -60,6 +61,7 @@ class Settings:
             sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
             ret = await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
         else:
+            temp_name = None
             for channel in ctx.guild.channels:
                 if channel.name == t:
                     temp_name = self.bot.get_channel(channel.id)
@@ -67,6 +69,9 @@ class Settings:
             if temp_name:
                 sql = "UPDATE guilds SET gcid = ?, gcname = ? WHERE id = ?;"
                 ret = await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
+            else:
+                await ctx.send(f"Can't find a channel named `{t}`")
+                return
         if ret:
             await ctx.message.add_reaction('☑')
         else:
@@ -85,6 +90,7 @@ class Settings:
             sql = "UPDATE guilds SET acid = ?, acname = ? WHERE id = ?;"
             ret = await self._set_db_entry(sql, (t[2:-1], temp_name.name, ctx.guild.id,))
         else:
+            temp_name = None
             for channel in ctx.guild.channels:
                 if channel.name == t:
                     temp_name = self.bot.get_channel(channel.id)
@@ -94,6 +100,7 @@ class Settings:
                 ret = await self._set_db_entry(sql, (temp_name.id, temp_name.name, ctx.guild.id,))
             else:
                 await ctx.send(f"Can't find a channel named `{t}`")
+                return
         if ret:
             await ctx.message.add_reaction('☑')
         else:
@@ -107,21 +114,25 @@ class Settings:
     @_settings.command(name='timeformat', aliases=['time', 'tf'])
     async def _settings_timeformat(self, ctx, *, t: int):
         """ Set the timeformat (24h- or 12ham/pm-format) """
+        if t == 24:
+            tmp = 1
+        elif t == 12:
+            tmp = 0
+        else:
+            await ctx.channel.send('Time format can only be changed to 12 or 24')
+            return
         async with aiosqlite.connect('./data/db/adjutant.sqlite3') as db:
             try:
-                if t == 24:
-                    tmp = 1
-                else:
-                    tmp = 0
                 sql = "UPDATE guilds SET tf = ? WHERE id = ?;"
                 await db.execute(sql, (tmp, ctx.guild.id,))
-                if tmp:
+                if tmp == 1:
                     await ctx.channel.send('Changed the time format to 24h')
-                else:
+                elif tmp == 0:
                     await ctx.channel.send('Changed the time format to 12h am/pm')
-            except:
+            except Exception as e:
                 await db.rollback()
                 await ctx.channel.send('**ERROR**: Could not change time format. Can only set time format to `12` or `24`')
+                log.error(f'{e.__class__.__name__}')
             finally:
                 await db.commit()
 
@@ -129,7 +140,7 @@ class Settings:
     async def _settings_message(self, ctx, *, t: str):
         """ Customise the message printed along tournament information """
         tmp = t
-        sql = "UPDATE guilds SET evmessage = ? WHERE id = ?;"
+        sql = "UPDATE guilds SET evmsg = ? WHERE id = ?;"
         ret = await self._set_db_entry(sql, (tmp, ctx.guild.id,))
         if ret:
             await ctx.message.add_reaction('☑')
@@ -139,6 +150,7 @@ class Settings:
     @commands.command(name='events')
     async def _settings_events(self, ctx, _type=None, *, t: str = None):
         if perms.check(ctx, 3):
+            ret = None
             if _type == "reset":
                 sql = "UPDATE guilds SET events = ? WHERE id = ?"
                 ret = await self._set_db_entry(sql, ("*", ctx.guild.id,))
@@ -168,13 +180,14 @@ class Settings:
                 data = await self._get_db_entry(sql, (ctx.guild.id,))
                 if data:
                     data_list = data.split('$')
-                    data_send = ', '.join(data_list)
-                    if data_send == '*':
+                    if len(data_list) == 1 and data_list[0] == '*':
                         await ctx.send("All events will be posted!")
-                    else:
-                        await ctx.send(f"Currently events including `{data_send}` will be posted.")
+                    elif len(data_list) > 1:
+                        data_send = ', '.join(data_list[1:])
+                        await ctx.send(f"Currently `{data_send}` will be posted.")
+                    return
             else:
-                ctx.send("**ERROR**: Couldn't execute your request ")
+                ctx.send("**ERROR**: Couldn't execute your request")
             if ret:
                 await ctx.message.add_reaction('☑')
             else:
